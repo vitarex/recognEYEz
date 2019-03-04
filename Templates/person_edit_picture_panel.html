@@ -1,0 +1,26 @@
+<div class="w3-row my-panel">
+    <div class=" w3-container">
+        <h1 class="w3-text-teal">Pictures</h1>
+        <div style="color:#f33">
+            IMPORTANT: <br>Adding or removing a picture will not take effect on the face-recognition instantly. Please consider the "Retrain" option on the left side to update the algorithm. It can take several minutes, during that time the services will not work.
+        </div>
+        <div style="margin-bottom: 15px; line-height: 3;">
+            {% for img in img_names %}
+                <div class="outer-face" id="outer-face-{{ loop.index0 }}">
+
+                    <img src="{{ url_for('static', filename='dnn_data/'+name+'/'+img) }}" style="width: 165px; ">
+
+                    <div id="inner-face-{{ loop.index0 }}" class="inner-face">
+                        <span id="img-name-{{ loop.index0 }}" style="display: none">{{ img }}</span>
+                        <button type="button" class="pic-btn make-thumb " style="background: #393; white-space: normal;">
+                            Make Thumbnail</button>
+                        <button type="button" class="pic-btn change-pers" style="background: #339; white-space: normal;">
+                            Change Person</button>
+                        <button type="button" class="pic-btn remove-pic " style="background: #f33; white-space: normal;">
+                            Remove</button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>

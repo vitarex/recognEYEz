@@ -1,0 +1,19 @@
+{% extends "basic.html" %}
+
+
+{% block script %}
+    <script type=text/javascript src="remove_person.js"></script>
+    <script type=text/javascript src="add_or_merge_unknown.js"></script>
+{% endblock script %}
+
+
+{%block main_content%}
+
+    {% include 'person_db_known_people.html' %}
+
+    {% include 'person_db_clustered_unknowns.html' %}
+
+    {% include 'person_db_dialogs.html' %}
+
+{%endblock main_content%}
+

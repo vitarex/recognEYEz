@@ -1,0 +1,135 @@
+<div id="confirmation" style="display: none;">
+
+    <div id="dialog-title">Remove picture</div>
+
+    <div style="padding-bottom: 20px">Are you sure? <br>This action cannot be undone.</div>
+    Removing: <div id="removing-pic-name" style="font-size:14px;margin-bottom:10px;">asdasd</div>
+        <button id="remove-pic-btn" class="my-button" style="color:#fff;background: #f33">
+                Remove
+            </button>
+            <button id="cancel-small" class="cancel-pic-delete my-button" style="">
+                Cancel
+            </button> <button id="cancel-bg" class="cancel-pic-delete">
+            </button>
+</div>
+
+<div id="choose-new-owner">
+    <div id="current-owner" style="display: none"></div>
+    <div id="moving-pic-name" style="display: none"></div>
+    Choose who is on the picture: <br>
+    <select id="possible-persons" style="width: 100px; height: 25px;">
+        {% for n in names %}
+        {% if n != name and n != "Unknown" %}
+        <option value="{{n}}">{{ n }}</option>
+        {% endif %}
+        {% endfor %}
+    </select>
+    <button id="change-person-btn" class="my-button" style="color:#fff;background: #393">
+        Change
+    </button>
+    <button id="cancel-person-change-small" class="cancel-person-change my-button" style="color:#fff;background: #f33">
+        Cancel
+    </button>
+    <button id="cancel-person-change-bg" class="cancel-person-change">
+    </button>
+</div>
+
+<style>
+
+    #dialog-title {
+        background: #f33;
+        font: 20px;
+        padding:5px;
+        border-radius: 8px;
+        width:496px;
+        position: relative;
+        top:-30px;
+        left:-30px;
+    }
+
+    #choose-new-owner, #confirmation {
+
+        border: 2px solid #fff;
+        display: none;
+        z-index: 1000;
+        position: fixed;
+        top: 300px;
+        left: 40%;
+        width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 30px;
+        color: #fff;
+        background: #333333;
+        border-radius: 10px;
+        font-size: 20px;
+    }
+
+    #choose-new-owner * {
+        z-index: 1001;
+    }
+
+    #cancel-person-change-bg, #cancel-bg {
+        z-index: -1;
+        position: fixed;
+        background: #000;
+        opacity: 0.5;
+        width: 100vw;
+        height: 100vh;
+        border: 0;
+        top: 0;
+        left: 0;
+    }
+
+    .outer-face {
+        position: relative;
+        min-height: 100px;
+        width: 20%;
+        display: inline-block;
+        margin: 10px;
+        vertical-align: top;
+    }
+
+    .inner-face {
+        opacity: 1;
+        position: absolute;
+        top: 0px;
+        left: 25%;
+        min-height: 100px;
+        width: 25%;
+        z-index: 10;
+        text-align: center;
+    }
+
+    .outer-face .pic-btn {
+        display: none;
+        opacity: 0;
+        transition: .5s ease;
+        line-height: 1;
+        color: #fff;
+        border: 0;
+        width: 100px;
+        border-radius: 5px;
+        padding: 5px;
+    }
+
+    .outer-face:hover img {
+        opacity: 0.5;
+        transition: .5s ease;
+    }
+
+    .outer-face:hover .pic-btn {
+        display: inline-block;
+        opacity: 0.7;
+        transition: .5s ease;
+        cursor: pointer;
+    }
+
+    .pic-btn:hover {
+        opacity: 1;
+
+        transition: .5s ease;
+    }
+
+
+</style>

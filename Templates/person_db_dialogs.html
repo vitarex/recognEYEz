@@ -1,0 +1,51 @@
+ <div id="remove-confirmation"  title="Remove person" style="display: none">
+    <div>
+        <span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>
+        The person (<b><span id="remove-dialog-text"></span> </b>) and the associated data will be permanently deleted. Are you sure?
+    </div>
+</div>>
+
+
+<div id="add-or-merge-dialog" style="display:none;">
+    <span id="selected-add-or-merge-name" style="display: none;"></span>
+    <span id="selected-add-or-merge-folder" style="display: none;"></span>
+    <span id="add-or-merge-inside">
+        <div id="current-owner" style="display: none"></div>
+        <div id="moving-pic-name" style="display: none"></div>
+        Choose a person to merge with: <br>
+        <select id="merge-options" style="width: 100px; height: 25px;">
+            {% for row in dbrows %}
+            {% if row[1] != "Unknown" %}
+            <option value="{{ row[1] }}">{{ row[1] }}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+        <button id="merge-btn" class="tbutton" style="color:#fff;background: orange">
+            Merge
+        </button>
+        <br/>
+        <br/>
+        <button id="add-btn" class="my-button" style="color:#fff;background: #393">
+            Add as new person
+        </button>
+        <button id="cancel-add-small" class="cancel-add-or-merge my-button" style="color:#fff;background: #f33">
+            Cancel
+        </button>
+    </span>
+    <button id="cancel-add-bg" class="cancel-add-or-merge" style="position: fixed; top:0; left: 0; height: 100vh;width: 100vw; background: #333; opacity: 0.5; z-index: -101 !important;">
+    </button>
+</div>
+
+<style>
+    #add-or-merge-dialog, #add-or-merge-inside {
+        position: fixed;
+        text-align: center;
+        z-index: 100;
+        left: 50%;
+        top: 40%;
+        background: #000;
+        color: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        }
+</style>

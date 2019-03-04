@@ -1,0 +1,50 @@
+{% extends "basic.html" %}
+
+{%block main_content%}
+
+<!-- STATUS -->
+  <div class="w3-row my-panel">
+    <div class="w3-twothird w3-container">
+      <h1 class="w3-text-teal">Current State</h1>
+      <p>Camera is:<br>
+	  {% if running %}
+		<b style='color:lightgreen; font-size:24px;'>Running</b>
+	  {% else %}
+		<b style='color:red; font-size:24px;'>Not running</b>
+	  {% endif %}
+	  </p>
+	  <p>Last start time:<br>{{runsince}}</p>
+    </div>
+  </div>
+
+
+<!-- RECENT -->
+  <div class="w3-row my-panel">
+    <div class=" w3-container">
+	  <div style="max-width: 400px; float:right; margin-right: 0px;padding: 10px 0">
+		Recent picture: {{recpicdate}}<br>
+		<img  src="testing.png" style="max-width: 100%";}>
+	  </div>
+      <h1 class="w3-text-teal">Recent Scan</h1>
+
+	  <p>Recently recognized person/people:<br>{{names}}</p>
+    </div>
+  </div>
+
+
+<!-- LOG -->
+  <div class="w3-row my-panel">
+    <div class=" w3-container">
+      <h1 class="w3-text-teal">Log</h1>
+		<div style="margin-right: 25px;">
+			<p style=" max-height:600px; background: #222; overflow-y: scroll; word-wrap: break-word; width: 90%;">
+			{% for l in log %}
+			{{l}}<br>
+			{% endfor %}
+			</p>
+		</div>
+	</div>
+  </div>
+
+
+{%endblock main_content%}

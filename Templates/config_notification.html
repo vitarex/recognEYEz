@@ -1,0 +1,79 @@
+<div class="w3-row my-panel">
+	<div class=" w3-container">
+		<h1 class="w3-text-teal">Notification settings</h1>
+		<form action="/notification_settings" method="post" style="margin-bottom: 15px; line-height: 2;">
+
+			<table style="width:100%;">
+				<tr><th><h2>Email</h2></th><th><h2>MQTT</h2></th></tr>
+				<tr>
+					<td>
+
+						<span style="position: relative; top: -55px;">
+
+							Notification email address: <br>&nbsp;&nbsp;&nbsp;
+							<input type="text" name="email" value="{{ notif['email'] }}"><br>
+
+							Notify about unknown faces:  <br>
+							&nbsp;&nbsp;&nbsp;
+							<label for="e-notif-unk" class="switch">
+								<input type="checkbox"  id="e-notif-unk" name="e_notif_unk" {% if notif['e_notif_unk'] == "on" %} checked {% endif %}>
+								<span class="slider round"></span>
+							</label><br>
+
+							Notify about known faces:  <br>
+							&nbsp;&nbsp;&nbsp;
+							<label for="e-notif-kno" class="switch">
+								<input type="checkbox"  id="e-notif-kno" name="e_notif_kno" {% if notif['e_notif_kno'] == "on" %} checked {% endif %}>
+								<span class="slider round"></span>
+							</label><br>
+
+							Notify about special faces: <br>
+							&nbsp;&nbsp;&nbsp;
+							<label for="e-notif-spec" class="switch">
+								<input type="checkbox"  id="e-notif-spec" name="e_notif_spec" {% if notif['e_notif_spec'] == "on" %} checked {% endif %}>
+								<span class="slider round"></span>
+							</label>
+						</span>
+					</td>
+					<td>
+
+						Broker URL:<br>&nbsp;&nbsp;&nbsp;
+						<input type="text" name="broker_url" value="{{ notif['broker_url'] }}"><br>
+
+						Port: <br>&nbsp;&nbsp;&nbsp;
+						<input type="text" name="port" value="{{ notif['port'] }}"><br>
+
+						Topic: <br>&nbsp;&nbsp;&nbsp;
+						<input type="text" name="topic" value="{{ notif['topic'] }}"><br>
+
+						Notify about unknown faces:  <br>
+						&nbsp;&nbsp;&nbsp;
+						<label for="m-notif-unk" class="switch">
+							<input type="checkbox"  id="m-notif-unk" name="m_notif_unk" {% if notif['m_notif_unk'] == "on" %} checked {% endif %}>
+							<span class="slider round"></span>
+						</label><br>
+
+						Notify about known faces:  <br>
+						&nbsp;&nbsp;&nbsp;
+						<label for="m-notif-kno" class="switch">
+							<input type="checkbox"  id="m-notif-kno" name="m_notif_kno" {% if notif['m_notif_kno'] == "on" %} checked {% endif %}>
+							<span class="slider round"></span>
+						</label><br>
+
+						Notify about special faces: <br>
+						&nbsp;&nbsp;&nbsp;
+						<label for="m-notif-spec" class="switch">
+							<input type="checkbox"  id="m-notif-spec" name="m_notif_spec" {% if notif['m_notif_spec'] == "on" %} checked {% endif %}>
+							<span class="slider round"></span>
+						</label>
+					</td>
+				</tr>
+			</table>
+		<input type="submit" class="my-button my-save-button"  value="Save">
+
+
+		</form>
+
+		
+	</div>
+</div>

@@ -1,0 +1,37 @@
+<div class="w3-row my-panel">
+
+    <div class=" w3-container">
+
+        <h1 class="w3-text-teal">Known people</h1>
+
+            <table id="known_persons" style="width:100%; padding-bottom: 25px; padding-right: 10px;">
+                <tr>
+                    <th style="width: 160px">Picture</th>
+                    <th>Name</th>
+                    <th style="width: 160px">Information</th>
+                    <th style="width: 160px">Actions</th>
+                </tr>
+                {% for row in dbrows %}
+                    {%if row[0] != 0 %}
+                        <tr class="w3-hover-black">
+                            <td><img src="{{ folder_location }}/{{ row[1] }}/{{ row[6] }}"
+                                     style="width: 100px; border-radius: 10%"
+                                     onerror="if (this.src != 'empty_pic.png') this.src = 'empty_pic.png';">
+                            </td>
+                            <td style="font-size: 20px;" id="name_{{ loop.index0 }}">{{ row[1] }}</td>
+                            <td><pre style="white-space: -moz-pre-wrap;white-space: -o-pre-wrap; word-wrap: break-word;white-space: pre-wrap; width: 300px;">{{ row[2] }}</pre></td>
+                            <td>
+                                <input type="button" class="my-button my-edit-button" id="edit_{{ loop.index0 }}"
+                                       onclick="location.href='{{ url_for('person_edit.edit_known_person') }}?name={{ row[1] }}' "
+                                       value="Edit" style="text-align: center;" /><br>
+                                <button class="my-button my-remove-button remove-person-btn" id="remove_{{ loop.index0 }}">
+                                    Remove
+                                    <span class="remove-arg"style="display:none;">{{ row[1] }}</span>
+                                </button>
+                            </td>
+                        </tr>
+                    {%endif%}
+                {% endfor %}
+            </table>
+    </div>
+</div>

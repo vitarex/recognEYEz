@@ -1,0 +1,29 @@
+{% extends "basic_plain.html" %}
+{%block topbar%}
+<span class="w3-bar-item w3-button w3-theme-l1">Login</span>
+{%endblock topbar%}
+
+
+{% block script %}
+
+<script type=text/javascript src="login.js">
+</script>
+
+{%endblock script%}
+
+{%block content%}
+
+<div class="w3-main loginbox boxshad" style="margin-left:50px; margin-top: 100px;">
+    <form action="{{ url_for('simplelogin.login') }}" method="post" style="align:center;">
+        <div class="form-group" style="color:white;">
+            {{ form.csrf_token }}
+            {{form.username.label}}<div class="form-control"> {{ form.username }}</div><br>
+            {{form.password.label}}<div class="form-control"> {{ form.password }}</div><br>
+            {% if next %}<input type="hidden" name="next" value="{{next}}">{% endif %}
+        
+    </form>
+    <input class="myloginbutton" type="submit" value="Login">
+    </form>
+    <!-- END MAIN -->
+</div>
+{%endblock content%}

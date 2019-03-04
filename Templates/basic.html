@@ -1,0 +1,95 @@
+{% extends "basic_plain.html" %}
+{%block topbar%}
+<span class="w3-bar-item  w3-theme-l4" style="padding-right: 193px;">RecognEYEz</span>
+
+  <a href="/" id="tab-live-view" class="w3-bar-item w3-button">Live View</a>
+
+  <a href="/config" id="tab-config" class="w3-bar-item w3-button">Configuration</a>
+
+  <a href="/person_db" id="tab-person-db" class="w3-bar-item w3-button">Person Database</a>
+
+  <a href="/logout" class="w3-bar-item w3-button w3-hide-small w3-hover-white" style="float:right;">Logout</a>
+
+
+<script>
+var pathname = window.location.pathname;
+
+var e = document.getElementById("tab-live-view");
+if (pathname == "/")
+{
+  e.classList.add("w3-theme-l1");
+}
+else
+{
+  e.classList.add("w3-hide-small", "w3-hover-white");
+}
+
+e = document.getElementById("tab-config");
+if (pathname == "/config")
+{
+  e.classList.add("w3-theme-l1");
+}
+else
+{
+  e.classList.add("w3-hide-small", "w3-hover-white");
+}
+
+e = document.getElementById("tab-person-db");
+if (pathname == "/person_db")
+{
+  e.classList.add("w3-theme-l1");
+}
+else
+{
+  e.classList.add("w3-hide-small", "w3-hover-white");
+}
+</script>
+
+
+
+
+{%endblock topbar%}
+
+
+
+{% block script %} 
+
+{% endblock script %} 
+
+
+
+{%block content%}
+
+<!-- Sidebar -->
+<nav class="w3-sidebar w3-bar-block w3-collapse w3-large w3-animate-left" id="my-sidebar">
+  <a href="javascript:void(0)" onclick="w3_close()" class="w3-right w3-xlarge w3-padding-large w3-hover-black w3-hide-large"
+    title="Close Menu">
+    <i class="fa fa-remove"></i>
+  </a>
+  <h4 class="w3-bar-item"><b>Actions</b></h4>
+  <a class="w3-bar-item w3-button w3-hover-black" href="/start_camera">Start Camera</a>
+  <a class="w3-bar-item w3-button w3-hover-black" href="/stop_camera">Stop Camera</a>
+  <a class="w3-bar-item w3-button w3-hover-black" href="/force_rescan">Force Rescan</a>
+  <a class="w3-bar-item w3-button w3-hover-black" href="/retrain">Retrain</a>
+  <a class="w3-bar-item w3-button w3-hover-black" href="/hard_reset">Hard Reset</a>
+</nav>
+
+<div class="w3-main" style="margin-left:250px; padding-top:50px">
+  {%block main_content%}
+  {%endblock main_content%}
+  <!-- END MAIN -->
+
+
+  <footer id="myFooter">
+    <div class="w3-container w3-theme-l2 w3-padding-16">
+      <span >2018 - Adaptive face recognition in smart home environment</span>
+        <span style="float:right;">by Tamás Nagy</span>
+    </div>
+
+    <div class="w3-container w3-theme-l1">
+      <p>Powered by <a href="https://www.w3schools.com/w3css/default.asp" target="_blank">w3.css</a></p>
+    </div>
+  </footer>
+</div>
+
+{%endblock content%}

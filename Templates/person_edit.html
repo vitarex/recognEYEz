@@ -1,0 +1,20 @@
+{% extends "basic.html" %}
+
+
+{% block script %}
+
+    <script type=text/javascript src="{{ url_for('static', filename='person_picture_edit.js') }}"></script>
+
+{% endblock script %}
+
+
+{%block main_content%}
+
+    {% include 'person_edit_main_panel.html' %}
+
+    {% include 'person_edit_picture_panel.html' %}
+
+    {% include 'person_edit_dialogs.html' %}
+
+{%endblock main_content%}
+

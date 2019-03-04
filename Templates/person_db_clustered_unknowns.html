@@ -1,0 +1,53 @@
+<div class="w3-row my-panel">
+
+            <div class=" w3-container">
+
+                <h1 class="w3-text-teal">Clustered unknowns</h1>
+
+                    <table id="unknown_persons"style="width:100%; padding-bottom: 25px">
+                        <tr>
+                            <th style="width: 160px">Pictures</th>
+                            <th style="width:10px;">Number of<br>pictures</th>
+                            <th>Name (first appearance)</th>
+                            <th style="width: 160px">Actions</th>
+                        </tr>
+                        {% for d in unk_data %}
+                        <tr class="w3-hover-black" id="{{ d['folder'] }}">
+                            <td style="text-align: center;">
+                                <span class="tooltip">
+                                    <span class="tooltiptext">
+                                        {% for p in d['other pics'] %}
+                                            <img src="unknown_pics/{{ d['folder'] }}/{{ p }}" style="width: 100px; display: inline-block;border-radius: 10%">
+                                        {% endfor %}
+                                    </span>
+                                    <img src="unknown_pics/{{ d['folder'] }}/{{ d['first pic'] }}"
+                                         style="width: 100px;border-radius: 10%;"
+                                         onerror="if (this.src != 'empty_pic.png') this.src = 'empty_pic.png';"
+                                    >
+                                </span>
+                            </td>
+                            <td style="text-align: center; font-size: 20px;">
+                                {{ d['pic count'] }}
+                            </td>
+                            <td>
+                                {{ d['name'] }}
+                            </td>
+                            <td>
+                                <button class="my-button my-add-button">
+                                    Add / Merge
+                                    <span class="add-arg"style="display:none;">{{ d['name'] }}</span>
+                                    <span class="add-folder-arg" style="display:none;">{{ d['folder'] }}</span>
+                                </button><br>
+                                <button class="my-button my-remove-button remove-person-btn">
+                                    Remove
+                                    <span class="remove-arg"style="display:none;">{{ d['name'] }}</span>
+                                    <span class="remove-folder-arg"style="display:none;">{{ d['folder'] }}</span>
+                                </button>
+                            </td>
+
+
+                        </tr>
+                        {% endfor %}
+                    </table>
+            </div>
+        </div>
