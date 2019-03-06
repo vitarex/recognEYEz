@@ -16,7 +16,7 @@ most_recent_scan_date = None
 
 
 
-cache_buster_config = {'extensions': ['.png', '.css', '.csv'], 'hash_size': 10}
+cache_buster_config = {'extensions': ['.png', '.css', '.csv'], 'hash_size': 10} # TODO kell még?
 cache_buster = CacheBuster(config=cache_buster_config)
 
 
@@ -138,26 +138,13 @@ def create_app(config_class=Config):
     from WebApplication.blueprints.errors.handlers import errors
     app.register_blueprint(errors)
 
-
     app.dnn_iter = 0
     app.present = []
     app.threads = []
     app.admin = Admin(app, name='microblog', template_mode='bootstrap3')
 
-
     simplog.SimpleLogin(app, login_checker=validate_login)
     cache_buster.register_cache_buster(app)
     app.force_rescan = False
     return app
-
-
-# Possibly deletable
-#
-# @app.after_request
-# def add_header(response):
-#     # response.cache_control.no_store = True
-#     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
-#     response.headers['Pragma'] = 'no-cache'
-#     response.headers['Expires'] = '-1'
-#     return response
 

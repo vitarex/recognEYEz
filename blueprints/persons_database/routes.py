@@ -70,7 +70,6 @@ def person_db_view():
 @persons_database.route('/_remove_person')
 @simplog.login_required
 def remove_person():
-    print("ez welindul?")
     """When remove is clicked on person db page"""
     name = request.args.get('p', "missing argument", type=str)
     print("Removing: " + name)
@@ -84,7 +83,6 @@ def remove_person():
 @persons_database.route('/_remove_unknown_person')
 @simplog.login_required
 def remove_unknown_person():
-    print("ez is elindul")
     """When remove is clicked on person db page"""
     name = request.args.get('p', "missing argument", type=str)
     folder = request.args.get('f', "missing argument", type=str)

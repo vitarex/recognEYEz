@@ -24,7 +24,7 @@ def continous_check(app_cont):
             if ticker > int(app_cont.fh.face_rec_settings["dnn_scan_freq"]) or app_cont.force_rescan:
                 names, frame, rects = app_cont.fh.process_next_frame(True, save_new_faces=True)
                 ticker = 0
-                cv2.imwrite("Static/testing.png", frame)
+                cv2.imwrite("Static/testing.png", frame)  # TODO kell ez?
                 most_recent_scan_date = datetime.datetime.now()
                 app_cont.force_rescan = False
             else:

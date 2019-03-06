@@ -28,7 +28,7 @@ def change_pic_owner():
 @person_edit.route('/edit_known_person/', methods=['GET', 'POST'])
 @simplog.login_required
 def edit_known_person():
-    """Webpage for editing a specific person (name, pref, pictures)"""
+    """ Webpage for editing a specific person (name, pref, pictures) """
     name = request.args.get("name")
     print("The name is: {0} ".format(name))
     print("thumb {0} ".format(app.fh.persons[name].thumbnail))
@@ -36,7 +36,9 @@ def edit_known_person():
         "person_edit.html",
         name=name,
         folder_location=app.config["PICTURE_FOLDER"],
-        thumbnail=app.fh.persons[name].thumbnail,
+        # check if thmb is set (eg in case of manual folder addition
+        # thumbnail= app.fh.persons[name].thumbnail if app.fh.persons[name].thumbnail else "not set",
+        thumbnail= app.fh.persons[name].thumbnail or "not set",
         img_names=app.fh.file.get_all_dnn_pic_name_for_person_name(name),
         extra=app.fh.persons[name].pref,
         names=app.fh.persons.keys()

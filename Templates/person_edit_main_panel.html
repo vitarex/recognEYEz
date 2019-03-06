@@ -6,7 +6,10 @@
         <div style="margin-bottom: 15px; line-height: 3;">
             <div style="float:right;width:30%">
 
-                <img id="thumbnail-pic" src="{{ url_for('static', filename='dnn_data/'+name+'/'+thumbnail) }}" style="max-width: 300px; max-height: 300px;padding-bottom:25px;">
+                <img id="thumbnail-pic" src="{{ url_for('static', filename='dnn_data/'+name+'/'+thumbnail) }}"
+                    style="max-width: 300px; max-height: 300px;padding-bottom:25px;"
+                    onerror="if (this.src != 'empty_pic.png') this.src = '{{ url_for('static', filename='empty_pic.png') }}';"
+                >
                 <br>
                 <input type="submit" class="my-button my-save-button" value="Save" style="padding-bottom: 70px;float: right;margin-right:50px;">
             </div>

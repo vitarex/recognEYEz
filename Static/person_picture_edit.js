@@ -43,13 +43,12 @@ $(function () { // add remove functionality for every pic
                 name = $("#owner-name").val();
                 pic = $("#removing-pic-name").text();
                 if (delete_pic(name, pic)) {
-
-                $("#outer-face-"+(remove_pic_index)).hide();
-                $("#outer-face-"+(remove_pic_index)).attr("display", "none");
-//                $(this).hide();
-//                $(this).attr("display", "none");
-                $("#confirmation").hide();
-                return true;
+                    $("#outer-face-"+(remove_pic_index)).hide();
+                    $("#outer-face-"+(remove_pic_index)).attr("display", "none");
+    //                $(this).hide();
+    //                $(this).attr("display", "none");
+                    $("#confirmation").hide();
+                    return true;
                 }
                 else {
                 alert("Error during communication with the server")
