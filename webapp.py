@@ -3,11 +3,11 @@ from flask import Flask, request, render_template, redirect
 from flask_admin import Admin
 import flask_simplelogin as simplog
 import threading
-from WebApplication.FaceHandler import FaceHandler
+from FaceHandler import FaceHandler
 
-from flask_cache_buster import CacheBuster
+#from flask_cache_buster import CacheBuster
 
-from WebApplication.config import Config
+from config import Config
 from bcrypt import hashpw, gensalt, checkpw
 import sqlite3 as sql
 
@@ -16,8 +16,8 @@ most_recent_scan_date = None
 
 
 
-cache_buster_config = {'extensions': ['.png', '.css', '.csv'], 'hash_size': 10} # TODO kell még?
-cache_buster = CacheBuster(config=cache_buster_config)
+#cache_buster_config = {'extensions': ['.png', '.css', '.csv'], 'hash_size': 10} # TODO kell még?
+#cache_buster = CacheBuster(config=cache_buster_config)
 
 
 def get_hashed_login_passwd():
@@ -120,22 +120,22 @@ def create_app(config_class=Config):
     t.start()
 
     # import the blueprints
-    from WebApplication.blueprints.live_view.routes import live_view
+    from blueprints.live_view.routes import live_view
     app.register_blueprint(live_view)
 
-    from WebApplication.blueprints.config_page.routes import config_page
+    from blueprints.config_page.routes import config_page
     app.register_blueprint(config_page)
 
-    from WebApplication.blueprints.persons_database.routes import persons_database
+    from blueprints.persons_database.routes import persons_database
     app.register_blueprint(persons_database)
 
-    from WebApplication.blueprints.person_edit.routes import person_edit
+    from blueprints.person_edit.routes import person_edit
     app.register_blueprint(person_edit)
 
-    from WebApplication.blueprints.actions.routes import actions
+    from blueprints.actions.routes import actions
     app.register_blueprint(actions)
 
-    from WebApplication.blueprints.errors.handlers import errors
+    from blueprints.errors.handlers import errors
     app.register_blueprint(errors)
 
     app.dnn_iter = 0
@@ -144,7 +144,7 @@ def create_app(config_class=Config):
     app.admin = Admin(app, name='microblog', template_mode='bootstrap3')
 
     simplog.SimpleLogin(app, login_checker=validate_login)
-    cache_buster.register_cache_buster(app)
+#    cache_buster.register_cache_buster(app)
     app.force_rescan = False
     return app
 

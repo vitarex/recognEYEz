@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect
 from flask import current_app as app
 import flask_simplelogin as simplog
 
-from WebApplication.webapp import set_hashed_login_passwd
+from webapp import set_hashed_login_passwd
 
 config_page = Blueprint("config_page", __name__)
 

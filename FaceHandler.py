@@ -4,15 +4,15 @@ import os
 import time
 import numpy as np
 import face_recognition
-import WebApplication.face_rec.tracking as tracking
+import face_rec.tracking as tracking
 from imutils import paths
 import sqlite3 as sql
 import io, errno
 
-from WebApplication.face_rec.mailer import Mailer
-from WebApplication.face_rec.database_handler import DatabaseHandler
-from WebApplication.face_rec.file_handler import FileHandler
-from WebApplication.face_rec.mqqt_handler import MqttHandler
+from face_rec.mailer import Mailer
+from face_rec.database_handler import DatabaseHandler
+from face_rec.file_handler import FileHandler
+from face_rec.mqqt_handler import MqttHandler
 
 
 class FaceHandler:
