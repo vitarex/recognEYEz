@@ -8,4 +8,12 @@ recognEYEz is a software intended to fill the gap for makers and DIY smart home 
 
 ## Screenshots
 
-TBA.
+[Check out the screenshots here](docs/screenshots.md).
+
+## About
+
+The current state of this project was carried out by [Vitarex Stúdió Kft](https://vitarex.hu/) under a general collaboration with [BME-AUT](https://www.aut.bme.hu).
+
+Contributors:
+- [Tamas Nagy](https://www.linkedin.com/in/tam%C3%A1s-nagy-1a68b1140/) (development)
+- [Gabor Gulyas](https://gulyas.info) (project management)
