@@ -59,7 +59,7 @@ def on_known_enters(persons):
         app.fh.notification_settings["topic"],
         "[T-Eye][ARRIVED][date: " + datetime.datetime.now().strftime(app.config["TIME_FORMAT"]) + "]: " + name
     )
-    app.fh.db.log(f"[ARRIVED]: {name}")
+    app.fh.db.log("[ARRIVED]: %s" % name)
 
 
 def on_known_leaves(persons):
@@ -69,7 +69,7 @@ def on_known_leaves(persons):
         app.fh.notification_settings["topic"],
         "[T-Eye][LEFT][date: " + datetime.datetime.now().strftime(app.config["TIME_FORMAT"]) + "]: " + name
     )
-    app.fh.db.log(f"[LEFT]: {name}")
+    app.fh.db.log("[LEFT]: %s" % name)
 
 
 def init_fh(app):
