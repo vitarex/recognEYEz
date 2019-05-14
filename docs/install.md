@@ -2,11 +2,11 @@
 
 Check the installation instructions below. Probably works on other systems as well (e.g. OSX or other linux distros), but installation instructions may vary.
 
-In all cases, you need to have python 3.6 on your system.
+In all cases, you need to have python 3.5 on your system.
 
 ## Raspberry Pi 3
 
-The following installation should work on the latest Raspbian image (at the time of writing the latest release is from April 2019).
+The following installation should work on the latest Raspbian image. At the time of writing the latest release is from April 2019, this includes python 3.5 by default.
 
 ```
 ##
