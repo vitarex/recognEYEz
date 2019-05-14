@@ -2,12 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="db93abd8-c2f2-466e-85d5-6538d8bf604d" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Templates/basic_plain.html" beforeDir="false" afterPath="$PROJECT_DIR$/Templates/basic_plain.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Templates/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/Templates/login.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blueprints/live_view/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/blueprints/live_view/routes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run.py" beforeDir="false" afterPath="$PROJECT_DIR$/run.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webapp.py" beforeDir="false" afterPath="$PROJECT_DIR$/webapp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/install.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/install.md" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -65,7 +60,7 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/blueprints/live_view/routes.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="361">
@@ -73,6 +68,18 @@
               <folding>
                 <element signature="e#0#44#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/docs/install.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SPLIT">
+              <first_editor relative-caret-position="152">
+                <caret line="8" selection-start-line="8" selection-end-line="8" />
+              </first_editor>
+              <second_editor />
             </state>
           </provider>
         </entry>
@@ -97,6 +104,7 @@
         <option value="$PROJECT_DIR$/webapp.py" />
         <option value="$PROJECT_DIR$/Templates/login.html" />
         <option value="$PROJECT_DIR$/blueprints/live_view/routes.py" />
+        <option value="$PROJECT_DIR$/docs/install.md" />
       </list>
     </option>
   </component>
@@ -133,6 +141,11 @@
               <item name="recognEYEz" type="462c0819:PsiDirectoryNode" />
               <item name="blueprints" type="462c0819:PsiDirectoryNode" />
               <item name="live_view" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="recognEYEz" type="b2602c69:ProjectViewProjectNode" />
+              <item name="recognEYEz" type="462c0819:PsiDirectoryNode" />
+              <item name="docs" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="recognEYEz" type="b2602c69:ProjectViewProjectNode" />
@@ -261,6 +274,16 @@
           <folding>
             <element signature="e#0#44#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/install.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="152">
+            <caret line="8" selection-start-line="8" selection-end-line="8" />
+          </first_editor>
+          <second_editor />
         </state>
       </provider>
     </entry>
