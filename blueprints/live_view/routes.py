@@ -17,7 +17,9 @@ def home():
     except:
         prev_date = "NOT FOUND"
 
-    names = [n for n in app.fh.visible_persons.keys()]
+    names = []
+    if app.fh != None:
+        names = [n for n in app.fh.visible_persons.keys()]
     log_list = app.fh.db.read_log()
     return render_template(
         "live_view.html",
