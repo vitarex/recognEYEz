@@ -16,7 +16,7 @@ most_recent_scan_date = None
 
 
 
-#cache_buster_config = {'extensions': ['.png', '.css', '.csv'], 'hash_size': 10} # TODO kell még?
+#cache_buster_config = {'extensions': ['.png', '.css', '.csv'], 'hash_size': 10}
 #cache_buster = CacheBuster(config=cache_buster_config)
 
 
@@ -113,7 +113,7 @@ def login():
 
 def create_app(config_class=Config):
     global app
-    app = Flask(__name__, static_url_path='', static_folder = './Static')
+    app = Flask(__name__, static_url_path='', static_folder = './Static', template_folder='./Templates')
     app.config.from_object(config_class)
     app.fh = None
     t = threading.Thread(target=init_fh, args=(app,))
