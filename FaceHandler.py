@@ -14,7 +14,6 @@ from face_rec.database_handler import DatabaseHandler
 from face_rec.file_handler import FileHandler
 from face_rec.mqqt_handler import MqttHandler
 
-
 class FaceHandler:
     resolutions = {"vga": [640, 480], "qvga": [320, 240], "qqvga": [160, 120], "hd": [1280, 720], "fhd": [1920, 1080]}
     font = cv2.FONT_HERSHEY_DUPLEX

@@ -11,14 +11,10 @@ from config import Config
 from bcrypt import hashpw, gensalt, checkpw
 import sqlite3 as sql
 
-
 most_recent_scan_date = None
-
-
 
 #cache_buster_config = {'extensions': ['.png', '.css', '.csv'], 'hash_size': 10}
 #cache_buster = CacheBuster(config=cache_buster_config)
-
 
 def get_hashed_login_passwd():
     """returns the hash of the current password stored in the database"""
@@ -57,7 +53,7 @@ def on_known_enters(persons):
     print("Entered: " + name)
     app.fh.mqtt.publish(
         app.fh.notification_settings["topic"],
-        "[T-Eye][ARRIVED][date: " + datetime.datetime.now().strftime(app.config["TIME_FORMAT"]) + "]: " + name
+        "[recognEYEz][ARRIVED][date: " + datetime.datetime.now().strftime(app.config["TIME_FORMAT"]) + "]: " + name
     )
     app.fh.db.log("[ARRIVED]: %s" % name)
 
@@ -67,7 +63,7 @@ def on_known_leaves(persons):
     name = str(persons.keys())[11:-2]
     app.fh.mqtt.publish(
         app.fh.notification_settings["topic"],
-        "[T-Eye][LEFT][date: " + datetime.datetime.now().strftime(app.config["TIME_FORMAT"]) + "]: " + name
+        "[recognEYEz][LEFT][date: " + datetime.datetime.now().strftime(app.config["TIME_FORMAT"]) + "]: " + name
     )
     app.fh.db.log("[LEFT]: %s" % name)
 
