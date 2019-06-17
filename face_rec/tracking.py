@@ -2,6 +2,7 @@
 from scipy.spatial import distance as dist
 from collections import OrderedDict
 import numpy as np
+import logging
 
 
 class CentroidTracker():
@@ -118,7 +119,7 @@ class CentroidTracker():
 
         except IndexError:
         # if False:
-            print("Index error in tracking.py")
+            logging.info("Index error in tracking.py")
             # compute both the row and column index we have NOT yet
             # examined
             if False:

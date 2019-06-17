@@ -1,5 +1,6 @@
 import sqlite3 as sql
 from datetime import datetime
+import logging
 
 
 class DatabaseHandler:
@@ -149,7 +150,7 @@ class DatabaseHandler:
         checkbox_names = ["force_dnn_on_new", "flip_cam", "cache_unknown"]
         for box in checkbox_names:
             if box not in list(form.keys()):
-                print("setting off for: " + box)
+                logging.info("setting off for: " + box)
                 c.execute("UPDATE face_recognition_settings SET value = ? WHERE key = ?", ("off", box))
         self.commit_and_close_connection()
 
@@ -161,7 +162,7 @@ class DatabaseHandler:
         checkbox_names = ["m_notif_spec", "m_notif_kno", "m_notif_unk", "e_notif_spec", "e_notif_kno", "e_notif_unk"]
         for box in checkbox_names:
             if box not in list(form.keys()):
-                print("setting off for: " + box)
+                logging.info("setting off for: " + box)
                 c.execute("UPDATE notification_settings SET value = ? WHERE key = ?", ("off", box))
         self.commit_and_close_connection()
 

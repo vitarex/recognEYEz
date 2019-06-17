@@ -125,7 +125,7 @@ class FaceHandler:
             try:
                 self.visible_persons[name] = self.unknown_persons[name]
             except KeyError:
-                print("[ERROR] KeyError in add_visible_person for key: " + name + "in dict: " +
+               logging.info("[ERROR] KeyError in add_visible_person for key: " + name + "in dict: " +
                       str(self.unknown_persons.keys()))
 
     def remove_visible_person(self, name):
@@ -217,7 +217,7 @@ class FaceHandler:
             cv2.imshow('camera', frame)
             cv2.waitKey(25) & 0xff
         if use_dnn:
-            print("DNN FPS: {:.4f}".format(1/(time.time() - start_t)))
+           logging.info("DNN FPS: {:.4f}".format(1/(time.time() - start_t)))
         return self.visible_persons, frame, face_rects  # unknown_rects
 
     def detect_faces(self, gray):
@@ -285,7 +285,7 @@ class FaceHandler:
                             name = self.unknown_face_data["names"][i]
                             counts[name] = counts.get(name, 0) + 1
                         except IndexError:
-                            print("[ERROR] IndexError while recognizing previously seen unknown: " +
+                           logging.info("[ERROR] IndexError while recognizing previously seen unknown: " +
                                   str(self.unknown_face_data["names"]) + " and index: " + str(i))
                     if counts:
                         name = max(counts, key=counts.get)
@@ -390,7 +390,7 @@ class FaceHandler:
         logging.info("Loading data into the DB...")
 
         db_names = c.execute("SELECT name FROM persons").fetchall()
-        print(db_names)
+        logging.info(db_names)
         for n in known_names:
             if n not in db_names:
                 logging.info("Inserting new name to DB: " + n)

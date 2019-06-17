@@ -3,6 +3,7 @@ import sys
 from shutil import copyfile, rmtree, move
 import glob
 from imutils import paths
+import logging
 
 
 class FileHandler:
@@ -47,13 +48,13 @@ class FileHandler:
         try:
             rmtree("Static/unknown_pics/" + str(folder_name))  # TODO: beautify
         except FileNotFoundError:
-            print("[ERROR] FileNotFound at remove_unknown_files(), folder: " + str(folder_name))
+            logging.error("FileNotFound at remove_unknown_files(), folder: " + str(folder_name))
 
     def merge_unk_file_with(self, folder, folder_to):
         folder_path = self.main_image_folder_path + "/__unknown_pics__/" + folder
-        print(folder_path)
+        logging.info(folder_path)
         pics = paths.list_images(folder_path)
-        print("pics: " + str(pics))
+        logging.info("pics: " + str(pics))
         for pic in pics:
             move(pic, self.main_image_folder_path +"/" + folder_to)
         self.remove_unknown_files(folder)
@@ -68,7 +69,7 @@ class FileHandler:
 
 if __name__ == "__main__":
     file_h = FileHandler()
-    print(file_h.get_all_dnn_pic_name_for_person_name("Tomi"))
+    logging.info(file_h.get_all_dnn_pic_name_for_person_name("Tomi"))
 
 
 

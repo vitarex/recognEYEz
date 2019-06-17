@@ -51,7 +51,7 @@ def validate_login(login_form):
 def on_known_enters(persons):
     """ Costume behaviour for the facehandler's callback method of the same name """
     name = str(persons.keys())[11:-2]
-    print("Entered: " + name)
+    logging.info("Entered: " + name)
     app.fh.mqtt.publish(
         app.fh.notification_settings["topic"],
         "[recognEYEz][ARRIVED][date: " + datetime.datetime.now().strftime(app.config["TIME_FORMAT"]) + "]: " + name
@@ -99,7 +99,7 @@ def who_is_there(use_dnn=False):
         visible_p = app.fh.process_next_frame()
     logging.info("present")
     for p in visible_p:
-        print(p.name)
+       logging.info(p.name)
     return visible_p
 
 

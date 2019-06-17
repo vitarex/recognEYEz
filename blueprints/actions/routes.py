@@ -6,6 +6,7 @@ import sys
 import datetime
 import threading
 import cv2
+import logging
 
 
 actions = Blueprint("actions", __name__)
@@ -35,14 +36,14 @@ def continous_check(app_cont):
             error_count += 1
             if app_cont.fh.cam:
                 app_cont.fh.cam.release()
-            print(e)
+            logging.info(e)
             if error_count > 5:
                 app_cont.fh.cam_is_running = False
     # try:
     #     app_cont.camera_thread
         # app_cont.threads.remove(app_cont.camera_thread)
     # except NameError:
-    #     print("Camera thread not found during the end of continous check")
+    #    logging.info("Camera thread not found during the end of continous check")
 
 
 # background process'
@@ -51,22 +52,22 @@ def continous_check(app_cont):
 def stop_cam():
     if app.fh and app.fh.cam_is_running:
         app.fh.cam_is_running = False
-    app.fh.db.log("[CAM]: Scanning stopped")
+    app.fh.db.log("Camera scanning stopped")
     return redirect("/")
 
 
 @actions.route('/start_camera')
 @simplog.login_required
 def start_cam():
-    print("The facehandler object: {}".format(app.fh))
+    logging.info("The facehandler object: {}".format(app.fh))
     if app.fh and not app.fh.cam_is_running:
         app.fh.cam_is_running = True
         app.fh.running_since = datetime.datetime.now()
         app.camera_thread = threading.Thread(target=continous_check, args=(app._get_current_object(),))
         app.camera_thread.start()
         # app.threads.append(camera_thread)
-        print("Camera started")
-    app.fh.db.log("[CAM]: Scanning started")
+        logging.info("Camera started")
+    app.fh.db.log("Camera scanning started")
     return redirect("/")
 
 
@@ -83,20 +84,20 @@ def force_a_rescan():
 @simplog.login_required
 def retrain_dnn():
     app.fh.train_dnn()
-    app.fh.db.log("[CAM]: Algorithm retrained")
+    app.fh.db.log("Camera algorithm retrained")
     return redirect("/")
 
 
 @actions.route('/hard_reset')
 @simplog.login_required
 def hard_reset():
-    print("performing hard reset")
+    logging.info("Camera performing hard reset")
     try:
         os.execv(__file__, sys.argv)
     except OSError:
         pass
-    print([sys.executable, __file__] + sys.argv)
+    logging.info([sys.executable, __file__] + sys.argv)
     # os.execv(sys.executable, [sys.executable, __file__.replace("/", "\\")])
     os.execv("'" + sys.executable + "'", [sys.executable, __file__] + sys.argv)
-    app.fh.db.log("[CAM]: Hard reset performed")
+    app.fh.db.log("Camera hard reset performed")
 

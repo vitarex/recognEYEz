@@ -3,7 +3,7 @@ from imutils import paths
 from flask import current_app as app
 import flask_simplelogin as simplog
 import os
-
+import logging
 
 persons_database = Blueprint("persons_database", __name__)
 
@@ -14,7 +14,7 @@ def create_new_person_from_unknown():
     """"""
     name = request.args.get('n', 0, type=str)
     folder = request.args.get('f', 0, type=str)
-    print("Creating new person:" + folder)
+    logging.info("Creating new person:" + folder)
     app.fh.file.create_new_person_from_unk(folder)
     app.fh.db.create_new_from_unknown(name, folder)
     app.fh.reload_from_db()
@@ -46,7 +46,7 @@ def person_db_view():
                 (pic.split(os.path.sep)[-1] for pic in img_list))
             )
         except IndexError:
-            print("[ERROR] There is an empty folder in the unknown_pics folder.")
+           logging.info("[ERROR] There is an empty folder in the unknown_pics folder.")
     unk_data = list()
     # 0 - original name, 1 - folder name, 2 - first pic name, 3 - pic count
     for i, unk_name in enumerate(unk_names):
@@ -58,7 +58,7 @@ def person_db_view():
                 "other pics": other_pics[i][:9]
             })
     if unk_data:
-        print(unk_data[0])
+       logging.info(unk_data[0])
     return render_template(
         "person_db.html",
         dbrows=app.fh.db.get_persons_data(),  # using list instead of dict because of Jinja handles only lists
@@ -72,10 +72,10 @@ def person_db_view():
 def remove_person():
     """When remove is clicked on person db page"""
     name = request.args.get('p', "missing argument", type=str)
-    print("Removing: " + name)
+    logging.info("Removing: " + name)
     app.fh.db.remove_name(name)
     if app.fh.file.remove_known_files(name):
-        print("Removed: " + name)
+       logging.info("Removed: " + name)
     app.fh.reload_from_db()
     return redirect("/person_db")
 
@@ -86,11 +86,11 @@ def remove_unknown_person():
     """When remove is clicked on person db page"""
     name = request.args.get('p', "missing argument", type=str)
     folder = request.args.get('f', "missing argument", type=str)
-    print("Removing: " + name)
+    logging.info("Removing: " + name)
     if app.fh.file.remove_unknown_files(folder):
-        print(name + "'s folder removed successfully")
+       logging.info(name + "'s folder removed successfully")
     if app.fh.db.remove_unknown_name(name):
-        print(name + " removed successfully from the database")
+       logging.info(name + " removed successfully from the database")
     app.fh.reload_from_db()
     return redirect("/person_db")
 
@@ -102,7 +102,7 @@ def merge_unknown_with():
     name = request.args.get('n', 0, type=str)
     folder = request.args.get('f', 0, type=str)
     merge_to = request.args.get('m2', 0, type=str)
-    print("Mergeing: " + name + " and its folder " + folder + " into " + merge_to)
+    logging.info("Mergeing: " + name + " and its folder " + folder + " into " + merge_to)
     app.fh.db.merge_unknown(name, merge_to)
     app.fh.file.merge_unk_file_with(folder, merge_to)
     app.fh.reload_from_db()
