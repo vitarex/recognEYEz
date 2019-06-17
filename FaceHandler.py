@@ -125,7 +125,7 @@ class FaceHandler:
             try:
                 self.visible_persons[name] = self.unknown_persons[name]
             except KeyError:
-               logging.info("[ERROR] KeyError in add_visible_person for key: " + name + "in dict: " +
+               logging.error("KeyError in add_visible_person for key: " + name + "in dict: " +
                       str(self.unknown_persons.keys()))
 
     def remove_visible_person(self, name):
@@ -285,7 +285,7 @@ class FaceHandler:
                             name = self.unknown_face_data["names"][i]
                             counts[name] = counts.get(name, 0) + 1
                         except IndexError:
-                           logging.info("[ERROR] IndexError while recognizing previously seen unknown: " +
+                           logging.info("IndexError while recognizing previously seen unknown: " +
                                   str(self.unknown_face_data["names"]) + " and index: " + str(i))
                     if counts:
                         name = max(counts, key=counts.get)

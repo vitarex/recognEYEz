@@ -46,7 +46,7 @@ def person_db_view():
                 (pic.split(os.path.sep)[-1] for pic in img_list))
             )
         except IndexError:
-           logging.info("[ERROR] There is an empty folder in the unknown_pics folder.")
+           logging.error("There is an empty folder in the unknown_pics folder.")
     unk_data = list()
     # 0 - original name, 1 - folder name, 2 - first pic name, 3 - pic count
     for i, unk_name in enumerate(unk_names):
