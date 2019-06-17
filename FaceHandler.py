@@ -8,6 +8,7 @@ import face_rec.tracking as tracking
 from imutils import paths
 import sqlite3 as sql
 import io, errno
+import logging
 
 from face_rec.mailer import Mailer
 from face_rec.database_handler import DatabaseHandler
@@ -25,7 +26,7 @@ class FaceHandler:
                  db_loc="facerecognition.db",
                  img_root="Images"
                  ):
-        print("[INFO] FaceHandler init started")
+        logging.info("FaceHandler init started")
         self.database_location = db_loc
         self.settings = dict()
         self.load_settings_from_db()
@@ -62,7 +63,7 @@ class FaceHandler:
         self.mail = Mailer("email@gmail.com", "emailpass")  # TODO
         self.mail.send_mail_cooldown_seconds = 120
         self.mail.last_mail_sent_date = None
-        print("[INFO] FaceHandler init finished")
+        logging.info("FaceHandler init finished")
 
     def load_settings_from_db(self):
         con = sql.connect(self.database_location)
@@ -289,7 +290,7 @@ class FaceHandler:
                     if counts:
                         name = max(counts, key=counts.get)
                         names.append(name)
-                        print("[INFO]Found a previously seen unknown: " + name)
+                        logging.info("[INFO]Found a previously seen unknown: " + name)
                         self.on_unknown_face_found(name)
                         name = name.replace("/", "_").replace(":", "_")
                         if save_new_faces:
@@ -309,7 +310,7 @@ class FaceHandler:
                         con.commit()
                         con.close()
                         self.load_unknown_persons_from_database()
-                        print("[INFO]" + unk_name + " added to unknown database")
+                        logging.info(unk_name + " added to unknown database")
 
                         names.append(unk_name)
                         self.on_unknown_face_found(unk_name)
@@ -318,7 +319,7 @@ class FaceHandler:
                         self.take_cropped_pic(frame, face_rects[rect_count], path)
                     else:
                         names.append("not a face")  # to make correct indices
-                        print("[INFO] HOG method found a false positive or low quality face")
+                        logging.info("HOG method found a false positive or low quality face")
         return names
 
     def is_it_a_face(self, img, r):
@@ -333,10 +334,10 @@ class FaceHandler:
         return name
 
     def on_known_face_enters(self, persons):
-        print("Entered: " + str(persons.keys()))
+        logging.info("Entered: " + str(persons.keys()))
 
     def on_known_face_leaves(self, persons):
-        print("Left: " + str(persons.keys()))
+        logging.info("Left: " + str(persons.keys()))
 
     def on_unknown_face_found(self, name):
         pass
@@ -354,12 +355,12 @@ class FaceHandler:
     def train_dnn(self, dataset="Static/dnn_data"):
         if self.cam_is_running:
             self.stop_cam()
-        print("[INFO] quantifying faces...")
+        logging.info("quantifying faces...")
         con = sql.connect(self.database_location)
         con.row_factory = lambda cursor, row: row[0]
         c = con.cursor()
         c.execute("DELETE FROM encodings")
-        print("[INFO] Encodings table truncated")
+        logging.info("Encodings table truncated")
 
         image_paths = list(paths.list_images(dataset))
 
@@ -369,7 +370,7 @@ class FaceHandler:
         for (i, image_path) in enumerate(image_paths):
             # extract the person name from the image path
             name = image_path.split(os.path.sep)[-2]
-            print("[INFO] processing image {}/{} - {}".format(i + 1, len(image_paths), name))
+            logging.info("processing image {}/{} - {}".format(i + 1, len(image_paths), name))
 
             image = cv2.imread(image_path)
             rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -386,13 +387,13 @@ class FaceHandler:
                 known_names.append(name)
 
                 # dump the facial encodings + names to disk
-        print("[INFO] Loading data into the DB...")
+        logging.info("Loading data into the DB...")
 
         db_names = c.execute("SELECT name FROM persons").fetchall()
         print(db_names)
         for n in known_names:
             if n not in db_names:
-                print("[INFO] Inserting new name to DB: " + n)
+                logging.info("Inserting new name to DB: " + n)
                 c.execute("INSERT INTO persons (name) VALUES (?)", (n,))
                 db_names.append(n)
 
@@ -427,7 +428,7 @@ class FaceHandler:
             if e.errno != errno.EEXIST:
                 raise
         cv2.imwrite(path, img[r[0]:r[2], r[3]:r[1]])
-        print("[INFO] Picture taken: " + path)
+        logging.info("Picture taken: " + path)
 
 
 class Face:

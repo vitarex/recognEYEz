@@ -1,9 +1,10 @@
 from webapp import create_app
+import logging
 
 app = create_app()
 
 if __name__ == '__main__':
-    print("Server starting.")
+    logging.info("Server starting.")
     # app.run(debug=False)
-    app.run(host="152.66.170.159", debug=True)
-    print("Server stopped.")
+    app.run(host="0.0.0.0", debug=True)
+    logging.info("Server stopped.")

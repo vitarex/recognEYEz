@@ -4,6 +4,7 @@ from flask_admin import Admin
 import flask_simplelogin as simplog
 import threading
 from FaceHandler import FaceHandler
+import logging
 
 #from flask_cache_buster import CacheBuster
 
@@ -34,7 +35,7 @@ def set_hashed_login_passwd(pwd):
     cursor.execute('UPDATE users SET password = ? WHERE name="admin"', (pwd,))
     connection.commit()
     connection.close()
-    print("[INFO] Password changed")
+    logging.info("Password changed")
     return pwd
 
 
@@ -96,7 +97,7 @@ def who_is_there(use_dnn=False):
         visible_p = app.fh.process_next_frame(True)
     else:
         visible_p = app.fh.process_next_frame()
-    print("present")
+    logging.info("present")
     for p in visible_p:
         print(p.name)
     return visible_p
@@ -140,7 +141,7 @@ def create_app(config_class=Config):
     app.admin = Admin(app, name='microblog', template_mode='bootstrap3')
 
     simplog.SimpleLogin(app, login_checker=validate_login)
-#    cache_buster.register_cache_buster(app)
+#   cache_buster.register_cache_buster(app)
     app.force_rescan = False
     return app
 
