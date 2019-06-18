@@ -2,7 +2,6 @@ import datetime
 from flask import Flask, request, render_template, redirect
 from flask_admin import Admin
 import flask_simplelogin as simplog
-import threading
 from FaceHandler import FaceHandler
 import logging
 
@@ -76,11 +75,11 @@ def init_fh(app):
             cascade_xml="haarcascade_frontalface_default.xml",
             img_root="Static/dnn_data"
         )
-        # start_cam()
         app.fh.running_since = datetime.datetime.now()
         # override the callback methods
         app.fh.on_known_face_enters = on_known_enters
         app.fh.on_known_face_leaves = on_known_leaves
+        app.fh.start_cam()
 
 
 def log(log_text):
@@ -113,8 +112,7 @@ def create_app(config_class=Config):
     app = Flask(__name__, static_url_path='', static_folder = './Static', template_folder='./Templates')
     app.config.from_object(config_class)
     app.fh = None
-    t = threading.Thread(target=init_fh, args=(app,))
-    t.start()
+    init_fh(app)
 
     # import the blueprints
     from blueprints.live_view.routes import live_view
@@ -138,7 +136,7 @@ def create_app(config_class=Config):
     app.dnn_iter = 0
     app.present = []
     app.threads = []
-    app.admin = Admin(app, name='microblog', template_mode='bootstrap3')
+    app.admin = Admin(app, name='recogneyez', template_mode='bootstrap3')
 
     simplog.SimpleLogin(app, login_checker=validate_login)
 #   cache_buster.register_cache_buster(app)

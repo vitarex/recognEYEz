@@ -16,4 +16,4 @@ The current state of this project was carried out by [Vitarex Stúdió Kft](http
 
 Contributors:
 - [Tamas Nagy](https://www.linkedin.com/in/tam%C3%A1s-nagy-1a68b1140/) (development)
-- [Gabor Gulyas](https://gulyas.info) (project management)
+- [Gabor Gulyas](https://gulyas.info) (project management and development)
