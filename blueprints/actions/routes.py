@@ -6,6 +6,7 @@ import sys
 import datetime
 import cv2
 import logging
+import webapp
 
 actions = Blueprint("actions", __name__)
 # background process'
