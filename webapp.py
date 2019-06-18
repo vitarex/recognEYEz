@@ -48,7 +48,7 @@ def validate_login(login_form):
 
 
 def on_known_enters(persons):
-    """ Costume behaviour for the facehandler's callback method of the same name """
+    """ Custom behaviour for the facehandler's callback method of the same name """
     name = str(persons.keys())[11:-2]
     logging.info("Entered: " + name)
     app.fh.mqtt.publish(
@@ -59,7 +59,7 @@ def on_known_enters(persons):
 
 
 def on_known_leaves(persons):
-    """ Costume behaviour for the facehandler's callback method of the same name """
+    """ Custom behaviour for the facehandler's callback method of the same name """
     name = str(persons.keys())[11:-2]
     app.fh.mqtt.publish(
         app.fh.notification_settings["topic"],
@@ -106,7 +106,7 @@ def login():
     """ needed for simple login to render the proper template """
     return render_template("login.html")
 
-
+# parameter is the config Class from config.py
 def create_app(config_class=Config):
     global app
     app = Flask(__name__, static_url_path='', static_folder = './Static', template_folder='./Templates')
