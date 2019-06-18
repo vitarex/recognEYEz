@@ -137,6 +137,7 @@ def create_app(config_class=Config):
     app.present = []
     app.threads = []
     app.admin = Admin(app, name='recogneyez', template_mode='bootstrap3')
+    app.ticker = 0
 
     simplog.SimpleLogin(app, login_checker=validate_login)
 #   cache_buster.register_cache_buster(app)

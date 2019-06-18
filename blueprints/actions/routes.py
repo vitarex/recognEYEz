@@ -8,11 +8,9 @@ import threading
 import cv2
 import logging
 
-
 actions = Blueprint("actions", __name__)
 
-
-def continous_check(app_cont):
+def continous_check(app):
     """
     Continously calls the process_next_frame() method to process frames from the camera
     app_cont: used to access the main application instance from blueprints
@@ -20,25 +18,26 @@ def continous_check(app_cont):
     global most_recent_scan_date
     ticker = 0
     error_count = 0
-    while app_cont.fh.cam_is_running:
+    while app.fh.cam_is_running:
         try:
-            if ticker > int(app_cont.fh.face_rec_settings["dnn_scan_freq"]) or app_cont.force_rescan:
-                names, frame, rects = app_cont.fh.process_next_frame(True, save_new_faces=True)
+            if ticker > int(app.fh.face_rec_settings["dnn_scan_freq"]) or app.force_rescan:
+                names, frame, rects = app.fh.process_next_frame(True, save_new_faces=True)
                 ticker = 0
                 cv2.imwrite("Static/live_view.png", frame)  # TODO: do we need this?
                 most_recent_scan_date = datetime.datetime.now()
-                app_cont.force_rescan = False
+                app.force_rescan = False
             else:
-                names, frame, rects = app_cont.fh.process_next_frame(save_new_faces=True)
+                names, frame, rects = app.fh.process_next_frame(save_new_faces=True)
             ticker += 1
+            print(ticker)
             error_count = 0
         except Exception as e:
             error_count += 1
-            if app_cont.fh.cam:
-                app_cont.fh.cam.release()
+            if app.fh.cam:
+                app.fh.cam.release()
             logging.info(e)
             if error_count > 5:
-                app_cont.fh.cam_is_running = False
+                app.fh.cam_is_running = False
     # try:
     #     app_cont.camera_thread
         # app_cont.threads.remove(app_cont.camera_thread)
@@ -100,4 +99,3 @@ def hard_reset():
     # os.execv(sys.executable, [sys.executable, __file__.replace("/", "\\")])
     os.execv("'" + sys.executable + "'", [sys.executable, __file__] + sys.argv)
     logging.info("Camera hard reset performed")
-
