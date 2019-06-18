@@ -24,7 +24,8 @@ def home():
         "live_view.html",
         running=app.fh.cam_is_running,
         names=names,
-        recpicdate=prev_date,
+        prev_date=prev_date,
         log=[],
-        runsince=app.fh.running_since.strftime(app.config["TIME_FORMAT"]))
+        runsince=app.fh.running_since.strftime(app.config["TIME_FORMAT"])
+    )
 
