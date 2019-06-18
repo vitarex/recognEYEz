@@ -3,6 +3,7 @@ from datetime import datetime
 import logging
 from peewee import *
 from typing import List
+import logging
 
 db = SqliteDatabase('recogneyez.db')
 
@@ -12,16 +13,16 @@ class DBModel(Model):
 
 class Person(DBModel):
     name = TextField(unique = True)
-    preference = TextField()
-    group = IntegerField()
-    date_added = DateField()
-    last_seen = DateTimeField()
-    thumbnail = CharField()
-    unknown = BooleanField()
-    first_seen = DateTimeField()
+    preference = TextField(null = True)
+    group = IntegerField(null = True)
+    date_added = DateField(null = True)
+    last_seen = DateTimeField(null = True)
+    thumbnail = CharField(null = True)
+    unknown = BooleanField(default = True)
+    first_seen = DateTimeField(null = True)
 
 class Encoding(DBModel):
-    encoding = BlobField()
+    encoding = BlobField(null = True)
     person = ForeignKeyField(Person, backref = 'encodings')
 
 class UserEvent(DBModel):
@@ -66,6 +67,7 @@ class DatabaseHandler:
 
     def merge_unknown(self, old_name:str , new_name:str) -> bool:
         """"""
+        logging.info("DatabaseHandler merge_unknown")
         """ c = self.open_and_get_cursor()
         for row in c.execute('SELECT encoding FROM unknown_encodings WHERE name = ?', (old_name,)):
             c.execute('INSERT INTO encodings VALUES (?, ?)', (new_name, row[0]))
@@ -80,6 +82,7 @@ class DatabaseHandler:
 
     def create_new_from_unknown(self, name:str , folder:str) -> bool:
         """"""
+        logging.info("DatabaseHandler create_new_from_unknown")
         """ c = self.open_and_get_cursor()
         c.execute("INSERT INTO persons (name) VALUES (?)", (folder,) )
         for row in c.execute('SELECT encoding FROM unknown_encodings WHERE name = ?', (name,)):
@@ -97,6 +100,7 @@ class DatabaseHandler:
             key: id, name, pref, thumbnail
         don't use ID in code
         """
+        logging.info("DatabaseHandler get_persons")
         """ c = self.open_and_get_cursor()
         if formatting == "list":
             retval = list()
@@ -115,6 +119,7 @@ class DatabaseHandler:
         return Person.select()
 
     def get_known_persons(self) -> List[Person]:
+        logging.info("DatabaseHandler get_known_persons")
         return Person.select().where(Person.unknown == False)
 
     def get_unknown_persons(self) -> List[Person]:
@@ -125,6 +130,7 @@ class DatabaseHandler:
             key: id, name, date
         don't use ID in code
         """
+        logging.info("DatabaseHandler get_unknown_persons")
         """ c = self.open_and_get_cursor()
         if formatting == "list":
             retval = list()
@@ -147,7 +153,7 @@ class DatabaseHandler:
         Uses the old name to find the record
         Returns the new person
         """
-
+        logging.info("DatabaseHandler update_person_data")
         """ if not new_name:
             new_name = old_name
         c = self.open_and_get_cursor()
@@ -165,7 +171,7 @@ class DatabaseHandler:
             Person.update(name = new_name, preference = new_pref).where(Person.name == old_name).execute()
         else:
             Person.update(name = new_name).where(Person.name == old_name).execute()
-        return Person.select().where(Person.name == new_name).get()
+        return Person.get(Person.name == new_name)
 
     def update_face_recognition_settings(self, form):
         c = self.open_and_get_cursor()
@@ -206,12 +212,14 @@ class DatabaseHandler:
         return d
 
     def change_thumbnail(self, name: str, pic:str):
+        logging.info("DatabaseHandler change_thumbnail")
         """ c = self.open_and_get_cursor()
         c.execute("UPDATE persons SET thumbnail = ? WHERE name = ?", (pic, name))
         self.commit_and_close_connection() """
         Person.update(thumbnail = pic).where(Person.name == name).execute()
 
     def get_thumbnail(self, name: str) -> Person:
+        logging.info("DatabaseHandler get_thumbnail")
         """ c = self.open_and_get_cursor()
         c.execute("SELECT thumbnail FROM persons WHERE name=?", (name,))
         pic_name = c.fetchone()
@@ -219,13 +227,17 @@ class DatabaseHandler:
         return Person.select(Person.thumbnail).where(Person.name == name).get()
 
     def empty_encodings(self):
+        logging.info("DatabaseHandler empty_encodings")
         Encoding.delete().execute()
 
     def add_person(self, name:str, unknown:bool = True):
+        logging.info("DatabaseHandler add_person")
         Person.create(name = name)
 
-    def add_encoding(self, name: str, encoding: bytes):
+    def add_encoding(self, name: str, encodingbytes: bytes):
+        #import pdb; pdb.set_trace()
+        logging.info("DatabaseHandler add_encoding")
         encoding = Encoding()
-        encoding.encoding = encoding
-        encoding.person = Person.select().where(Person.name == name)
+        encoding.encoding = encodingbytes
+        encoding.person = Person.get_or_create(name = name)[0]
         encoding.save()

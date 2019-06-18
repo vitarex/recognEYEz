@@ -15,7 +15,7 @@
         Choose a person to merge with: <br>
         <select id="merge-options" style="width: 100px; height: 25px;">
             {% for person in persons %}
-                {% if !person.unkown %}
+                {% if person.unkown != False %}
                     <option value="{{ person.name }}">{{ person.name }}</option>
                 {% endif %}
             {% endfor %}

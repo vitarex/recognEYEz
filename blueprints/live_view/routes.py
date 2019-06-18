@@ -2,6 +2,8 @@ from flask import Blueprint, render_template
 from flask import current_app as app
 import flask_simplelogin as simplog
 
+import pdb
+
 live_view = Blueprint("live_view", __name__)
 
 

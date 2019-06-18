@@ -61,7 +61,7 @@ class FileHandler:
 
     def create_new_person_from_unk(self, folder_name):
         folder_from = self.main_image_folder_path + "/__unknown_pics__/" + folder_name
-        pics = paths.list_images(folder_path)
+        pics = paths.list_images(folder_from)
         self.merge_unk_file_with(folder_name, folder_name)
         move(folder_from, self.main_image_folder_path)
 

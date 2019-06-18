@@ -45,7 +45,6 @@ def continous_check(app_cont):
     # except NameError:
     #    logging.info("Camera thread not found during the end of continous check")
 
-
 # background process'
 @actions.route('/stop_camera')
 @simplog.login_required

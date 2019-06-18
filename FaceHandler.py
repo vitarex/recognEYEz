@@ -296,7 +296,6 @@ class FaceHandler:
                         self.save_unknown_encoding_to_db(unk_name, e)
                         self.unknown_face_data["encodings"].append(e)
                         self.unknown_face_data["names"].append(unk_name)
-                        self.db.add_person(unk_name)
                         self.load_unknown_persons_from_database()
                         logging.info(unk_name + " added to unknown database")
 
@@ -352,7 +351,6 @@ class FaceHandler:
             # extract the person name from the image path
             name = image_path.split(os.path.sep)[-2]
             logging.info("processing image {}/{} - {}".format(i + 1, len(image_paths), name))
-
             image = cv2.imread(image_path)
             rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
