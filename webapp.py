@@ -4,6 +4,8 @@ from flask_admin import Admin
 import flask_simplelogin as simplog
 from FaceHandler import FaceHandler
 import logging
+import cv2
+import threading
 
 #from flask_cache_buster import CacheBuster
 
@@ -15,6 +17,53 @@ most_recent_scan_date = None
 
 #cache_buster_config = {'extensions': ['.png', '.css', '.csv'], 'hash_size': 10}
 #cache_buster = CacheBuster(config=cache_buster_config)
+
+def camera_start(app):
+    logging.info("The facehandler object: {}".format(app.fh))
+    if app.fh and not app.fh.cam_is_running:
+        app.fh.cam_is_running = True
+        app.fh.running_since = datetime.datetime.now()
+        app.camera_thread = threading.Thread(target=camera_check, args=(app,))
+        app.camera_thread.start()
+        # app.threads.append(camera_thread)
+        logging.info("Camera started")
+    logging.info("Camera scanning started")
+
+def camera_stop(app):
+    if app.fh and app.fh.cam_is_running:
+        app.fh.cam_is_running = False
+    logging.info("Camera scanning stopped")
+
+def camera_check(app):
+    """
+    Continously calls the process_next_frame() method to process frames from the camera
+    app_cont: used to access the main application instance from blueprints
+    """
+    global most_recent_scan_date
+    ticker = 0
+    error_count = 0
+    while app.fh.cam_is_running:
+        try:
+            if ticker > int(app.fh.face_rec_settings["dnn_scan_freq"]) or app.force_rescan:
+                names, frame, rects = app.fh.process_next_frame(True, save_new_faces=True)
+                ticker = 0
+                cv2.imwrite("Static/live_view.png", frame)  # TODO: do we need this?
+                most_recent_scan_date = datetime.datetime.now()
+                app.force_rescan = False
+
+                app.preview_image = frame
+            else:
+                names, frame, rects = app.fh.process_next_frame(save_new_faces=True)
+            ticker += 1
+            error_count = 0
+        except Exception as e:
+            error_count += 1
+            if app.fh.cam:
+                app.fh.cam.release()
+            logging.info(e)
+            if error_count > 5:
+                app.fh.cam_is_running = False
+
 
 def get_hashed_login_passwd():
     """returns the hash of the current password stored in the database"""
@@ -79,7 +128,6 @@ def init_fh(app):
         # override the callback methods
         app.fh.on_known_face_enters = on_known_enters
         app.fh.on_known_face_leaves = on_known_leaves
-        app.fh.start_cam()
 
 
 def log(log_text):
@@ -137,9 +185,15 @@ def create_app(config_class=Config):
     app.present = []
     app.threads = []
     app.admin = Admin(app, name='recogneyez', template_mode='bootstrap3')
+    app.ticker = 0
 
     simplog.SimpleLogin(app, login_checker=validate_login)
 #   cache_buster.register_cache_buster(app)
     app.force_rescan = False
+
+    app.preview_image = cv2.imread("Static/empty_pic.png")
+
+    camera_start(app)
+
     return app
 
