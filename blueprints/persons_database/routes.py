@@ -28,8 +28,8 @@ def person_db_view():
 
     :return:
     """
-    unk_dbrows = app.fh.db.get_unknown_data()
-    unk_names = list((row[1] for row in unk_dbrows))
+    unk_persons = app.fh.db.get_unknown_persons()
+    unk_names = list((person.name for person in unk_persons))
     unk_folder_names = list((str(n).replace("/", "_").replace(":", "_") for n in unk_names))
     first_unk_pics = list()
     unk_pic_count = list()
@@ -61,7 +61,7 @@ def person_db_view():
        logging.info(unk_data[0])
     return render_template(
         "person_db.html",
-        dbrows=app.fh.db.get_persons_data(),  # using list instead of dict because of Jinja handles only lists
+        persons=app.fh.db.get_persons(),  # using list instead of dict because of Jinja handles only lists
         unk_data=unk_data,
         folder_location=app.config["PICTURE_FOLDER"]
     )

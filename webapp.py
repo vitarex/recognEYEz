@@ -14,6 +14,12 @@ import sqlite3 as sql
 
 most_recent_scan_date = None
 
+class FHApp(Flask):
+    fh: FaceHandler = None
+
+app: FHApp = None
+
+
 #cache_buster_config = {'extensions': ['.png', '.css', '.csv'], 'hash_size': 10}
 #cache_buster = CacheBuster(config=cache_buster_config)
 
@@ -56,6 +62,7 @@ def on_known_enters(persons):
         app.fh.notification_settings["topic"],
         "[recognEYEz][ARRIVED][date: " + datetime.datetime.now().strftime(app.config["TIME_FORMAT"]) + "]: " + name
     )
+    app.fh.db.log_event("[ARRIVED]: %s" % name)
     logging.info("[ARRIVED]: %s" % name)
 
 
@@ -66,6 +73,7 @@ def on_known_leaves(persons):
         app.fh.notification_settings["topic"],
         "[recognEYEz][LEFT][date: " + datetime.datetime.now().strftime(app.config["TIME_FORMAT"]) + "]: " + name
     )
+    app.fh.db.log_event("[LEFT]: %s" % name)
     logging.info("[LEFT]: %s" % name)
 
 
@@ -110,9 +118,8 @@ def login():
 
 def create_app(config_class=Config):
     global app
-    app = Flask(__name__, static_url_path='', static_folder = './Static', template_folder='./Templates')
+    app = FHApp(__name__, static_url_path='', static_folder = './Static', template_folder='./Templates')
     app.config.from_object(config_class)
-    app.fh = None
     t = threading.Thread(target=init_fh, args=(app,))
     t.start()
 

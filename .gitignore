@@ -1,9 +1,14 @@
 # VS Code
 .vscode
 
+# Faces
+Static/unknown_pics
+
 # Archived logs
 *.log.*
-log.db
+
+# Databases
+*.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
