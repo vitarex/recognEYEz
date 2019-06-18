@@ -89,7 +89,6 @@ class FaceHandler:
         self.mqtt.subscribe(self.notification_settings["topic"])
 
         self.file = FileHandler(img_root)
-
         self.mail = Mailer("email@gmail.com", "emailpass")  # TODO
         self.mail.send_mail_cooldown_seconds = 120
         self.mail.last_mail_sent_date = None
