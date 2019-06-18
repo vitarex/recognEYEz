@@ -1,6 +1,6 @@
 from logging.config import dictConfig
 
-logger_config = dictConfig({
+dictConfig({
     'version': 1,
     'formatters': {
         'default': {
@@ -16,7 +16,7 @@ logger_config = dictConfig({
         'filehandler': {
             'class': 'logging.handlers.RotatingFileHandler',
             'formatter': 'default',
-            'filename': 'log.log',
+            'filename': 'logs\\log.log',
             'mode': 'a',
             'backupCount': 1,
             'maxBytes': 5242800
