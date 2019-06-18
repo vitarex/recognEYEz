@@ -9,14 +9,6 @@ live_view = Blueprint("live_view", __name__)
 @live_view.route('/')
 @simplog.login_required
 def home():
-    global most_recent_scan_date
-    # names = []
-    # camrun = False
-    try:
-        prev_date = most_recent_scan_date.strftime(app.TIME_FORMAT)
-    except:
-        prev_date = "NOT FOUND"
-
     names = []
     if app.fh != None:
         names = [n for n in app.fh.visible_persons.keys()]
@@ -24,7 +16,6 @@ def home():
         "live_view.html",
         running=app.fh.cam_is_running,
         names=names,
-        prev_date=prev_date,
         log=[],
         runsince=app.fh.running_since.strftime(app.config["TIME_FORMAT"])
     )
