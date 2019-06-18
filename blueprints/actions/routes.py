@@ -8,7 +8,6 @@ import cv2
 import logging
 
 actions = Blueprint("actions", __name__)
-
 # background process'
 
 @actions.route('/start_camera')
