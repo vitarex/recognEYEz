@@ -20,12 +20,11 @@ def home():
     names = []
     if app.fh != None:
         names = [n for n in app.fh.visible_persons.keys()]
-    log_list = app.fh.db.read_log()
     return render_template(
         "live_view.html",
         running=app.fh.cam_is_running,
         names=names,
         recpicdate=prev_date,
-        log=log_list,
+        log=[],
         runsince=app.fh.running_since.strftime(app.config["TIME_FORMAT"]))
 
