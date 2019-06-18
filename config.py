@@ -14,9 +14,12 @@ logger_config = dictConfig({
             'formatter': 'default'
         },
         'filehandler': {
-            'class': 'logging.FileHandler',
+            'class': 'logging.handlers.RotatingFileHandler',
             'formatter': 'default',
-            'filename': 'log.log'
+            'filename': 'log.log',
+            'mode': 'a',
+            'backupCount': 1,
+            'maxBytes': 5242800
         }
     },
     'root': {
