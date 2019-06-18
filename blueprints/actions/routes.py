@@ -52,7 +52,7 @@ def continous_check(app_cont):
 def stop_cam():
     if app.fh and app.fh.cam_is_running:
         app.fh.cam_is_running = False
-    app.fh.db.log("Camera scanning stopped")
+    logging.info("Camera scanning stopped")
     return redirect("/")
 
 
@@ -67,7 +67,7 @@ def start_cam():
         app.camera_thread.start()
         # app.threads.append(camera_thread)
         logging.info("Camera started")
-    app.fh.db.log("Camera scanning started")
+    logging.info("Camera scanning started")
     return redirect("/")
 
 
@@ -84,7 +84,7 @@ def force_a_rescan():
 @simplog.login_required
 def retrain_dnn():
     app.fh.train_dnn()
-    app.fh.db.log("Camera algorithm retrained")
+    logging.info("Camera algorithm retrained")
     return redirect("/")
 
 
@@ -99,5 +99,5 @@ def hard_reset():
     logging.info([sys.executable, __file__] + sys.argv)
     # os.execv(sys.executable, [sys.executable, __file__.replace("/", "\\")])
     os.execv("'" + sys.executable + "'", [sys.executable, __file__] + sys.argv)
-    app.fh.db.log("Camera hard reset performed")
+    logging.info("Camera hard reset performed")
 
