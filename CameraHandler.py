@@ -9,7 +9,7 @@ def camera_start(app):
     if app.fh and not app.fh.cam_is_running:
         app.fh.cam_is_running = True
         app.fh.running_since = datetime.datetime.now()
-        app.camera_thread = threading.Thread(target=camera_check, args=(app,))
+        app.camera_thread = threading.Thread(target=camera_check, daemon=True, args=(app,))
         app.camera_thread.start()
         # app.threads.append(camera_thread)
         logging.info("Camera started")
