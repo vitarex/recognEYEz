@@ -4,6 +4,7 @@ from shutil import copyfile, rmtree, move
 import glob
 from imutils import paths
 import logging
+import pdb
 
 
 class FileHandler:
@@ -22,7 +23,7 @@ class FileHandler:
         )
 
     def rename_person_files(self, old_name, new_name):
-        """Upon db change, rename the nessesery files to stay consistent"""
+        """Upon db change, rename the necessary files to stay consistent"""
         self.rename_dnn_data_folder(old_name, new_name)
 
     def rename_dnn_data_folder(self, old_name, new_name):
@@ -46,7 +47,8 @@ class FileHandler:
 
     def remove_unknown_files(self, folder_name):
         try:
-            rmtree(os.path.join("Static", "unknown_pics", str(folder_name)))  # TODO: beautify
+            # TODO: beautify
+            rmtree(os.path.join("Static", "unknown_pics", str(folder_name)))
         except FileNotFoundError:
             logging.error("FileNotFound at remove_unknown_files(), folder: " + str(folder_name))
 
@@ -60,12 +62,11 @@ class FileHandler:
         self.remove_unknown_files(folder_name_to)
 
     def create_new_person_from_unk(self, folder_name):
-        import pdb; pdb.set_trace()
+        pdb.set_trace()
         folder_from = os.path.join(self.main_image_folder_path, "unknown_pics", folder_name)
         pics = paths.list_images(folder_from)
         self.merge_unk_file_with(folder_name, folder_name)
         move(folder_from, self.main_image_folder_path)
-
 
 
 if __name__ == "__main__":

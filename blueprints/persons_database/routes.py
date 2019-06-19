@@ -103,6 +103,7 @@ def remove_unknown_person():
 
 @persons_database.route('/_merge_with')
 @simplog.login_required
+# TODO: is merge_unknown_with() used??
 def merge_unknown_with():
     """"""
     name = request.args.get('n', 0, type=str)
