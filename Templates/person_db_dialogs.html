@@ -14,10 +14,10 @@
         <div id="moving-pic-name" style="display: none"></div>
         Choose a person to merge with: <br>
         <select id="merge-options" style="width: 100px; height: 25px;">
-            {% for row in dbrows %}
-            {% if row[1] != "Unknown" %}
-            <option value="{{ row[1] }}">{{ row[1] }}</option>
-            {% endif %}
+            {% for person in persons %}
+                {% if person.unkown != False %}
+                    <option value="{{ person.name }}">{{ person.name }}</option>
+                {% endif %}
             {% endfor %}
         </select>
         <button id="merge-btn" class="tbutton" style="color:#fff;background: orange">

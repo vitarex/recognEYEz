@@ -1,16 +1,41 @@
 import sqlite3 as sql
 from datetime import datetime
 import logging
+from peewee import *
+from typing import List
+import logging
 
+db = SqliteDatabase('recogneyez.db')
+
+class DBModel(Model):
+    class Meta:
+        database = db
+
+class Person(DBModel):
+    name = TextField(unique = True)
+    preference = TextField(null = True)
+    group = IntegerField(null = True)
+    first_seen = DateTimeField(null = True)
+    last_seen = DateTimeField(null = True)
+    thumbnail = CharField(null = True)
+    unknown = BooleanField(default = True)
+
+class Encoding(DBModel):
+    encoding = BlobField(null = True)
+    person = ForeignKeyField(Person, backref = 'encodings')
+
+class UserEvent(DBModel):
+    datetime = DateTimeField()
+    event = TextField()
 
 class DatabaseHandler:
     TIME_FORMAT = "%Y.%m.%d. %H:%M:%S"
 
-    def __init__(self, db_location="person.db"):
+    def __init__(self, db_location):
         self.db_loc = db_location
         self.active_connection = False
-
-
+        db.connect()
+        db.create_tables([UserEvent, Encoding, Person])
 
     def open_and_get_cursor(self):
         """ Opens and stores connection for the db + returns a cursor object"""
@@ -24,60 +49,49 @@ class DatabaseHandler:
         self.active_connection = False
         return True
 
-    def read_log(self):
-        active_connection = sql.connect("log.db")
-        c = active_connection.cursor()
-        retval = list()
-        for row in c.execute("SELECT * FROM log ORDER BY time DESC LIMIT 100"):
-            retval.append("[" + str(row[0]) + "] " + str(row[1]))
-        active_connection.close()
-        return retval
+    def get_all_events(self) -> List:
+        return UserEvent.select()
 
-    def log(self, text):
-        active_connection = sql.connect("log.db")
-        c = active_connection.cursor()
-        c.execute("INSERT INTO log VALUES (?, ?)", (datetime.now().strftime(self.TIME_FORMAT), text))
-        active_connection.commit()
-        active_connection.close()
+    def log_event(self, text:str):
+        new_event = UserEvent.create(datetime=datetime.now(), event=text)
+        new_event.save()
 
-    def remove_name(self, name):
+    def remove_name(self, name:str) -> bool:
         """Removes the given name from both tables (removes all the encodings)"""
-        c = self.open_and_get_cursor()
-        c.execute('DELETE FROM persons WHERE name = ?', (name,))
-        c.execute('DELETE FROM encodings WHERE name = ?', (name,))
-        self.commit_and_close_connection()
-        return True
+        return Person.delete().where(Person.name == name).execute() > 0
 
-    def remove_unknown_name(self, name):
+    def remove_unknown_name(self, name:str) -> bool:
         """Removes the given name from both tables (removes all the encodings)"""
-        c = self.open_and_get_cursor()
-        c.execute('DELETE FROM recent_unknowns WHERE name = ?', (name,))
-        c.execute('DELETE FROM unknown_encodings WHERE name = ?', (name,))
-        self.commit_and_close_connection()
-        return True
+        return self.remove_name(name)
 
-    def merge_unknown(self, old_name, new_name):
+    def merge_unknown(self, old_name:str , new_name:str) -> bool:
         """"""
-        c = self.open_and_get_cursor()
+        logging.info("DatabaseHandler merge_unknown")
+        """ c = self.open_and_get_cursor()
         for row in c.execute('SELECT encoding FROM unknown_encodings WHERE name = ?', (old_name,)):
             c.execute('INSERT INTO encodings VALUES (?, ?)', (new_name, row[0]))
         c.execute('DELETE FROM unknown_encodings WHERE name = ?', (old_name,))
         c.execute('DELETE FROM recent_unknowns WHERE name = ?', (old_name,))
         self.commit_and_close_connection()
-        return True
+        return True """
+        merge_to = Person.select().where(Person.name == new_name)
+        merge_from = Person.select().where(Person.name == old_name)
+        merge_from.encodings.update(person = merge_to).execute()
+        return merge_from.delete().execute() > 0
 
-    def create_new_from_unknown(self, name, folder):
+    def create_new_from_unknown(self, name:str , folder:str) -> bool:
         """"""
-        c = self.open_and_get_cursor()
+        logging.info("DatabaseHandler create_new_from_unknown")
+        """ c = self.open_and_get_cursor()
         c.execute("INSERT INTO persons (name) VALUES (?)", (folder,) )
         for row in c.execute('SELECT encoding FROM unknown_encodings WHERE name = ?', (name,)):
             c.execute('INSERT INTO encodings VALUES (?, ?)', (folder, row[0]))
         c.execute('DELETE FROM unknown_encodings WHERE name = ?', (name,))
         c.execute('DELETE FROM recent_unknowns WHERE name = ?', (name,))
-        self.commit_and_close_connection()
-        return True
+        self.commit_and_close_connection() """
+        Person.update(unknown = False).where(Person.name == name).execute()
 
-    def get_persons_data(self, formatting="list"):
+    def get_persons(self) -> List[Person]:
         """
         Returns a list containing a list of attributes, which represents persons
             0 - id, 1 - name, 2 - pref, 6 - thumbnail
@@ -85,7 +99,8 @@ class DatabaseHandler:
             key: id, name, pref, thumbnail
         don't use ID in code
         """
-        c = self.open_and_get_cursor()
+        logging.info("DatabaseHandler get_persons")
+        """ c = self.open_and_get_cursor()
         if formatting == "list":
             retval = list()
             for row in c.execute('SELECT * FROM persons ORDER BY id'):
@@ -99,9 +114,14 @@ class DatabaseHandler:
                 thumbnail = row[6]
                 retval.append({"id":id, "name": name, "pref": pref, "thumbnail": thumbnail})
         self.commit_and_close_connection()
-        return retval
+        return retval """
+        return Person.select()
 
-    def get_unknown_data(self, formatting="list"):
+    def get_known_persons(self) -> List[Person]:
+        logging.info("DatabaseHandler get_known_persons")
+        return Person.select().where(Person.unknown == False)
+
+    def get_unknown_persons(self) -> List[Person]:
         """
         Returns a list containing a list of attributes, which represents persons
             0 - id, 1 - name
@@ -109,7 +129,8 @@ class DatabaseHandler:
             key: id, name, date
         don't use ID in code
         """
-        c = self.open_and_get_cursor()
+        logging.info("DatabaseHandler get_unknown_persons")
+        """ c = self.open_and_get_cursor()
         if formatting == "list":
             retval = list()
             for row in c.execute('SELECT * FROM recent_unknowns ORDER BY id'):
@@ -122,15 +143,17 @@ class DatabaseHandler:
                 date = row[2]
                 retval.append({"id":id, "name": name, "date": date})
         self.commit_and_close_connection()
-        return retval
+        return retval """
+        return Person.select().where(Person.unknown == True)
 
-    def update_person_data(self, old_name, new_name=None, new_pref=None):
+    def update_person_data(self, old_name: str, new_name: str=None, new_pref:str=None) -> Person:
         """
         Updates recors in persons table
         Uses the old name to find the record
         Returns the new person
         """
-        if not new_name:
+        logging.info("DatabaseHandler update_person_data")
+        """ if not new_name:
             new_name = old_name
         c = self.open_and_get_cursor()
         if new_pref:
@@ -140,7 +163,14 @@ class DatabaseHandler:
             c.execute("UPDATE persons SET name = ? WHERE name = ?", (new_name, old_name))
         retval = c.execute('SELECT * FROM persons WHERE name = ?', (new_name,))
         self.commit_and_close_connection()
-        return retval
+        return retval """
+        if not new_name:
+            new_name = old_name
+        if new_pref:
+            Person.update(name = new_name, preference = new_pref).where(Person.name == old_name).execute()
+        else:
+            Person.update(name = new_name).where(Person.name == old_name).execute()
+        return Person.get(Person.name == new_name)
 
     def update_face_recognition_settings(self, form):
         c = self.open_and_get_cursor()
@@ -182,15 +212,39 @@ class DatabaseHandler:
             d[row[0]] = row[1]
         return d
 
-    def change_thumbnail(self, name, pic):
-        c = self.open_and_get_cursor()
+    def change_thumbnail(self, name: str, pic:str):
+        logging.info("DatabaseHandler change_thumbnail")
+        """ c = self.open_and_get_cursor()
         c.execute("UPDATE persons SET thumbnail = ? WHERE name = ?", (pic, name))
-        self.commit_and_close_connection()
+        self.commit_and_close_connection() """
+        Person.update(thumbnail = pic).where(Person.name == name).execute()
 
-    def get_thumbnail(self, name):
-        c = self.open_and_get_cursor()
+    def get_thumbnail(self, name: str) -> Person:
+        logging.info("DatabaseHandler get_thumbnail")
+        """ c = self.open_and_get_cursor()
         c.execute("SELECT thumbnail FROM persons WHERE name=?", (name,))
         pic_name = c.fetchone()
-        self.commit_and_close_connection()
-        return pic_name
+        self.commit_and_close_connection() """
+        return Person.select(Person.thumbnail).where(Person.name == name).get()
 
+    def empty_encodings(self):
+        logging.info("DatabaseHandler empty_encodings")
+        Encoding.delete().execute()
+
+    def add_person(self, name:str, unknown:bool = True) -> Person:
+        logging.info("DatabaseHandler add_person")
+        new_person = Person()
+        new_person.name = name
+        new_person.first_seen = datetime.now()
+        new_person.last_seen = datetime.now()
+        new_person.unknown = unknown
+        new_person.save()
+        return new_person
+
+    def add_encoding(self, name: str, encodingbytes: bytes):
+        logging.info("DatabaseHandler add_encoding")
+        encoding = Encoding()
+        encoding.encoding = encodingbytes
+        person_by_name = Person.get_or_none(name = name)
+        encoding.person = person_by_name[0] if person_by_name is not None else self.add_person(name)
+        encoding.save()
