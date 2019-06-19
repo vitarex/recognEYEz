@@ -32,36 +32,75 @@ class FaceHandler:
         self.db = DatabaseHandler(self.database_location)
         self.settings = dict()
         self.load_settings_from_db()
-        self.ct = tracking.CentroidTracker()
-        cascade_path = os.path.dirname(os.path.realpath(__file__)) + "/face_rec/" + cascade_xml
-        self.face_detector = cv2.CascadeClassifier(cascade_path)
-        self.face_data = dict()
-        self.unknown_face_data = dict()
-        self.load_encodings_from_database()
-        self.load_unknown_encodings_from_database()
 
+        # loads video with OpenCV
         self.cam = cv2.VideoCapture(0)
         self.minW = 0.1 * self.cam.get(3)
         self.minH = 0.1 * self.cam.get(4)
+        logging.info("Video loaded")
+
+        # ??? creates a variable called ct that contains the CentroidTracker???
+        self.ct = tracking.CentroidTracker()
+        # sets the path where the haarcascade_frontalface_default.xml file is found (recognEYEz\face_rec\haarcascade_frontalface_default.xml)
+        cascade_path = os.path.dirname(os.path.realpath(__file__)) + "/face_rec/" + cascade_xml
+        # loads the OpenCV face_detector / CascadeClassifier from the cascade_path
+        self.face_detector = cv2.CascadeClassifier(cascade_path)
+        logging.info("OpenCV facedetector loaded")
+
+
+        self.database_location = db_loc
+
+        #TODO: suggestion: self.settings = self.load_settings_from_db()
+
+        # creates an empty list for self.settings
+        self.settings = dict()
+        # fills up the self.settings dictionary with info from database
+        self.load_settings_from_db()
+
+
+        #TODO: suggestion: self.face_data = self.load_encodings_from_database()
+        #TODO: suggestion: self.unknown_face_data = self.load_unknown_encodings_from_database()
+
+        # create an empty list for self.face_data
+        self.face_data = dict()
+        # create an empty list for self.unknown_face_data
+        self.unknown_face_data = dict()
+        # fills up the self.face_data dictionary with info from database
+        self.load_encodings_from_database()
+        # fills up the self.unknown_face_data dictionary with info from database
+        self.load_unknown_encodings_from_database()
+
+        #TODO: suggestion: self.persons=self.load_persons_from_database()
+        #TODO: suggestion: self.unknown_persons=self.load_unknown_persons_from_database()
+
+        # creates an empty list for self.persons
         self.persons = dict()
+        # creates an empty list for self.unknown_persons
         self.unknown_persons = dict()
+        # fills up the self.persons dictionary with info from database
         self.load_persons_from_database()
+        # fills up the self.unknown_persons dictionary with info from database
         self.load_unknown_persons_from_database()
+        # creates an empty list for self.visible_persons that will be modified by later functions
         self.visible_persons = dict()
+        # creates an empty list for self.prev_visible_persons that will be modified by later functions
         self.prev_visible_persons = dict()
+        #TODO: is self.id2name_dict used anywhere?
         self.id2name_dict = dict()
         self.cam_is_running = False
 
         self.notification_settings = self.db.load_notification_settings()
-
+        # loads the face_recognition_settings table from the database into self.face_rec_settings
         self.face_rec_settings = self.db.load_face_recognition_settings()
+        logging.info("Database tables loaded")
 
         self.mqtt = MqttHandler(self.database_location)
         self.mqtt.subscribe(self.notification_settings["topic"])
+        logging.info("MQTT connected")
 
         self.file = FileHandler(img_root)
-
-        self.mail = Mailer("email@gmail.com", "emailpass")  # TODO
+        # TODO: what is self.mail used for????
+        self.mail = Mailer("email@gmail.com", "emailpass")
         self.mail.send_mail_cooldown_seconds = 120
         self.mail.last_mail_sent_date = None
         logging.info("FaceHandler init finished")
@@ -81,7 +120,7 @@ class FaceHandler:
         for person in self.db.get_known_persons():
                 names.append(person.name)
                 for encoding in person.encodings:
-                    encodings.append(encoding.encoding)
+                    encodings.append(np.frombuffer(encoding.encoding))
         self.face_data = {"names": names, "encodings": encodings}
 
     def load_unknown_encodings_from_database(self):
@@ -90,7 +129,7 @@ class FaceHandler:
         for person in self.db.get_unknown_persons():
                 names.append(person.name)
                 for encoding in person.encodings:
-                    encodings.append(encoding.encoding)
+                    encodings.append(np.frombuffer(encoding.encoding))
         self.unknown_face_data = {"names": names, "encodings": encodings}
 
     def load_persons_from_database(self):

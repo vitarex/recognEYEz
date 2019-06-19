@@ -22,10 +22,9 @@
   <div class="w3-row my-panel">
     <div class=" w3-container">
 	  <div style="max-width: 400px; float:right; margin-right: 0px;padding: 10px 0">
-		Recent picture: {{recpicdate}}<br>
-		<img  src="testing.png" style="max-width: 100%";}>
+		<img id="preview_img" src="/preview" style="max-width: 100%";}>
 	  </div>
-      <h1 class="w3-text-teal">Recent Scan</h1>
+      <h1 class="w3-text-teal">Live View</h1>
 
 	  <p>Recently recognized person/people:<br>{{names}}</p>
     </div>
@@ -46,5 +45,14 @@
 	</div>
   </div>
 
+{% if running %}
+<script type="text/javascript">
+	setInterval(function(){
+		d = new Date();
+		$("#preview_img").attr("src", "/preview?"+d.getTime());
+	}, 1000);
+	
+	</script>
+{% endif %}
 
 {%endblock main_content%}

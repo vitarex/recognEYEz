@@ -11,6 +11,8 @@ class Mailer:
         self.from_email = from_email
         self.from_password = from_password
         self.smtpserver = smtplib.SMTP('smtp.gmail.com', 587)  # Server to use.
+        self.send_mail_cooldown_seconds = None
+        self.last_mail_sent_date = None
 
     def send_email(self, to_email, subject, msg):
         self.smtpserver.ehlo()  # Says 'hello' to the server

@@ -196,6 +196,7 @@ class DatabaseHandler:
                 c.execute("UPDATE notification_settings SET value = ? WHERE key = ?", ("off", box))
         self.commit_and_close_connection()
 
+    # loads the face_recognition_settings table from the database into a dictionary
     def load_face_recognition_settings(self):
         c = self.open_and_get_cursor()
         d = dict()
@@ -203,6 +204,7 @@ class DatabaseHandler:
             d[row[0]] = row[1]
         return d
 
+    # loads the notification_settings table from the database into a dictionary
     def load_notification_settings(self):
         c = self.open_and_get_cursor()
         d = dict()

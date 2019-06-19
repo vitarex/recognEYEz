@@ -2,10 +2,13 @@ import datetime
 from flask import Flask, request, render_template, redirect
 from flask_admin import Admin
 import flask_simplelogin as simplog
-import threading
 from FaceHandler import FaceHandler
 import logging
 import os
+import cv2
+import threading
+
+from CameraHandler import camera_start
 
 #from flask_cache_buster import CacheBuster
 
@@ -56,7 +59,7 @@ def validate_login(login_form):
 
 
 def on_known_enters(persons):
-    """ Costume behaviour for the facehandler's callback method of the same name """
+    """ Custom behaviour for the facehandler's callback method of the same name """
     name = str(persons.keys())[11:-2]
     logging.info("Entered: " + name)
     app.fh.mqtt.publish(
@@ -68,7 +71,7 @@ def on_known_enters(persons):
 
 
 def on_known_leaves(persons):
-    """ Costume behaviour for the facehandler's callback method of the same name """
+    """ Custom behaviour for the facehandler's callback method of the same name """
     name = str(persons.keys())[11:-2]
     app.fh.mqtt.publish(
         app.fh.notification_settings["topic"],
@@ -85,7 +88,6 @@ def init_fh(app):
             cascade_xml="haarcascade_frontalface_default.xml",
             img_root=os.path.join("Static", "dnn")
         )
-        # start_cam()
         app.fh.running_since = datetime.datetime.now()
         # override the callback methods
         app.fh.on_known_face_enters = on_known_enters
@@ -116,13 +118,14 @@ def login():
     """ needed for simple login to render the proper template """
     return render_template("login.html")
 
-
+# parameter is the config Class from config.py
 def create_app(config_class=Config):
     global app
     app = FHApp(__name__, static_url_path='', static_folder = './Static', template_folder='./Templates')
     app.config.from_object(config_class)
-    t = threading.Thread(target=init_fh, args=(app,))
-    t.start()
+    # t = threading.Thread(target=init_fh, args=(app,))
+    # t.start()
+    init_fh(app)
 
     # import the blueprints
     from blueprints.live_view.routes import live_view
@@ -146,10 +149,16 @@ def create_app(config_class=Config):
     app.dnn_iter = 0
     app.present = []
     app.threads = []
-    app.admin = Admin(app, name='microblog', template_mode='bootstrap3')
+    app.admin = Admin(app, name='recogneyez', template_mode='bootstrap3')
+    app.ticker = 0
 
     simplog.SimpleLogin(app, login_checker=validate_login)
 #   cache_buster.register_cache_buster(app)
     app.force_rescan = False
+
+    app.preview_image = cv2.imread("Static/empty_pic.png")
+
+    camera_start(app)
+
     return app
 
