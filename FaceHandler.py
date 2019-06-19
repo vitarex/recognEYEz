@@ -252,9 +252,9 @@ class FaceHandler:
 
     def detect_faces(self, gray):
         """
-        Detect faces with HOG from a grey image
+        Detect faces with HOG from a gray image
 
-        :param gray: grey image (numpy)
+        :param gray: gray image (numpy)
         :return: face rectangle (x, y, w, h)
         """
         faces = self.face_detector.detectMultiScale(
@@ -270,9 +270,9 @@ class FaceHandler:
         1st they are checked against known faces.
         2nd if no match found check against recent unknowns
         3rd if no match found check more precisely if it is a face or not
-            if it is, add it to the recent unknowns
+            If it is, add it to the recent unknowns
 
-        Method: creates a 128d vector for every face and compares it to known vectors corresponding to known faces
+        Method: creates a 128D vector for every face and compares it to known vectors corresponding to known faces
         There's a name connected to every vector, if a match is found, the name gets +1pt
         Last, the name with the most points wins.
 
@@ -347,26 +347,31 @@ class FaceHandler:
                         logging.info("HOG method found a false positive or low quality face")
         return names
 
+    # if there are faces on the picture, this function'll return true
     def is_it_a_face(self, img, r):
         if face_recognition.face_locations(img[r[0]:r[2], r[3]:r[1]], model='cnn'):
             return True
         return False
 
+    # this function returns name of the next unknown person
     def next_unknown_name(self):
         name = "_Unk_" + datetime.datetime.now().strftime("%m/%d_%H:%M:%S")
         while name in self.unknown_face_data["names"]:
             name = name + "_"
         return name
 
+    # Known person arrived
     def on_known_face_enters(self, persons):
         logging.info("Entered: " + str(persons.keys()))
 
+    # The known person left the camera
     def on_known_face_leaves(self, persons):
         logging.info("Left: " + str(persons.keys()))
 
     def on_unknown_face_found(self, name):
         pass
 
+    #Type the id of the new person
     def gather_new_face_data(self, id):
         face_id = input('\n enter user id end press <return> ==>  ')
 
