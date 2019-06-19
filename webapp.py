@@ -147,4 +147,3 @@ def create_app(config_class=Config):
     camera_start(app)
 
     return app
-

@@ -30,7 +30,6 @@ def camera_check(app):
     ticker = 0
     error_count = 0
     while app.fh.cam_is_running:
-        print("............ticking")
         try:
             if ticker > int(app.fh.face_rec_settings["dnn_scan_freq"]) or app.force_rescan:
                 names, frame, rects = app.fh.process_next_frame(True, save_new_faces=True)

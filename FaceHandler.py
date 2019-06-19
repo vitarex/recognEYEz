@@ -456,20 +456,3 @@ class Person:
         self.pref = preference
         self.is_visible = False
         self.thumbnail = thumbnail
-
-
-if __name__ == "__main__":
-    fh = FaceHandler("haarcascade_frontalface_default.xml")
-    fh.start_cam()
-    iter = 0
-    while True:
-        iter = iter + 1
-        if iter >= 300:
-            fh.detected_faces = fh.process_next_frame(True, True)
-            iter = 0
-        else:
-            fh.detected_faces = fh.process_next_frame(False, True)
-
-        k = cv2.waitKey(25) & 0xff  # Press 'ESC' for exiting video
-        if k == 27:
-            break
