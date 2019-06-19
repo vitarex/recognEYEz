@@ -181,7 +181,7 @@ class FaceHandler:
             self.cam.release()
             self.cam_is_running = False
 
-    def process_next_frame(self, use_dnn=False, show_preview=False, save_new_faces=False):
+    def process_next_frame(self, use_dnn=False, show_preview=False, save_new_faces=False, app=None):
         """
         If use_dnn is set, checks faces with a Neural Network, if not, then only detects the faces and tries to guess
         the owner by the positions on the previous frame. If the number of faces differs from the previous frame, or
@@ -196,6 +196,11 @@ class FaceHandler:
         :param show_preview: show pop-up preview?
         :return: the visible persons, the frame itself and the rectangles corresponding to the found faces
         """
+
+        # if app == None or app.fh == None or app.fh.cam_is_running == None:
+        #     print("Is the cam running? -- something is fishy here")
+        # print("Is the cam running? %r" % app.fh.cam_is_running)
+
         start_t = time.time()
         ret, frame = self.cam.read()
         if self.settings["flip_cam"] == "on":
