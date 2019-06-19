@@ -1,4 +1,4 @@
-
+import os
 import logging
 import threading
 import datetime
@@ -9,7 +9,7 @@ def camera_start(app):
     if app.fh and not app.fh.cam_is_running:
         app.fh.cam_is_running = True
         app.fh.running_since = datetime.datetime.now()
-        app.camera_thread = threading.Thread(target=camera_check, args=(app,))
+        app.camera_thread = threading.Thread(target=camera_check, daemon=True, args=(app,))
         app.camera_thread.start()
         # app.threads.append(camera_thread)
         logging.info("Camera started")
@@ -18,7 +18,7 @@ def camera_start(app):
 def camera_stop(app):
     if app.fh and app.fh.cam_is_running:
         app.fh.cam_is_running = False
-        app.preview_image = cv2.imread("Static/empty_pic.png")
+        app.preview_image = cv2.imread(os.path.join("Static","empty_pic.png"))
 
     logging.info("Camera scanning stopped")
 
@@ -48,3 +48,4 @@ def camera_check(app):
             logging.info(e)
             if error_count > 5:
                 app.fh.cam_is_running = False
+            raise e

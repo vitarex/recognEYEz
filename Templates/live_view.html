@@ -45,12 +45,14 @@
 	</div>
   </div>
 
+{% if running %}
 <script type="text/javascript">
 	setInterval(function(){
 		d = new Date();
 		$("#preview_img").attr("src", "/preview?"+d.getTime());
 	}, 1000);
-
-</script>
+	
+	</script>
+{% endif %}
 
 {%endblock main_content%}
