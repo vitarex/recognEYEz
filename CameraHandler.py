@@ -1,4 +1,4 @@
-
+import os
 import logging
 import threading
 import datetime
@@ -18,7 +18,7 @@ def camera_start(app):
 def camera_stop(app):
     if app.fh and app.fh.cam_is_running:
         app.fh.cam_is_running = False
-        app.preview_image = cv2.imread("Static/empty_pic.png")
+        app.preview_image = cv2.imread(os.path.join("Static","empty_pic.png"))
 
     logging.info("Camera scanning stopped")
 
