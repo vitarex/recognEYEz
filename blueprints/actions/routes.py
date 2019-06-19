@@ -39,12 +39,12 @@ def continous_check(app_cont):
             logging.info(e)
             if error_count > 5:
                 app_cont.fh.cam_is_running = False
+            raise e
     # try:
     #     app_cont.camera_thread
         # app_cont.threads.remove(app_cont.camera_thread)
     # except NameError:
     #    logging.info("Camera thread not found during the end of continous check")
-
 
 # background process'
 @actions.route('/stop_camera')

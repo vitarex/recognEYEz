@@ -30,7 +30,6 @@ $(function () {
                 merge_to = $("#merge-options").val();
                 send_to_merge(name, folder, merge_to);
                 $("#add-or-merge-dialog").hide();
-                location.reload();
                 return false;
             });
         });
@@ -43,7 +42,6 @@ $(function () {
                 folder = $("#selected-add-or-merge-folder").text();
                 new_from_unk(name, folder);
                 $("#add-or-merge-dialog").hide();
-                location.reload();
                 return false;
             });
         });

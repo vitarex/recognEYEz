@@ -5,6 +5,7 @@ import flask_simplelogin as simplog
 import threading
 from FaceHandler import FaceHandler
 import logging
+import os
 
 #from flask_cache_buster import CacheBuster
 
@@ -13,6 +14,12 @@ from bcrypt import hashpw, gensalt, checkpw
 import sqlite3 as sql
 
 most_recent_scan_date = None
+
+class FHApp(Flask):
+    fh: FaceHandler = None
+
+app: FHApp = None
+
 
 #cache_buster_config = {'extensions': ['.png', '.css', '.csv'], 'hash_size': 10}
 #cache_buster = CacheBuster(config=cache_buster_config)
@@ -56,6 +63,7 @@ def on_known_enters(persons):
         app.fh.notification_settings["topic"],
         "[recognEYEz][ARRIVED][date: " + datetime.datetime.now().strftime(app.config["TIME_FORMAT"]) + "]: " + name
     )
+    app.fh.db.log_event("[ARRIVED]: %s" % name)
     logging.info("[ARRIVED]: %s" % name)
 
 
@@ -66,6 +74,7 @@ def on_known_leaves(persons):
         app.fh.notification_settings["topic"],
         "[recognEYEz][LEFT][date: " + datetime.datetime.now().strftime(app.config["TIME_FORMAT"]) + "]: " + name
     )
+    app.fh.db.log_event("[LEFT]: %s" % name)
     logging.info("[LEFT]: %s" % name)
 
 
@@ -74,7 +83,7 @@ def init_fh(app):
     if not app.fh:
         app.fh = FaceHandler(
             cascade_xml="haarcascade_frontalface_default.xml",
-            img_root="Static/dnn_data"
+            img_root=os.path.join("Static", "dnn")
         )
         # start_cam()
         app.fh.running_since = datetime.datetime.now()
@@ -110,9 +119,8 @@ def login():
 
 def create_app(config_class=Config):
     global app
-    app = Flask(__name__, static_url_path='', static_folder = './Static', template_folder='./Templates')
+    app = FHApp(__name__, static_url_path='', static_folder = './Static', template_folder='./Templates')
     app.config.from_object(config_class)
-    app.fh = None
     t = threading.Thread(target=init_fh, args=(app,))
     t.start()
 
