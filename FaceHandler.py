@@ -50,40 +50,21 @@ class FaceHandler:
 
         self.database_location = db_loc
 
-        #TODO: suggestion: self.settings = self.load_settings_from_db()
-
-        # creates an empty list for self.settings
+        # creates empty directories and fills them with info from database
         self.settings = dict()
-        # fills up the self.settings dictionary with info from database
         self.load_settings_from_db()
-
-
-        #TODO: suggestion: self.face_data = self.load_encodings_from_database()
-        #TODO: suggestion: self.unknown_face_data = self.load_unknown_encodings_from_database()
-
-        # create an empty list for self.face_data
         self.face_data = dict()
-        # create an empty list for self.unknown_face_data
         self.unknown_face_data = dict()
-        # fills up the self.face_data dictionary with info from database
         self.load_encodings_from_database()
-        # fills up the self.unknown_face_data dictionary with info from database
         self.load_unknown_encodings_from_database()
 
-        #TODO: suggestion: self.persons=self.load_persons_from_database()
-        #TODO: suggestion: self.unknown_persons=self.load_unknown_persons_from_database()
-
-        # creates an empty list for self.persons
         self.persons = dict()
-        # creates an empty list for self.unknown_persons
         self.unknown_persons = dict()
-        # fills up the self.persons dictionary with info from database
         self.load_persons_from_database()
-        # fills up the self.unknown_persons dictionary with info from database
         self.load_unknown_persons_from_database()
-        # creates an empty list for self.visible_persons that will be modified by later functions
+
+        # creates two empty dictionaries that will be modified by later functions
         self.visible_persons = dict()
-        # creates an empty list for self.prev_visible_persons that will be modified by later functions
         self.prev_visible_persons = dict()
         #TODO: is self.id2name_dict used anywhere?
         self.id2name_dict = dict()
@@ -112,7 +93,6 @@ class FaceHandler:
         for row in c.execute("SELECT * FROM face_recognition_settings"):
             d[row[0]] = row[1]
         self.settings = d
-        return d
 
     def load_encodings_from_database(self):
         names = list()
@@ -374,7 +354,7 @@ class FaceHandler:
 
     #Type the id of the new person
     def gather_new_face_data(self, id):
-        face_id = input('\n enter user id end press <return> ==>  ')
+        face_id = input('\n enter user id and press <return> ==>  ')
 
     def save_unknown_encoding_to_db(self, name, encoding):
         self.db.add_encoding(name, encoding.tobytes())
