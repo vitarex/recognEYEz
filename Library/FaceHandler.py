@@ -15,6 +15,8 @@ from Library.DatabaseHandler import DatabaseHandler
 from Library.FileHandler import FileHandler
 from Library.MqttHandler import MqttHandler
 
+import sys
+
 class FaceHandler:
     resolutions = {"vga": [640, 480], "qvga": [320, 240], "qqvga": [160, 120], "hd": [1280, 720], "fhd": [1920, 1080]}
     font = cv2.FONT_HERSHEY_DUPLEX
@@ -41,7 +43,7 @@ class FaceHandler:
         # ??? creates a variable called ct that contains the CentroidTracker???
         self.ct = tracking.CentroidTracker()
         # sets the path where the haarcascade_frontalface_default.xml file is found (recognEYEz\Library\haarcascade_frontalface_default.xml)
-        cascade_path = os.path.dirname(os.path.realpath(__file__)) + "/Library/" + cascade_xml
+        cascade_path = os.path.dirname(os.path.realpath(__file__)) + "/" + cascade_xml
         # loads the OpenCV face_detector / CascadeClassifier from the cascade_path
         self.face_detector = cv2.CascadeClassifier(cascade_path)
         logging.info("OpenCV facedetector loaded")
@@ -242,7 +244,7 @@ class FaceHandler:
             gray,
             scaleFactor=1.2,
             minNeighbors=5,
-            minSize=(int(self.minW), int(self.minH)), )
+            minSize=(int(self.minW), int(self.minH)))
         return faces  # x, y, w, h
 
     def recognize_faces(self, rgb, face_rects, frame, save_new_faces=False):
