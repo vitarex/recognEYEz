@@ -20,7 +20,7 @@ class FaceHandler:
     resolutions = {"vga": [640, 480], "qvga": [320, 240], "qqvga": [160, 120], "hd": [1280, 720], "fhd": [1920, 1080]}
     font = cv2.FONT_HERSHEY_DUPLEX
     TIME_FORMAT = "%Y_%m_%d__%H_%M_%S"
-    unknown_pic_folder_path = "Static/unknown_pics"
+    unknown_pic_folder_path = os.path.join("Static","unknown_pics")
 
     def __init__(self,
                  cascade_xml="haarcascade_frontalface_default.xml",
@@ -81,7 +81,7 @@ class FaceHandler:
         for person in self.db.get_known_persons():
                 names.append(person.name)
                 for encoding in person.encodings:
-                    encodings.append(encoding)
+                    encodings.append(encoding.encoding)
         self.face_data = {"names": names, "encodings": encodings}
 
     def load_unknown_encodings_from_database(self):
@@ -90,7 +90,7 @@ class FaceHandler:
         for person in self.db.get_unknown_persons():
                 names.append(person.name)
                 for encoding in person.encodings:
-                    encodings.append(encoding)
+                    encodings.append(encoding.encoding)
         self.unknown_face_data = {"names": names, "encodings": encodings}
 
     def load_persons_from_database(self):
@@ -335,7 +335,7 @@ class FaceHandler:
     def save_unknown_encoding_to_db(self, name, encoding):
         self.db.add_encoding(name, encoding.tobytes())
 
-    def train_dnn(self, dataset="Static/dnn_data"):
+    def train_dnn(self, dataset=os.path.join("Static", "dnn")):
         if self.cam_is_running:
             self.stop_cam()
         logging.info("quantifying faces...")

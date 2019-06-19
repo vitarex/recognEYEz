@@ -5,6 +5,7 @@ import flask_simplelogin as simplog
 import threading
 from FaceHandler import FaceHandler
 import logging
+import os
 
 #from flask_cache_buster import CacheBuster
 
@@ -82,7 +83,7 @@ def init_fh(app):
     if not app.fh:
         app.fh = FaceHandler(
             cascade_xml="haarcascade_frontalface_default.xml",
-            img_root="Static/dnn_data"
+            img_root=os.path.join("Static", "dnn")
         )
         # start_cam()
         app.fh.running_since = datetime.datetime.now()

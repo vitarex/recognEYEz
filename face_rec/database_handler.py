@@ -15,11 +15,10 @@ class Person(DBModel):
     name = TextField(unique = True)
     preference = TextField(null = True)
     group = IntegerField(null = True)
-    date_added = DateField(null = True)
+    first_seen = DateTimeField(null = True)
     last_seen = DateTimeField(null = True)
     thumbnail = CharField(null = True)
     unknown = BooleanField(default = True)
-    first_seen = DateTimeField(null = True)
 
 class Encoding(DBModel):
     encoding = BlobField(null = True)
@@ -230,14 +229,20 @@ class DatabaseHandler:
         logging.info("DatabaseHandler empty_encodings")
         Encoding.delete().execute()
 
-    def add_person(self, name:str, unknown:bool = True):
+    def add_person(self, name:str, unknown:bool = True) -> Person:
         logging.info("DatabaseHandler add_person")
-        Person.create(name = name)
+        new_person = Person()
+        new_person.name = name
+        new_person.first_seen = datetime.now()
+        new_person.last_seen = datetime.now()
+        new_person.unknown = unknown
+        new_person.save()
+        return new_person
 
     def add_encoding(self, name: str, encodingbytes: bytes):
-        #import pdb; pdb.set_trace()
         logging.info("DatabaseHandler add_encoding")
         encoding = Encoding()
         encoding.encoding = encodingbytes
-        encoding.person = Person.get_or_create(name = name)[0]
+        person_by_name = Person.get_or_none(name = name)
+        encoding.person = person_by_name[0] if person_by_name is not None else self.add_person(name)
         encoding.save()

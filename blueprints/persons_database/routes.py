@@ -4,6 +4,7 @@ from flask import current_app as app
 import flask_simplelogin as simplog
 import os
 import logging
+from typing import List
 
 persons_database = Blueprint("persons_database", __name__)
 
@@ -20,7 +21,6 @@ def create_new_person_from_unknown():
     app.fh.reload_from_db()
     return redirect("/person_db")
 
-
 @persons_database.route('/person_db')
 @simplog.login_required
 def person_db_view():
@@ -28,17 +28,16 @@ def person_db_view():
 
     :return:
     """
-    #import pdb; pdb.set_trace()
     unk_persons = app.fh.db.get_unknown_persons()
     unk_names = list((person.name for person in unk_persons))
     unk_folder_names = list((str(n).replace("/", "_").replace(":", "_") for n in unk_names))
     first_unk_pics = list()
     unk_pic_count = list()
     other_pics = list()
-
+    #import pdb; pdb.set_trace()
     for folder in unk_folder_names:
         try:
-            img_list = list(paths.list_images("Static\\unknown_pics\\" + folder))
+            img_list = list(paths.list_images(os.path.join("Static", "unknown_pics", folder)))
             unk_pic_count.append(len(img_list))
             first_unk_pics.append(
                 img_list[0].split(os.path.sep)[-1]
@@ -51,13 +50,14 @@ def person_db_view():
     unk_data = list()
     # 0 - original name, 1 - folder name, 2 - first pic name, 3 - pic count
     for i, unk_name in enumerate(unk_names):
-        unk_data.append({
-                "name": unk_name,
-                "folder": unk_folder_names[i],
-                "first pic": first_unk_pics[i],
-                "pic count": unk_pic_count[i],
-                "other pics": other_pics[i][:9]
-            })
+        if check_length([unk_folder_names, first_unk_pics, unk_pic_count, other_pics], i):
+            unk_data.append({
+                    "name": unk_name,
+                    "folder": unk_folder_names[i],
+                    "first pic": first_unk_pics[i],
+                    "pic count": unk_pic_count[i],
+                    "other pics": other_pics[i][:9]
+                })
     if unk_data:
        logging.info(unk_data[0])
     return render_template(
@@ -67,6 +67,11 @@ def person_db_view():
         folder_location=app.config["PICTURE_FOLDER"]
     )
 
+def check_length(list_of_lists: List[List], i: int) -> bool:
+    for list_to_check in list_of_lists:
+        if len(list_to_check) - 1 < i:
+            return False
+    return True
 
 @persons_database.route('/_remove_person')
 @simplog.login_required

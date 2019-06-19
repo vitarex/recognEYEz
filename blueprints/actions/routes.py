@@ -39,6 +39,7 @@ def continous_check(app_cont):
             logging.info(e)
             if error_count > 5:
                 app_cont.fh.cam_is_running = False
+            raise e
     # try:
     #     app_cont.camera_thread
         # app_cont.threads.remove(app_cont.camera_thread)
