@@ -7,9 +7,8 @@ import face_recognition
 import face_rec.tracking as tracking
 from imutils import paths
 import sqlite3 as sql
-import io, errno
+import errno
 import logging
-import itertools
 
 from face_rec.mailer import Mailer
 from face_rec.database_handler import DatabaseHandler

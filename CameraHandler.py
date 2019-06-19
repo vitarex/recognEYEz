@@ -16,7 +16,7 @@ def camera_start(app):
     logging.info("Camera scanning started")
 
 def camera_stop(app):
-    if app.fh and app.fh.cam_is_running:
+    if app.fh:
         app.fh.cam_is_running = False
         app.preview_image = cv2.imread(os.path.join("Static","empty_pic.png"))
 
@@ -30,6 +30,7 @@ def camera_check(app):
     ticker = 0
     error_count = 0
     while app.fh.cam_is_running:
+        print("............ticking")
         try:
             if ticker > int(app.fh.face_rec_settings["dnn_scan_freq"]) or app.force_rescan:
                 names, frame, rects = app.fh.process_next_frame(True, save_new_faces=True)
