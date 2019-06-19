@@ -1,14 +1,13 @@
 import datetime
-from flask import Flask, request, render_template, redirect
+from flask import Flask, render_template
 from flask_admin import Admin
 import flask_simplelogin as simplog
 from FaceHandler import FaceHandler
 import logging
 import os
 import cv2
-import threading
 
-from CameraHandler import camera_start
+from Library.CameraHandler import camera_start
 
 #from flask_cache_buster import CacheBuster
 

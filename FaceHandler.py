@@ -4,16 +4,16 @@ import os
 import time
 import numpy as np
 import face_recognition
-import face_rec.tracking as tracking
+import Library.tracking as tracking
 from imutils import paths
 import sqlite3 as sql
 import errno
 import logging
 
-from face_rec.mailer import Mailer
-from face_rec.database_handler import DatabaseHandler
-from face_rec.file_handler import FileHandler
-from face_rec.mqqt_handler import MqttHandler
+from Library.Mailer import Mailer
+from Library.DatabaseHandler import DatabaseHandler
+from Library.FileHandler import FileHandler
+from Library.MqttHandler import MqttHandler
 
 class FaceHandler:
     resolutions = {"vga": [640, 480], "qvga": [320, 240], "qqvga": [160, 120], "hd": [1280, 720], "fhd": [1920, 1080]}
@@ -40,8 +40,8 @@ class FaceHandler:
 
         # ??? creates a variable called ct that contains the CentroidTracker???
         self.ct = tracking.CentroidTracker()
-        # sets the path where the haarcascade_frontalface_default.xml file is found (recognEYEz\face_rec\haarcascade_frontalface_default.xml)
-        cascade_path = os.path.dirname(os.path.realpath(__file__)) + "/face_rec/" + cascade_xml
+        # sets the path where the haarcascade_frontalface_default.xml file is found (recognEYEz\Library\haarcascade_frontalface_default.xml)
+        cascade_path = os.path.dirname(os.path.realpath(__file__)) + "/Library/" + cascade_xml
         # loads the OpenCV face_detector / CascadeClassifier from the cascade_path
         self.face_detector = cv2.CascadeClassifier(cascade_path)
         logging.info("OpenCV facedetector loaded")
