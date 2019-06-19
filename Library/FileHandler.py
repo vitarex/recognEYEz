@@ -67,7 +67,7 @@ class FileHandler:
         pics = paths.list_images(folder_from)
         self.merge_unk_file_with(folder_name, folder_name)
         move(folder_from, self.main_image_folder_path)
-<<<<<<< HEAD:face_rec/file_handler.py
+
 
 
 if __name__ == "__main__":
@@ -76,5 +76,3 @@ if __name__ == "__main__":
 
 
 
-=======
->>>>>>> aadc4dbefda810789c0965cf5df79cbdd0963d4c:Library/FileHandler.py
