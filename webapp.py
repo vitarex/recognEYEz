@@ -123,8 +123,9 @@ def create_app(config_class=Config):
     global app
     app = FHApp(__name__, static_url_path='', static_folder = './Static', template_folder='./Templates')
     app.config.from_object(config_class)
-    t = threading.Thread(target=init_fh, args=(app,))
-    t.start()
+    # t = threading.Thread(target=init_fh, args=(app,))
+    # t.start()
+    init_fh(app)
 
     # import the blueprints
     from blueprints.live_view.routes import live_view

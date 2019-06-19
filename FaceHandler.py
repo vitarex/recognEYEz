@@ -120,7 +120,7 @@ class FaceHandler:
         for person in self.db.get_known_persons():
                 names.append(person.name)
                 for encoding in person.encodings:
-                    encodings.append(encoding.encoding)
+                    encodings.append(np.frombuffer(encoding.encoding))
         self.face_data = {"names": names, "encodings": encodings}
 
     def load_unknown_encodings_from_database(self):
@@ -129,7 +129,7 @@ class FaceHandler:
         for person in self.db.get_unknown_persons():
                 names.append(person.name)
                 for encoding in person.encodings:
-                    encodings.append(encoding.encoding)
+                    encodings.append(np.frombuffer(encoding.encoding))
         self.unknown_face_data = {"names": names, "encodings": encodings}
 
     def load_persons_from_database(self):

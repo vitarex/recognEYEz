@@ -13,40 +13,6 @@ from CameraHandler import camera_start, camera_stop
 actions = Blueprint("actions", __name__)
 
 
-def continous_check(app_cont):
-    """
-    Continously calls the process_next_frame() method to process frames from the camera
-    app_cont: used to access the main application instance from blueprints
-    """
-    global most_recent_scan_date
-    ticker = 0
-    error_count = 0
-    while app_cont.fh.cam_is_running:
-        try:
-            if ticker > int(app_cont.fh.face_rec_settings["dnn_scan_freq"]) or app_cont.force_rescan:
-                names, frame, rects = app_cont.fh.process_next_frame(True, save_new_faces=True)
-                ticker = 0
-                cv2.imwrite("Static/testing.png", frame)  # TODO kell ez?
-                most_recent_scan_date = datetime.datetime.now()
-                app_cont.force_rescan = False
-            else:
-                names, frame, rects = app_cont.fh.process_next_frame(save_new_faces=True)
-            ticker += 1
-            error_count = 0
-        except Exception as e:
-            error_count += 1
-            if app_cont.fh.cam:
-                app_cont.fh.cam.release()
-            logging.info(e)
-            if error_count > 5:
-                app_cont.fh.cam_is_running = False
-            raise e
-    # try:
-    #     app_cont.camera_thread
-        # app_cont.threads.remove(app_cont.camera_thread)
-    # except NameError:
-    #    logging.info("Camera thread not found during the end of continous check")
-
 # background process'
 
 @actions.route('/start_camera')
