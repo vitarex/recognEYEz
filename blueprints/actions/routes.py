@@ -1,13 +1,14 @@
-from flask import Blueprint, render_template, request, redirect
+from flask import Blueprint, render_template, request, redirect, make_response
 from flask import current_app as app
 import flask_simplelogin as simplog
 import os
 import sys
 import datetime
-import threading
 import cv2
 import logging
+import webapp
 
+from CameraHandler import camera_start, camera_stop
 
 actions = Blueprint("actions", __name__)
 
@@ -47,27 +48,17 @@ def continous_check(app_cont):
     #    logging.info("Camera thread not found during the end of continous check")
 
 # background process'
-@actions.route('/stop_camera')
-@simplog.login_required
-def stop_cam():
-    if app.fh and app.fh.cam_is_running:
-        app.fh.cam_is_running = False
-    logging.info("Camera scanning stopped")
-    return redirect("/")
-
 
 @actions.route('/start_camera')
 @simplog.login_required
 def start_cam():
-    logging.info("The facehandler object: {}".format(app.fh))
-    if app.fh and not app.fh.cam_is_running:
-        app.fh.cam_is_running = True
-        app.fh.running_since = datetime.datetime.now()
-        app.camera_thread = threading.Thread(target=continous_check, args=(app._get_current_object(),))
-        app.camera_thread.start()
-        # app.threads.append(camera_thread)
-        logging.info("Camera started")
-    logging.info("Camera scanning started")
+    camera_start(app)
+    return redirect("/")
+
+@actions.route('/stop_camera')
+@simplog.login_required
+def stop_cam():
+    camera_stop(app)
     return redirect("/")
 
 
@@ -101,3 +92,13 @@ def hard_reset():
     os.execv("'" + sys.executable + "'", [sys.executable, __file__] + sys.argv)
     logging.info("Camera hard reset performed")
 
+
+@actions.route('/preview')
+@simplog.login_required
+def preview():
+    image_binary = app.preview_image
+    retval, buffer = cv2.imencode('.png', image_binary)
+    response = make_response(buffer.tobytes())
+    response.headers.set('Content-Type', 'image/jpeg')
+    response.headers.set('Content-Disposition', 'inline')
+    return response
