@@ -348,30 +348,31 @@ class FaceHandler:
                         logging.info("HOG method found a false positive or low quality face")
         return names
 
-    #if there are faces on the picture, this function'll return true
+    # if there are faces on the picture, this function'll return true
     def is_it_a_face(self, img, r):
         if face_recognition.face_locations(img[r[0]:r[2], r[3]:r[1]], model='cnn'):
             return True
         return False
 
-    #this function returns name of the next unknown person
+    # this function returns name of the next unknown person
     def next_unknown_name(self):
         name = "_Unk_" + datetime.datetime.now().strftime("%m/%d_%H:%M:%S")
         while name in self.unknown_face_data["names"]:
             name = name + "_"
         return name
 
-    #The camera detects new unknown person
+    # Known person arrived
     def on_known_face_enters(self, persons):
         logging.info("Entered: " + str(persons.keys()))
 
-    #
+    # The known person left the camera
     def on_known_face_leaves(self, persons):
         logging.info("Left: " + str(persons.keys()))
 
     def on_unknown_face_found(self, name):
         pass
 
+    #Type the id of the new person
     def gather_new_face_data(self, id):
         face_id = input('\n enter user id end press <return> ==>  ')
 
