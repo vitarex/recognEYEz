@@ -1,14 +1,13 @@
 import datetime
-from flask import Flask, request, render_template, redirect
+from flask import Flask, render_template
 from flask_admin import Admin
 import flask_simplelogin as simplog
-from FaceHandler import FaceHandler
+from Library.FaceHandler import FaceHandler
 import logging
 import os
 import cv2
-import threading
 
-from CameraHandler import camera_start
+from Library.CameraHandler import camera_start
 
 #from flask_cache_buster import CacheBuster
 
@@ -100,20 +99,6 @@ def log(log_text):
         f.write("[" + date + "] " + str(log_text) + " <br>\n")
 
 
-def who_is_there(use_dnn=False):
-    """
-    returns a list of currently visible people
-    """
-    if use_dnn:
-        visible_p = app.fh.process_next_frame(True)
-    else:
-        visible_p = app.fh.process_next_frame()
-    logging.info("present")
-    for p in visible_p:
-       logging.info(p.name)
-    return visible_p
-
-
 def login():
     """ needed for simple login to render the proper template """
     return render_template("login.html")
@@ -161,4 +146,3 @@ def create_app(config_class=Config):
     camera_start(app)
 
     return app
-
