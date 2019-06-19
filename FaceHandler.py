@@ -9,6 +9,7 @@ from imutils import paths
 import sqlite3 as sql
 import io, errno
 import logging
+import itertools
 
 from face_rec.mailer import Mailer
 from face_rec.database_handler import DatabaseHandler
@@ -19,7 +20,7 @@ class FaceHandler:
     resolutions = {"vga": [640, 480], "qvga": [320, 240], "qqvga": [160, 120], "hd": [1280, 720], "fhd": [1920, 1080]}
     font = cv2.FONT_HERSHEY_DUPLEX
     TIME_FORMAT = "%Y_%m_%d__%H_%M_%S"
-    unknown_pic_folder_path = "Static/unknown_pics"
+    unknown_pic_folder_path = os.path.join("Static","unknown_pics")
 
     def __init__(self,
                  cascade_xml="haarcascade_frontalface_default.xml",
@@ -27,6 +28,10 @@ class FaceHandler:
                  img_root="Images"
                  ):
         logging.info("FaceHandler init started")
+        self.database_location = db_loc
+        self.db = DatabaseHandler(self.database_location)
+        self.settings = dict()
+        self.load_settings_from_db()
 
         # loads video with OpenCV
         self.cam = cv2.VideoCapture(0)
@@ -84,9 +89,6 @@ class FaceHandler:
         self.id2name_dict = dict()
         self.cam_is_running = False
 
-        # loads the database
-        self.db = DatabaseHandler(self.database_location)
-        # loads the notification_settings table from the database into self.notification_settings
         self.notification_settings = self.db.load_notification_settings()
         # loads the face_recognition_settings table from the database into self.face_rec_settings
         self.face_rec_settings = self.db.load_face_recognition_settings()
@@ -113,47 +115,38 @@ class FaceHandler:
         return d
 
     def load_encodings_from_database(self):
-        conn = sql.connect(self.database_location)
-        c = conn.cursor()
         names = list()
         encodings = list()
-        for row in c.execute('SELECT * FROM encodings'):
-            names.append(row[0])
-            encodings.append(np.frombuffer(row[1]))
+        for person in self.db.get_known_persons():
+                names.append(person.name)
+                for encoding in person.encodings:
+                    encodings.append(encoding.encoding)
         self.face_data = {"names": names, "encodings": encodings}
 
     def load_unknown_encodings_from_database(self):
-        conn = sql.connect(self.database_location)
-        c = conn.cursor()
         names = list()
         encodings = list()
-        for row in c.execute('SELECT * FROM unknown_encodings'):
-            names.append(row[0])
-            encodings.append(np.frombuffer(row[1]))
+        for person in self.db.get_unknown_persons():
+                names.append(person.name)
+                for encoding in person.encodings:
+                    encodings.append(encoding.encoding)
         self.unknown_face_data = {"names": names, "encodings": encodings}
 
     def load_persons_from_database(self):
-        conn = sql.connect(self.database_location)
-        c = conn.cursor()
-        self.persons = dict()
-        for row in c.execute('SELECT * FROM persons ORDER BY id'):
+        for person in self.db.get_known_persons():
             encodings = list()
             for i, n in enumerate(self.face_data["names"]):
-                if n == row[1]:
+                if n == person.name:
                     encodings.append(self.face_data["encodings"][i])
-            self.persons[row[1]] = Person(row[0], row[1], encodings, row[2], row[6])
-        conn.close()
+            self.persons[person.name] = person
 
     def load_unknown_persons_from_database(self):
-        conn = sql.connect(self.database_location)
-        c = conn.cursor()
-        for row in c.execute('SELECT * FROM recent_unknowns ORDER BY id'):
+        for person in self.db.get_unknown_persons():
             encodings = list()
             for i, n in enumerate(self.unknown_face_data["names"]):
-                if n == row[1]:
+                if n == person.name:
                     encodings.append(self.unknown_face_data["encodings"][i])
-            self.unknown_persons[row[1]] = Person(row[0], row[1], encodings, row[2])
-        conn.close()
+            self.unknown_persons[person.name] = person
 
     def add_visible_person(self, name):
         if name[0:5] != "_Unk_":
@@ -328,7 +321,7 @@ class FaceHandler:
                     if counts:
                         name = max(counts, key=counts.get)
                         names.append(name)
-                        logging.info("[INFO]Found a previously seen unknown: " + name)
+                        logging.info("Found a previously seen unknown: " + name)
                         self.on_unknown_face_found(name)
                         name = name.replace("/", "_").replace(":", "_")
                         if save_new_faces:
@@ -342,11 +335,6 @@ class FaceHandler:
                         self.save_unknown_encoding_to_db(unk_name, e)
                         self.unknown_face_data["encodings"].append(e)
                         self.unknown_face_data["names"].append(unk_name)
-                        con = sql.connect(self.database_location)
-                        c = con.cursor()
-                        c.execute("INSERT INTO recent_unknowns (name, first_seen) VALUES (?, ?)", (unk_name, datetime.datetime.now()))
-                        con.commit()
-                        con.close()
                         self.load_unknown_persons_from_database()
                         logging.info(unk_name + " added to unknown database")
 
@@ -384,20 +372,13 @@ class FaceHandler:
         face_id = input('\n enter user id end press <return> ==>  ')
 
     def save_unknown_encoding_to_db(self, name, encoding):
-        con = sql.connect(self.database_location)
-        c = con.cursor()
-        c.execute('INSERT INTO unknown_encodings VALUES (?, ?, ?)', [name, encoding.tobytes(), datetime.datetime.now()])
-        con.commit()
-        con.close()
+        self.db.add_encoding(name, encoding.tobytes())
 
-    def train_dnn(self, dataset="Static/dnn_data"):
+    def train_dnn(self, dataset=os.path.join("Static", "dnn")):
         if self.cam_is_running:
             self.stop_cam()
         logging.info("quantifying faces...")
-        con = sql.connect(self.database_location)
-        con.row_factory = lambda cursor, row: row[0]
-        c = con.cursor()
-        c.execute("DELETE FROM encodings")
+        self.db.empty_encodings()
         logging.info("Encodings table truncated")
 
         image_paths = list(paths.list_images(dataset))
@@ -409,7 +390,6 @@ class FaceHandler:
             # extract the person name from the image path
             name = image_path.split(os.path.sep)[-2]
             logging.info("processing image {}/{} - {}".format(i + 1, len(image_paths), name))
-
             image = cv2.imread(image_path)
             rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
@@ -427,34 +407,23 @@ class FaceHandler:
                 # dump the facial encodings + names to disk
         logging.info("Loading data into the DB...")
 
-        db_names = c.execute("SELECT name FROM persons").fetchall()
-        logging.info(db_names)
+        person_names = (person.name for person in self.db.get_persons())
+        #logging.info(persons)
         for n in known_names:
-            if n not in db_names:
+            if n not in person_names:
                 logging.info("Inserting new name to DB: " + n)
-                c.execute("INSERT INTO persons (name) VALUES (?)", (n,))
-                db_names.append(n)
+                self.db.add_person(n, False)
+                person_names.append(n)
 
         for n, e in zip(known_names, known_encodings):
-            c.execute('INSERT INTO encodings VALUES (?, ?)', [n, e.tobytes()])
-        con.commit()
+            self.db.add_encoding(n, e.tobytes())
         self.reload_from_db()
-        con.close()
 
     def reload_from_db(self):
         self.load_persons_from_database()
         self.load_unknown_persons_from_database()
         self.load_encodings_from_database()
         self.load_unknown_encodings_from_database()
-
-    def move_to_sql(self):
-        con = sql.connect(self.database_location)
-        c = con.cursor()
-        c.execute("	DELETE FROM encodings")
-        for n, e in zip(self.face_data["names"], self.face_data["encodings"]):
-            c.execute('INSERT INTO encodings VALUES (?, ?)', [n, e.tobytes()])
-        con.commit()
-        con.close()
 
     def take_cropped_pic(self, img, r, folder_path="Static/unknowns/", name=None):
         if name is None:
