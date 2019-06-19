@@ -2,7 +2,7 @@ import datetime
 from flask import Flask, render_template
 from flask_admin import Admin
 import flask_simplelogin as simplog
-from FaceHandler import FaceHandler
+from Library.FaceHandler import FaceHandler
 import logging
 import os
 import cv2
