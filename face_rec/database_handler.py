@@ -32,6 +32,7 @@ class DatabaseHandler:
     TIME_FORMAT = "%Y.%m.%d. %H:%M:%S"
 
     def __init__(self, db_location):
+        """Connects to database and creates tables: [UserEvent, Encoding, Person]"""
         self.db_loc = db_location
         self.active_connection = False
         db.connect()
@@ -60,6 +61,7 @@ class DatabaseHandler:
         """Removes the given name from both tables (removes all the encodings)"""
         return Person.delete().where(Person.name == name).execute() > 0
 
+#TODO: is another function really necessary instead of remove_name?
     def remove_unknown_name(self, name:str) -> bool:
         """Removes the given name from both tables (removes all the encodings)"""
         return self.remove_name(name)
@@ -91,6 +93,7 @@ class DatabaseHandler:
         self.commit_and_close_connection() """
         Person.update(unknown = False).where(Person.name == name).execute()
 
+# returns the entire Person table?
     def get_persons(self) -> List[Person]:
         """
         Returns a list containing a list of attributes, which represents persons
@@ -117,10 +120,12 @@ class DatabaseHandler:
         return retval """
         return Person.select()
 
+    # returns the Person table with only known persons
     def get_known_persons(self) -> List[Person]:
         logging.info("DatabaseHandler get_known_persons")
         return Person.select().where(Person.unknown == False)
 
+    # returns the Person table with only unknown persons
     def get_unknown_persons(self) -> List[Person]:
         """
         Returns a list containing a list of attributes, which represents persons
@@ -148,9 +153,10 @@ class DatabaseHandler:
 
     def update_person_data(self, old_name: str, new_name: str=None, new_pref:str=None) -> Person:
         """
-        Updates recors in persons table
-        Uses the old name to find the record
-        Returns the new person
+        Updates records in persons table.
+        Uses the old name to find the record.
+        There are two main parameters: new_name & new_pref. If you give both, then both will be updated in the Person table. If either is None only the other one will be updated.
+        Returns the new person.
         """
         logging.info("DatabaseHandler update_person_data")
         """ if not new_name:
@@ -173,6 +179,8 @@ class DatabaseHandler:
         return Person.get(Person.name == new_name)
 
     def update_face_recognition_settings(self, form):
+        """Updates the face_recognition_settings table's 'key' and 'value' columns with the values from the paramter 'form'
+        :param form: A dictionary whose 'key,value' pairs will be written into the face_recognition_settings table"""
         c = self.open_and_get_cursor()
         for key, value in form.items():
                 c.execute("UPDATE face_recognition_settings SET value = ? WHERE key = ?", (value, key))
@@ -185,6 +193,8 @@ class DatabaseHandler:
         self.commit_and_close_connection()
 
     def update_notification_settings(self, form):
+        """Updates the notification_settings table's 'key' and 'value' columns with the values from the paramter 'form'
+        :param form: A dictionary whose 'key,value' pairs will be written into the notification_settings table"""
         c = self.open_and_get_cursor()
         for key, value in form.items():
                 c.execute("UPDATE notification_settings SET value = ? WHERE key = ?", (value, key))
@@ -212,6 +222,7 @@ class DatabaseHandler:
             d[row[0]] = row[1]
         return d
 
+    # changes the thumbnail picture in the Person table for the person with 'name'
     def change_thumbnail(self, name: str, pic:str):
         logging.info("DatabaseHandler change_thumbnail")
         """ c = self.open_and_get_cursor()
@@ -219,6 +230,7 @@ class DatabaseHandler:
         self.commit_and_close_connection() """
         Person.update(thumbnail = pic).where(Person.name == name).execute()
 
+    # returns the thumbnail for person with 'name' from the Person table
     def get_thumbnail(self, name: str) -> Person:
         logging.info("DatabaseHandler get_thumbnail")
         """ c = self.open_and_get_cursor()
@@ -227,10 +239,12 @@ class DatabaseHandler:
         self.commit_and_close_connection() """
         return Person.select(Person.thumbnail).where(Person.name == name).get()
 
+    # deletes the encodings table
     def empty_encodings(self):
         logging.info("DatabaseHandler empty_encodings")
         Encoding.delete().execute()
 
+    # adds a new person to the table
     def add_person(self, name:str, unknown:bool = True) -> Person:
         logging.info("DatabaseHandler add_person")
         new_person = Person()
@@ -241,6 +255,7 @@ class DatabaseHandler:
         new_person.save()
         return new_person
 
+    # adds a new encoding to the table
     def add_encoding(self, name: str, encodingbytes: bytes):
         logging.info("DatabaseHandler add_encoding")
         encoding = Encoding()
