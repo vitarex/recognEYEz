@@ -122,6 +122,7 @@ class CentroidTracker():
             logging.info("Index error in tracking.py")
             # compute both the row and column index we have NOT yet
             # examined
+        # TODO: something should be done to avoid unreachable code
             if False:
                 unusedRows = set(range(0, D.shape[0])).difference(usedRows)
                 unusedCols = set(range(0, D.shape[1])).difference(usedCols)
