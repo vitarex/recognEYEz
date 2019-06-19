@@ -50,21 +50,20 @@ class FileHandler:
         except FileNotFoundError:
             logging.error("FileNotFound at remove_unknown_files(), folder: " + str(folder_name))
 
-    def merge_unk_file_with(self, folder_name_from, folder_name_to):
-        logging.info("Merging {} with {}".format(folder_name_from, folder_name_to))
-        folder_path_from = os.path.join(self.main_image_folder_path, "unknown_pics", folder_name_from)
-        pics = paths.list_images(folder_path_from)
+    def merge_unk_file_with(self, from_folder_name, to_folder_name):
+        logging.info("Merging {} with {}".format(from_folder_name, to_folder_name))
+        from_folder_path = os.path.join("Static", "unknown_pics", from_folder_name)
+        to_folder_path = os.path.join(self.main_image_folder_path, from_folder_name)
+        pics = paths.list_images(from_folder_path)
         logging.info("pics: " + str(pics))
         for pic in pics:
-            move(pic, os.path.join(self.main_image_folder_path, folder_name_to))
-        self.remove_unknown_files(folder_name_to)
+            move(pic, to_folder_path)
+        self.remove_unknown_files(to_folder_name)
 
-    def create_new_person_from_unk(self, folder_name):
-        import pdb; pdb.set_trace()
-        folder_from = os.path.join(self.main_image_folder_path, "unknown_pics", folder_name)
-        pics = paths.list_images(folder_from)
-        self.merge_unk_file_with(folder_name, folder_name)
-        move(folder_from, self.main_image_folder_path)
+    def create_new_person_from_unk(self, from_folder_name):
+        from_folder_path = os.path.join("Static", "unknown_pics", from_folder_name)
+        to_folder_path = os.path.join(self.main_image_folder_path, from_folder_name)
+        move(from_folder_path, to_folder_path)
 
 
 
