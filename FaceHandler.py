@@ -193,7 +193,7 @@ class FaceHandler:
         """
         If use_dnn is set, checks faces with a Neural Network, if not, then only detects the faces and tries to guess
         the owner by the positions on the previous frame. If the number of faces differs from the previous frame, or
-        this is the first frame, than a NN scan always runs.
+        this is the first frame, then a NN scan always runs.
 
         It also:
             - keeps record of all the visible faces in the self.visible_faces
