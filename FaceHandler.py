@@ -197,10 +197,6 @@ class FaceHandler:
         :return: the visible persons, the frame itself and the rectangles corresponding to the found faces
         """
 
-        # if app == None or app.fh == None or app.fh.cam_is_running == None:
-        #     print("Is the cam running? -- something is fishy here")
-        # print("Is the cam running? %r" % app.fh.cam_is_running)
-
         start_t = time.time()
         ret, frame = self.cam.read()
         if self.settings["flip_cam"] == "on":
