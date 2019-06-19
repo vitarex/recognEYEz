@@ -46,11 +46,3 @@ class MqttHandler:
 
     def publish(self, topic, payload):
         self.client.publish(topic, payload)
-
-if __name__ == "__main__":
-    mqtt_test = MqttHandler()
-    mqtt_test.subscribe("face_handler")
-    mqtt_test.publish("face_handler", "Okay")
-    time.sleep(10)
-    mqtt_test.stop_loop()
-

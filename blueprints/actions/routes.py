@@ -1,14 +1,12 @@
-from flask import Blueprint, render_template, request, redirect, make_response
+from flask import Blueprint, redirect, make_response
 from flask import current_app as app
 import flask_simplelogin as simplog
 import os
 import sys
-import datetime
 import cv2
 import logging
-import webapp
 
-from CameraHandler import camera_start, camera_stop
+from Library.CameraHandler import camera_start, camera_stop
 
 actions = Blueprint("actions", __name__)
 

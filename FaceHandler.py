@@ -4,17 +4,16 @@ import os
 import time
 import numpy as np
 import face_recognition
-import face_rec.tracking as tracking
+import Library.tracking as tracking
 from imutils import paths
 import sqlite3 as sql
-import io, errno
+import errno
 import logging
-import itertools
 
-from face_rec.mailer import Mailer
-from face_rec.database_handler import DatabaseHandler
-from face_rec.file_handler import FileHandler
-from face_rec.mqqt_handler import MqttHandler
+from Library.Mailer import Mailer
+from Library.DatabaseHandler import DatabaseHandler
+from Library.FileHandler import FileHandler
+from Library.MqttHandler import MqttHandler
 
 class FaceHandler:
     resolutions = {"vga": [640, 480], "qvga": [320, 240], "qqvga": [160, 120], "hd": [1280, 720], "fhd": [1920, 1080]}
@@ -41,8 +40,8 @@ class FaceHandler:
 
         # ??? creates a variable called ct that contains the CentroidTracker???
         self.ct = tracking.CentroidTracker()
-        # sets the path where the haarcascade_frontalface_default.xml file is found (recognEYEz\face_rec\haarcascade_frontalface_default.xml)
-        cascade_path = os.path.dirname(os.path.realpath(__file__)) + "/face_rec/" + cascade_xml
+        # sets the path where the haarcascade_frontalface_default.xml file is found (recognEYEz\Library\haarcascade_frontalface_default.xml)
+        cascade_path = os.path.dirname(os.path.realpath(__file__)) + "/Library/" + cascade_xml
         # loads the OpenCV face_detector / CascadeClassifier from the cascade_path
         self.face_detector = cv2.CascadeClassifier(cascade_path)
         logging.info("OpenCV facedetector loaded")
@@ -162,7 +161,7 @@ class FaceHandler:
             self.cam.release()
             self.cam_is_running = False
 
-    def process_next_frame(self, use_dnn=False, show_preview=False, save_new_faces=False):
+    def process_next_frame(self, use_dnn=False, show_preview=False, save_new_faces=False, app=None):
         """
         If use_dnn is set, checks faces with a Neural Network, if not, then only detects the faces and tries to guess
         the owner by the positions on the previous frame. If the number of faces differs from the previous frame, or
@@ -177,6 +176,7 @@ class FaceHandler:
         :param show_preview: show pop-up preview?
         :return: the visible persons, the frame itself and the rectangles corresponding to the found faces
         """
+
         start_t = time.time()
         ret, frame = self.cam.read()
         if self.settings["flip_cam"] == "on":
@@ -437,20 +437,3 @@ class Person:
         self.pref = preference
         self.is_visible = False
         self.thumbnail = thumbnail
-
-
-if __name__ == "__main__":
-    fh = FaceHandler("haarcascade_frontalface_default.xml")
-    fh.start_cam()
-    iter = 0
-    while True:
-        iter = iter + 1
-        if iter >= 300:
-            fh.detected_faces = fh.process_next_frame(True, True)
-            iter = 0
-        else:
-            fh.detected_faces = fh.process_next_frame(False, True)
-
-        k = cv2.waitKey(25) & 0xff  # Press 'ESC' for exiting video
-        if k == 27:
-            break
