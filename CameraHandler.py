@@ -48,3 +48,4 @@ def camera_check(app):
             logging.info(e)
             if error_count > 5:
                 app.fh.cam_is_running = False
+            raise e
