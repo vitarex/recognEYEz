@@ -9,6 +9,7 @@ from imutils import paths
 import sqlite3 as sql
 import errno
 import logging
+import os
 
 from Library.Mailer import Mailer
 from Library.DatabaseHandler import DatabaseHandler
@@ -304,7 +305,7 @@ class FaceHandler:
                         logging.info("Found a previously seen unknown: " + name)
                         self.on_unknown_face_found(name)
                         if save_new_faces:
-                            path = self.unknown_pic_folder_path + "/" + name
+                            path = Path(self.unknown_pic_folder_path).joinpath("/",name)
                             self.take_cropped_pic(frame, face_rects[rect_count], path)
                 # if nor in recent unknowns
                 else:
@@ -417,7 +418,7 @@ class FaceHandler:
         except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
-        cv2.imwrite(path, img[r[0]:r[2], r[3]:r[1]])
+        cv2.imwrite(str(path), img[r[0]:r[2], r[3]:r[1]])
         logging.info("Picture taken: {}".format(path))
 
 
