@@ -33,19 +33,11 @@ def update_face_recognition_settings():
     if restart:
         app.fh.stop_cam()
         app.fh.start_cam()
-    return render_template(
-        "config.html",
-        frec=app.fh.db.load_face_recognition_settings(),
-        notif=app.fh.db.load_notification_settings()
-    )
+    return redirect("/config")
 
 
 @config_page.route('/notification_settings', methods=['POST'])
 @simplog.login_required
 def update_notification_settings():
     app.fh.db.update_notification_settings(request.form)
-    return render_template(
-        "config.html",
-        frec=app.fh.db.load_face_recognition_settings(),
-        notif=app.fh.db.load_notification_settings()
-    )
+    return redirect("/config")

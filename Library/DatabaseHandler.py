@@ -4,6 +4,8 @@ import logging
 from peewee import *
 from typing import List
 import logging
+import json
+from pathlib import Path
 
 db = SqliteDatabase('recogneyez.db')
 
@@ -173,44 +175,38 @@ class DatabaseHandler:
         return Person.get(Person.name == new_name)
 
     def update_face_recognition_settings(self, form):
-        c = self.open_and_get_cursor()
+        sett = {}
         for key, value in form.items():
-                c.execute("UPDATE face_recognition_settings SET value = ? WHERE key = ?", (value, key))
-        # not so elegant, but unchecked HTML checkboxes are hard to handle
+            sett[key] = value
         checkbox_names = ["force_dnn_on_new", "flip_cam", "cache_unknown"]
         for box in checkbox_names:
             if box not in list(form.keys()):
-                logging.info("setting off for: " + box)
-                c.execute("UPDATE face_recognition_settings SET value = ? WHERE key = ?", ("off", box))
-        self.commit_and_close_connection()
+                sett[box] = "off"
+        with open(Path("Data/FaceRecSettings.json"), 'w') as fp:
+            json.dump(sett, fp)
 
     def update_notification_settings(self, form):
-        c = self.open_and_get_cursor()
+        sett = {}
         for key, value in form.items():
-                c.execute("UPDATE notification_settings SET value = ? WHERE key = ?", (value, key))
-        # not so elegant, but unchecked HTML checkboxes are hard to handle
+            sett[key] = value
         checkbox_names = ["m_notif_spec", "m_notif_kno", "m_notif_unk", "e_notif_spec", "e_notif_kno", "e_notif_unk"]
         for box in checkbox_names:
             if box not in list(form.keys()):
-                logging.info("setting off for: " + box)
-                c.execute("UPDATE notification_settings SET value = ? WHERE key = ?", ("off", box))
-        self.commit_and_close_connection()
+                sett[box] = "off"
+        with open(Path("Data/NotificationSettings.json"), 'w') as fp:
+            json.dump(sett, fp)
 
     # loads the face_recognition_settings table from the database into a dictionary
     def load_face_recognition_settings(self):
-        c = self.open_and_get_cursor()
-        d = dict()
-        for row in c.execute("SELECT * FROM face_recognition_settings"):
-            d[row[0]] = row[1]
-        return d
+        with open(Path("Data/FaceRecSettings.json")) as json_file:
+            sett = json.load(json_file)
+        return sett
 
     # loads the notification_settings table from the database into a dictionary
     def load_notification_settings(self):
-        c = self.open_and_get_cursor()
-        d = dict()
-        for row in c.execute("SELECT * FROM notification_settings"):
-            d[row[0]] = row[1]
-        return d
+        with open(Path("Data/NotificationSettings.json")) as json_file:
+            sett = json.load(json_file)
+        return sett
 
     def change_thumbnail(self, name: str, pic:str):
         logging.info("DatabaseHandler change_thumbnail")
