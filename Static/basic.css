@@ -188,34 +188,6 @@ th {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* The switch - the box around the slider */
 .switch {
     position: relative;
@@ -281,14 +253,6 @@ th {
 
 
 
-
-
-
-
-
-
-
-
 /* Tooltip container */
 .tooltip {
     position: relative;
@@ -335,6 +299,12 @@ th {
 .tooltiptext img:hover {
     opacity: 1;
     transition: opacity 0.7s;
+}
+
+div > footer {
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
 }
 
 
