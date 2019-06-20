@@ -8,14 +8,14 @@ config_page = Blueprint("config_page", __name__)
 
 
 @config_page.route('/change_password', methods=['POST'])
-# @simplog.login_required TODO ez igy nem maradhat
+@simplog.login_required
 def change_password():
     set_hashed_login_passwd(request.form["new_password"])
     return redirect("/config")
 
 
 @config_page.route('/config')
-# @simplog.login_required TODO ez igy nem maradhat
+@simplog.login_required
 def config_view():
     return render_template(
         "config.html",
