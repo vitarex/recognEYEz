@@ -7,7 +7,7 @@ import logging
 import os
 import cv2
 
-from Library.CameraHandler import camera_start
+from Library.CameraHandler import camera_start_processing
 
 #from flask_cache_buster import CacheBuster
 
@@ -133,7 +133,6 @@ def create_app(config_class=Config):
 
     app.dnn_iter = 0
     app.present = []
-    app.threads = []
     app.admin = Admin(app, name='recogneyez', template_mode='bootstrap3')
     app.ticker = 0
 
@@ -143,6 +142,8 @@ def create_app(config_class=Config):
 
     app.preview_image = cv2.imread("Static/empty_pic.png")
 
-    camera_start(app)
+    app.camera_thread = None
+
+    camera_start_processing(app)
 
     return app

@@ -21,7 +21,7 @@ class FaceHandler:
     resolutions = {"vga": [640, 480], "qvga": [320, 240], "qqvga": [160, 120], "hd": [1280, 720], "fhd": [1920, 1080]}
     font = cv2.FONT_HERSHEY_DUPLEX
     TIME_FORMAT = "%Y_%m_%d__%H_%M_%S"
-    unknown_pic_folder_path = os.path.join("Static","unknown_pics")
+    unknown_pic_folder_path = os.path.join("Static", "unknown_pics")
 
     def __init__(self,
                  cascade_xml="haarcascade_frontalface_default.xml",
@@ -31,14 +31,13 @@ class FaceHandler:
         logging.info("FaceHandler init started")
         self.database_location = db_loc
         self.db = DatabaseHandler(self.database_location)
-        self.settings = dict()
         self.load_settings_from_db()
 
         # loads video with OpenCV
-        self.cam = cv2.VideoCapture(0)
-        self.minW = 0.1 * self.cam.get(3)
-        self.minH = 0.1 * self.cam.get(4)
-        logging.info("Video loaded")
+        self.cam_is_running = False
+        self.cam_is_processing = False
+        self.start_cam()
+        logging.info("Camera opened")
 
         # ??? creates a variable called ct that contains the CentroidTracker???
         self.ct = tracking.CentroidTracker()
@@ -48,40 +47,32 @@ class FaceHandler:
         self.face_detector = cv2.CascadeClassifier(cascade_path)
         logging.info("OpenCV facedetector loaded")
 
-
         self.database_location = db_loc
 
         # creates empty directories and fills them with info from database
-        self.settings = dict()
-        self.load_settings_from_db()
-        self.face_data = dict()
-        self.unknown_face_data = dict()
         self.load_encodings_from_database()
         self.load_unknown_encodings_from_database()
 
-        self.persons = dict()
-        self.unknown_persons = dict()
         self.load_persons_from_database()
         self.load_unknown_persons_from_database()
 
         # creates two empty dictionaries that will be modified by later functions
         self.visible_persons = dict()
         self.prev_visible_persons = dict()
-        #TODO: is self.id2name_dict used anywhere?
-        self.id2name_dict = dict()
-        self.cam_is_running = False
 
         self.notification_settings = self.db.load_notification_settings()
+
         # loads the face_recognition_settings table from the database into self.face_rec_settings
         self.face_rec_settings = self.db.load_face_recognition_settings()
         logging.info("Database tables loaded")
 
+        # MQTT setup
         self.mqtt = MqttHandler(self.database_location)
         self.mqtt.subscribe(self.notification_settings["topic"])
         logging.info("MQTT connected")
 
         self.file = FileHandler(img_root)
-        # TODO: what is self.mail used for????
+        # TODO: use mailer to send notifications to users
         self.mail = Mailer("email@gmail.com", "emailpass")
         self.mail.send_mail_cooldown_seconds = 120
         self.mail.last_mail_sent_date = None
@@ -114,6 +105,7 @@ class FaceHandler:
         self.unknown_face_data = {"names": names, "encodings": encodings}
 
     def load_persons_from_database(self):
+        self.persons = {}
         for person in self.db.get_known_persons():
             encodings = list()
             for i, n in enumerate(self.face_data["names"]):
@@ -122,6 +114,7 @@ class FaceHandler:
             self.persons[person.name] = person
 
     def load_unknown_persons_from_database(self):
+        self.unknown_persons = {}
         for person in self.db.get_unknown_persons():
             encodings = list()
             for i, n in enumerate(self.unknown_face_data["names"]):
@@ -147,10 +140,9 @@ class FaceHandler:
     def start_cam(self):
         if self.cam_is_running:
             return
-        # try:
+
         self.cam = cv2.VideoCapture(int(self.settings["cam_id"]))
-        # except NameError:
-        #     self.cam = cv2.VideoCapture(int(self.settings["cam_id"]))
+
         res = self.resolutions[self.settings["resolution"]]
         self.cam.set(3, res[0])  # set video width
         self.cam.set(4, res[1])  # set video height

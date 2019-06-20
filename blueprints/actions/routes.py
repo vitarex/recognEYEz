@@ -6,7 +6,7 @@ import sys
 import cv2
 import logging
 
-from Library.CameraHandler import camera_start, camera_stop
+from Library.CameraHandler import camera_start_processing, camera_stop_processing
 
 actions = Blueprint("actions", __name__)
 
@@ -16,13 +16,13 @@ actions = Blueprint("actions", __name__)
 @actions.route('/start_camera')
 @simplog.login_required
 def start_cam():
-    camera_start(app)
+    camera_start_processing(app)
     return redirect("/")
 
 @actions.route('/stop_camera')
 @simplog.login_required
 def stop_cam():
-    camera_stop(app)
+    camera_stop_processing(app)
     return redirect("/")
 
 
@@ -30,7 +30,7 @@ def stop_cam():
 @simplog.login_required
 def force_a_rescan():
     app.force_rescan = True
-    while app.force_rescan and app.fh.cam_is_running:
+    while app.force_rescan and app.fh.cam_is_running and app.fh.cam_is_processing:
         pass
     return redirect("/")
 
