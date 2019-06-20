@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect
 from imutils import paths
 from flask import current_app as app
 import flask_simplelogin as simplog
-import os
+from pathlib import Path
 import logging
 from typing import List
 
@@ -28,13 +28,12 @@ def person_db_view():
 
     :return:
     """
-    unk_persons = app.fh.db.get_unknown_persons()
+    """ unk_persons = app.fh.db.get_unknown_persons()
     unk_names = list((person.name for person in unk_persons))
-    unk_folder_names = list((str(n).replace("/", "_").replace(":", "_") for n in unk_names))
+    unk_folder_names = unk_names
     first_unk_pics = list()
     unk_pic_count = list()
     other_pics = list()
-    #import pdb; pdb.set_trace()
     for folder in unk_folder_names:
         try:
             img_list = list(paths.list_images(os.path.join("Static", "unknown_pics", folder)))
@@ -52,18 +51,26 @@ def person_db_view():
     for i, unk_name in enumerate(unk_names):
         if check_length([unk_folder_names, first_unk_pics, unk_pic_count, other_pics], i):
             unk_data.append({
-                    "name": unk_name,
+                    "person": unk_name,
                     "folder": unk_folder_names[i],
                     "first pic": first_unk_pics[i],
                     "pic count": unk_pic_count[i],
                     "other pics": other_pics[i][:9]
                 })
     if unk_data:
-       logging.info(unk_data[0])
+       logging.info(unk_data[0]) """
+
+    unk_persons = app.fh.db.get_unknown_persons()
+    for person in unk_persons:
+        img_list = list(paths.list_images(Path("Static", "unknown_pics", person.name)))
+        
+        if len(img_list) > 0:
+            person.pic_count = len(img_list)
+            person.other_pics = img_list[:9]
     return render_template(
         "person_db.html",
         persons=app.fh.db.get_known_persons(),  # using list instead of dict because of Jinja handles only lists
-        unk_data=unk_data,
+        unk_persons=unk_persons,
         folder_location=app.config["PICTURE_FOLDER"]
     )
 

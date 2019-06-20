@@ -1,10 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, json
 from flask import current_app as app
 import flask_simplelogin as simplog
-import os
+from pathlib import Path
 import logging
 
-stat_folder = os.path.join(os.pardir, os.pardir, 'Static')
+stat_folder = Path('../../Static')
 person_edit = Blueprint("person_edit", __name__, static_folder=stat_folder, static_url_path='/Static')
 
 

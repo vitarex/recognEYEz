@@ -1,6 +1,6 @@
 import cv2
 import datetime
-import os
+from pathlib import Path
 import time
 import numpy as np
 import face_recognition
@@ -20,7 +20,7 @@ class FaceHandler:
     resolutions = {"vga": [640, 480], "qvga": [320, 240], "qqvga": [160, 120], "hd": [1280, 720], "fhd": [1920, 1080]}
     font = cv2.FONT_HERSHEY_DUPLEX
     TIME_FORMAT = "%Y_%m_%d__%H_%M_%S"
-    unknown_pic_folder_path = os.path.join("Static","unknown_pics")
+    unknown_pic_folder_path = Path("Static","unknown_pics")
 
     def __init__(self,
                  cascade_xml="haarcascade_frontalface_default.xml",
@@ -323,7 +323,6 @@ class FaceHandler:
                         names.append(name)
                         logging.info("Found a previously seen unknown: " + name)
                         self.on_unknown_face_found(name)
-                        name = name.replace("/", "_").replace(":", "_")
                         if save_new_faces:
                             path = self.unknown_pic_folder_path + "/" + name
                             self.take_cropped_pic(frame, face_rects[rect_count], path)
@@ -332,6 +331,8 @@ class FaceHandler:
                     # overview HOG with CNN, is it really a face?
                     if self.is_it_a_face(frame, face_rects[rect_count]):
                         unk_name = self.next_unknown_name()
+                        path = os.path.join(self.unknown_pic_folder_path, unk_name)
+                        self.take_cropped_pic(frame, face_rects[rect_count], path)
                         self.save_unknown_encoding_to_db(unk_name, e)
                         self.unknown_face_data["encodings"].append(e)
                         self.unknown_face_data["names"].append(unk_name)
@@ -340,9 +341,6 @@ class FaceHandler:
 
                         names.append(unk_name)
                         self.on_unknown_face_found(unk_name)
-                        unk_name = unk_name.replace("/", "_").replace(":", "_")
-                        path = self.unknown_pic_folder_path + "/" + unk_name
-                        self.take_cropped_pic(frame, face_rects[rect_count], path)
                     else:
                         names.append("not a face")  # to make correct indices
                         logging.info("HOG method found a false positive or low quality face")
@@ -354,7 +352,7 @@ class FaceHandler:
         return False
 
     def next_unknown_name(self):
-        name = "_Unk_" + datetime.datetime.now().strftime("%m/%d_%H:%M:%S")
+        name = "_Unk_" + datetime.datetime.now().strftime("%m_%d_%H_%M_%S")
         while name in self.unknown_face_data["names"]:
             name = name + "_"
         return name
@@ -428,7 +426,7 @@ class FaceHandler:
     def take_cropped_pic(self, img, r, folder_path="Static/unknowns/", name=None):
         if name is None:
             name = datetime.datetime.now().strftime(self.TIME_FORMAT)
-        path = folder_path + "/" + name + '.png'
+        path = os.path.join(folder_path, name + '.png')
         try:
             os.makedirs(folder_path)
         except OSError as e:

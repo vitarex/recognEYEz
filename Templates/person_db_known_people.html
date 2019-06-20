@@ -14,7 +14,7 @@
                 {% for person in persons %}
                     {%if person.id != 0 %}
                         <tr class="w3-hover-black">
-                            <td><img src="{{ folder_location }}/{{ person.name }}/{{ person.thumbnail }}"
+                            <td><img src="{{ person.thumbnail }}"
                                      style="width: 100px; border-radius: 10%"
                                      onerror="if (this.src != 'empty_pic.png') this.src = 'empty_pic.png';">
                             </td>

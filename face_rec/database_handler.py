@@ -4,6 +4,8 @@ import logging
 from peewee import *
 from typing import List
 import logging
+from pathlib import Path
+from imutils import paths
 
 db = SqliteDatabase('recogneyez.db')
 
@@ -22,7 +24,7 @@ class Person(DBModel):
 
 class Encoding(DBModel):
     encoding = BlobField(null = True)
-    person = ForeignKeyField(Person, backref = 'encodings')
+    person = ForeignKeyField(Person, backref = 'encodings', on_delete='CASCADE')
 
 class UserEvent(DBModel):
     datetime = DateTimeField()
@@ -67,13 +69,6 @@ class DatabaseHandler:
     def merge_unknown(self, old_name:str , new_name:str) -> bool:
         """"""
         logging.info("DatabaseHandler merge_unknown")
-        """ c = self.open_and_get_cursor()
-        for row in c.execute('SELECT encoding FROM unknown_encodings WHERE name = ?', (old_name,)):
-            c.execute('INSERT INTO encodings VALUES (?, ?)', (new_name, row[0]))
-        c.execute('DELETE FROM unknown_encodings WHERE name = ?', (old_name,))
-        c.execute('DELETE FROM recent_unknowns WHERE name = ?', (old_name,))
-        self.commit_and_close_connection()
-        return True """
         merge_to = Person.select().where(Person.name == new_name)
         merge_from = Person.select().where(Person.name == old_name)
         merge_from.encodings.update(person = merge_to).execute()
@@ -82,14 +77,8 @@ class DatabaseHandler:
     def create_new_from_unknown(self, name:str , folder:str) -> bool:
         """"""
         logging.info("DatabaseHandler create_new_from_unknown")
-        """ c = self.open_and_get_cursor()
-        c.execute("INSERT INTO persons (name) VALUES (?)", (folder,) )
-        for row in c.execute('SELECT encoding FROM unknown_encodings WHERE name = ?', (name,)):
-            c.execute('INSERT INTO encodings VALUES (?, ?)', (folder, row[0]))
-        c.execute('DELETE FROM unknown_encodings WHERE name = ?', (name,))
-        c.execute('DELETE FROM recent_unknowns WHERE name = ?', (name,))
-        self.commit_and_close_connection() """
         Person.update(unknown = False).where(Person.name == name).execute()
+        self.change_thumbnail(name, self.resolve_thumbnail(name))
 
     def get_persons(self) -> List[Person]:
         """
@@ -100,21 +89,6 @@ class DatabaseHandler:
         don't use ID in code
         """
         logging.info("DatabaseHandler get_persons")
-        """ c = self.open_and_get_cursor()
-        if formatting == "list":
-            retval = list()
-            for row in c.execute('SELECT * FROM persons ORDER BY id'):
-                retval.append(row)
-        if formatting == "dict":
-            retval = list()
-            for row in c.execute('SELECT * FROM persons ORDER BY id'):
-                id = row[0]
-                name = row[1]
-                pref = row[2]
-                thumbnail = row[6]
-                retval.append({"id":id, "name": name, "pref": pref, "thumbnail": thumbnail})
-        self.commit_and_close_connection()
-        return retval """
         return Person.select()
 
     def get_known_persons(self) -> List[Person]:
@@ -130,20 +104,6 @@ class DatabaseHandler:
         don't use ID in code
         """
         logging.info("DatabaseHandler get_unknown_persons")
-        """ c = self.open_and_get_cursor()
-        if formatting == "list":
-            retval = list()
-            for row in c.execute('SELECT * FROM recent_unknowns ORDER BY id'):
-                retval.append(row)
-        if formatting == "dict":
-            retval = list()
-            for row in c.execute('SELECT * FROM persons ORDER BY id'):
-                id = row[0]
-                name = row[1]
-                date = row[2]
-                retval.append({"id":id, "name": name, "date": date})
-        self.commit_and_close_connection()
-        return retval """
         return Person.select().where(Person.unknown == True)
 
     def update_person_data(self, old_name: str, new_name: str=None, new_pref:str=None) -> Person:
@@ -153,17 +113,6 @@ class DatabaseHandler:
         Returns the new person
         """
         logging.info("DatabaseHandler update_person_data")
-        """ if not new_name:
-            new_name = old_name
-        c = self.open_and_get_cursor()
-        if new_pref:
-            c.execute("UPDATE persons SET name = ?, preference = ? WHERE name = ?", (new_name, new_pref, old_name))
-            c.execute("UPDATE encodings SET name = ? WHERE name = ?", (new_name, old_name))
-        else:
-            c.execute("UPDATE persons SET name = ? WHERE name = ?", (new_name, old_name))
-        retval = c.execute('SELECT * FROM persons WHERE name = ?', (new_name,))
-        self.commit_and_close_connection()
-        return retval """
         if not new_name:
             new_name = old_name
         if new_pref:
@@ -214,32 +163,39 @@ class DatabaseHandler:
 
     def change_thumbnail(self, name: str, pic:str):
         logging.info("DatabaseHandler change_thumbnail")
-        """ c = self.open_and_get_cursor()
-        c.execute("UPDATE persons SET thumbnail = ? WHERE name = ?", (pic, name))
-        self.commit_and_close_connection() """
         Person.update(thumbnail = pic).where(Person.name == name).execute()
 
     def get_thumbnail(self, name: str) -> Person:
         logging.info("DatabaseHandler get_thumbnail")
-        """ c = self.open_and_get_cursor()
-        c.execute("SELECT thumbnail FROM persons WHERE name=?", (name,))
-        pic_name = c.fetchone()
-        self.commit_and_close_connection() """
         return Person.select(Person.thumbnail).where(Person.name == name).get()
 
     def empty_encodings(self):
         logging.info("DatabaseHandler empty_encodings")
         Encoding.delete().execute()
 
-    def add_person(self, name:str, unknown:bool = True) -> Person:
+    def add_person(self, name:str, unknown:bool = True, thumbnail: str = None) -> Person:
         logging.info("DatabaseHandler add_person")
         new_person = Person()
         new_person.name = name
         new_person.first_seen = datetime.now()
         new_person.last_seen = datetime.now()
         new_person.unknown = unknown
+        new_person.thumbnail = thumbnail or self.resolve_thumbnail(name)
         new_person.save()
         return new_person
+
+    def resolve_thumbnail(self, name:str) -> str:
+        known_path = Path("Static", "dnn", name)
+        unk_path = Path("Static", "unknown_pics", name)
+        if known_path.exists():
+            pic_list = list(known_path.iterdir())
+            if len(pic_list) > 0:
+                return Path(*pic_list[0].parts[1:])
+        if unk_path.exists():
+            pic_list = list(unk_path.iterdir())
+            if len(pic_list) > 0:
+                return Path(*pic_list[0].parts[1:])
+        return None
 
     def add_encoding(self, name: str, encodingbytes: bytes):
         logging.info("DatabaseHandler add_encoding")
