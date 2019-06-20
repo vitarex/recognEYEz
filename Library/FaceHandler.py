@@ -67,8 +67,6 @@ class FaceHandler:
         # creates two empty dictionaries that will be modified by later functions
         self.visible_persons = dict()
         self.prev_visible_persons = dict()
-        #TODO: is self.id2name_dict used anywhere?
-        self.id2name_dict = dict()
         self.cam_is_running = False
 
         self.notification_settings = self.db.load_notification_settings()
