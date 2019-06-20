@@ -9,6 +9,7 @@
 }
 body {
 background: #333334;
+padding-bottom: 20px;
 }
 .myloginbutton {
 background-color: #339;
@@ -188,34 +189,6 @@ th {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* The switch - the box around the slider */
 .switch {
     position: relative;
@@ -281,14 +254,6 @@ th {
 
 
 
-
-
-
-
-
-
-
-
 /* Tooltip container */
 .tooltip {
     position: relative;
@@ -337,4 +302,9 @@ th {
     transition: opacity 0.7s;
 }
 
+div > footer {
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
 
+}

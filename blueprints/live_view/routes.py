@@ -24,7 +24,7 @@ def home():
         names = [n for n in app.fh.visible_persons.keys()]
     return render_template(
         "live_view.html",
-        running=app.fh.cam_is_running,
+        running=app.fh.cam_is_processing,
         names=names,
         recpicdate=prev_date,
         log=logs,
