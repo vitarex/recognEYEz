@@ -43,7 +43,7 @@ class FaceHandler:
         # ??? creates a variable called ct that contains the CentroidTracker???
         self.ct = tracking.CentroidTracker()
         # sets the path where the haarcascade_frontalface_default.xml file is found (recognEYEz\Library\haarcascade_frontalface_default.xml)
-        cascade_path = os.path.dirname(os.path.realpath(__file__)) + "/" + cascade_xml
+        cascade_path = (Path(__file__).resolve().parent) + "/" + cascade_xml
         # loads the OpenCV face_detector / CascadeClassifier from the cascade_path
         self.face_detector = cv2.CascadeClassifier(cascade_path)
         logging.info("OpenCV facedetector loaded")
@@ -311,7 +311,7 @@ class FaceHandler:
                     # overview HOG with CNN, is it really a face?
                     if self.is_it_a_face(frame, face_rects[rect_count]):
                         unk_name = self.next_unknown_name()
-                        path = os.path.join(self.unknown_pic_folder_path, unk_name)
+                        path = Path(self.unknown_pic_folder_path).joinpath(unk_name)
                         self.take_cropped_pic(frame, face_rects[rect_count], path)
                         self.save_unknown_encoding_to_db(unk_name, e)
                         self.unknown_face_data["encodings"].append(e)
@@ -357,7 +357,7 @@ class FaceHandler:
     def save_unknown_encoding_to_db(self, name, encoding):
         self.db.add_encoding(name, encoding.tobytes())
 
-    def train_dnn(self, dataset=os.path.join("Static", "dnn")):
+    def train_dnn(self, dataset=Path("Static").joinpath("dnn")):
         if self.cam_is_running:
             self.stop_cam()
         logging.info("quantifying faces...")
@@ -371,7 +371,7 @@ class FaceHandler:
         known_names = []
         for (i, image_path) in enumerate(image_paths):
             # extract the person name from the image path
-            name = image_path.split(os.path.sep)[-2]
+            name = image_path.split(Path("/"))[-2]
             logging.info("processing image {}/{} - {}".format(i + 1, len(image_paths), name))
             image = cv2.imread(image_path)
             rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -411,7 +411,7 @@ class FaceHandler:
     def take_cropped_pic(self, img, r, folder_path="Static/unknowns/", name=None):
         if name is None:
             name = datetime.datetime.now().strftime(self.TIME_FORMAT)
-        path = os.path.join(folder_path, name + '.png')
+        path = Path(folder_path).joinpath(name + '.png')
         try:
             os.makedirs(folder_path)
         except OSError as e:
