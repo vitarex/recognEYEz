@@ -29,7 +29,6 @@ dictConfig({
 })
 
 class Config:
-    SECRET_KEY = 'something-secret'
     TIME_FORMAT = "%Y.%m.%d. %H:%M:%S"
     PICTURE_FOLDER = "dnn_data"  # relative from the Static folder
     FACE_DATABASE = "facerecognition.db"
