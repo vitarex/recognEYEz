@@ -6,6 +6,7 @@ from Library.FaceHandler import FaceHandler
 import logging
 import os
 import cv2
+from pathlib import Path
 
 from Library.CameraHandler import camera_start
 
@@ -85,7 +86,7 @@ def init_fh(app):
     if not app.fh:
         app.fh = FaceHandler(
             cascade_xml="haarcascade_frontalface_default.xml",
-            img_root=os.path.join("Static", "dnn")
+            img_root=Path("Static").joinpath("dnn")
         )
         app.fh.running_since = datetime.datetime.now()
         # override the callback methods
