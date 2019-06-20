@@ -9,6 +9,7 @@
 }
 body {
 background: #333334;
+padding-bottom: 20px;
 }
 .myloginbutton {
 background-color: #339;
@@ -305,6 +306,5 @@ div > footer {
     position: fixed;
     bottom: 0px;
     width: 100%;
+
 }
-
-
