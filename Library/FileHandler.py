@@ -65,11 +65,3 @@ class FileHandler:
         to_folder_path = os.path.join(self.main_image_folder_path, from_folder_name)
         move(from_folder_path, to_folder_path)
 
-
-
-if __name__ == "__main__":
-    file_h = FileHandler()
-    logging.info(file_h.get_all_dnn_pic_name_for_person_name("Tomi"))
-
-
-

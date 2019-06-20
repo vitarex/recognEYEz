@@ -4,17 +4,18 @@ from pathlib import Path
 import time
 import numpy as np
 import face_recognition
-import face_rec.tracking as tracking
+import Library.tracking as tracking
 from imutils import paths
 import sqlite3 as sql
-import io, errno
+import errno
 import logging
-import itertools
 
-from face_rec.mailer import Mailer
-from face_rec.database_handler import DatabaseHandler
-from face_rec.file_handler import FileHandler
-from face_rec.mqqt_handler import MqttHandler
+from Library.Mailer import Mailer
+from Library.DatabaseHandler import DatabaseHandler
+from Library.FileHandler import FileHandler
+from Library.MqttHandler import MqttHandler
+
+import sys
 
 class FaceHandler:
     resolutions = {"vga": [640, 480], "qvga": [320, 240], "qqvga": [160, 120], "hd": [1280, 720], "fhd": [1920, 1080]}
@@ -41,8 +42,8 @@ class FaceHandler:
 
         # ??? creates a variable called ct that contains the CentroidTracker???
         self.ct = tracking.CentroidTracker()
-        # sets the path where the haarcascade_frontalface_default.xml file is found (recognEYEz\face_rec\haarcascade_frontalface_default.xml)
-        cascade_path = os.path.dirname(os.path.realpath(__file__)) + "/face_rec/" + cascade_xml
+        # sets the path where the haarcascade_frontalface_default.xml file is found (recognEYEz\Library\haarcascade_frontalface_default.xml)
+        cascade_path = os.path.dirname(os.path.realpath(__file__)) + "/" + cascade_xml
         # loads the OpenCV face_detector / CascadeClassifier from the cascade_path
         self.face_detector = cv2.CascadeClassifier(cascade_path)
         logging.info("OpenCV facedetector loaded")
@@ -50,40 +51,21 @@ class FaceHandler:
 
         self.database_location = db_loc
 
-        #TODO: suggestion: self.settings = self.load_settings_from_db()
-
-        # creates an empty list for self.settings
+        # creates empty directories and fills them with info from database
         self.settings = dict()
-        # fills up the self.settings dictionary with info from database
         self.load_settings_from_db()
-
-
-        #TODO: suggestion: self.face_data = self.load_encodings_from_database()
-        #TODO: suggestion: self.unknown_face_data = self.load_unknown_encodings_from_database()
-
-        # create an empty list for self.face_data
         self.face_data = dict()
-        # create an empty list for self.unknown_face_data
         self.unknown_face_data = dict()
-        # fills up the self.face_data dictionary with info from database
         self.load_encodings_from_database()
-        # fills up the self.unknown_face_data dictionary with info from database
         self.load_unknown_encodings_from_database()
 
-        #TODO: suggestion: self.persons=self.load_persons_from_database()
-        #TODO: suggestion: self.unknown_persons=self.load_unknown_persons_from_database()
-
-        # creates an empty list for self.persons
         self.persons = dict()
-        # creates an empty list for self.unknown_persons
         self.unknown_persons = dict()
-        # fills up the self.persons dictionary with info from database
         self.load_persons_from_database()
-        # fills up the self.unknown_persons dictionary with info from database
         self.load_unknown_persons_from_database()
-        # creates an empty list for self.visible_persons that will be modified by later functions
+
+        # creates two empty dictionaries that will be modified by later functions
         self.visible_persons = dict()
-        # creates an empty list for self.prev_visible_persons that will be modified by later functions
         self.prev_visible_persons = dict()
         #TODO: is self.id2name_dict used anywhere?
         self.id2name_dict = dict()
@@ -112,7 +94,6 @@ class FaceHandler:
         for row in c.execute("SELECT * FROM face_recognition_settings"):
             d[row[0]] = row[1]
         self.settings = d
-        return d
 
     def load_encodings_from_database(self):
         names = list()
@@ -182,7 +163,7 @@ class FaceHandler:
             self.cam.release()
             self.cam_is_running = False
 
-    def process_next_frame(self, use_dnn=False, show_preview=False, save_new_faces=False):
+    def process_next_frame(self, use_dnn=False, show_preview=False, save_new_faces=False, app=None):
         """
         If use_dnn is set, checks faces with a Neural Network, if not, then only detects the faces and tries to guess
         the owner by the positions on the previous frame. If the number of faces differs from the previous frame, or
@@ -197,6 +178,7 @@ class FaceHandler:
         :param show_preview: show pop-up preview?
         :return: the visible persons, the frame itself and the rectangles corresponding to the found faces
         """
+
         start_t = time.time()
         ret, frame = self.cam.read()
         if self.settings["flip_cam"] == "on":
@@ -253,16 +235,16 @@ class FaceHandler:
 
     def detect_faces(self, gray):
         """
-        Detect faces with HOG from a grey image
+        Detect faces with HOG from a gray image
 
-        :param gray: grey image (numpy)
+        :param gray: gray image (numpy)
         :return: face rectangle (x, y, w, h)
         """
         faces = self.face_detector.detectMultiScale(
             gray,
             scaleFactor=1.2,
             minNeighbors=5,
-            minSize=(int(self.minW), int(self.minH)), )
+            minSize=(int(self.minW), int(self.minH)))
         return faces  # x, y, w, h
 
     def recognize_faces(self, rgb, face_rects, frame, save_new_faces=False):
@@ -271,9 +253,9 @@ class FaceHandler:
         1st they are checked against known faces.
         2nd if no match found check against recent unknowns
         3rd if no match found check more precisely if it is a face or not
-            if it is, add it to the recent unknowns
+            If it is, add it to the recent unknowns
 
-        Method: creates a 128d vector for every face and compares it to known vectors corresponding to known faces
+        Method: creates a 128D vector for every face and compares it to known vectors corresponding to known faces
         There's a name connected to every vector, if a match is found, the name gets +1pt
         Last, the name with the most points wins.
 
@@ -346,28 +328,33 @@ class FaceHandler:
                         logging.info("HOG method found a false positive or low quality face")
         return names
 
+    # if there are faces on the picture, this function'll return true
     def is_it_a_face(self, img, r):
         if face_recognition.face_locations(img[r[0]:r[2], r[3]:r[1]], model='cnn'):
             return True
         return False
 
+    # this function returns name of the next unknown person
     def next_unknown_name(self):
         name = "_Unk_" + datetime.datetime.now().strftime("%m_%d_%H_%M_%S")
         while name in self.unknown_face_data["names"]:
             name = name + "_"
         return name
 
+    # Known person arrived
     def on_known_face_enters(self, persons):
         logging.info("Entered: " + str(persons.keys()))
 
+    # The known person left the camera
     def on_known_face_leaves(self, persons):
         logging.info("Left: " + str(persons.keys()))
 
     def on_unknown_face_found(self, name):
         pass
 
+    #Type the id of the new person
     def gather_new_face_data(self, id):
-        face_id = input('\n enter user id end press <return> ==>  ')
+        face_id = input('\n enter user id and press <return> ==>  ')
 
     def save_unknown_encoding_to_db(self, name, encoding):
         self.db.add_encoding(name, encoding.tobytes())
@@ -450,20 +437,3 @@ class Person:
         self.pref = preference
         self.is_visible = False
         self.thumbnail = thumbnail
-
-
-if __name__ == "__main__":
-    fh = FaceHandler("haarcascade_frontalface_default.xml")
-    fh.start_cam()
-    iter = 0
-    while True:
-        iter = iter + 1
-        if iter >= 300:
-            fh.detected_faces = fh.process_next_frame(True, True)
-            iter = 0
-        else:
-            fh.detected_faces = fh.process_next_frame(False, True)
-
-        k = cv2.waitKey(25) & 0xff  # Press 'ESC' for exiting video
-        if k == 27:
-            break
