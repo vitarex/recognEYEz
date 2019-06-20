@@ -43,9 +43,9 @@ class FaceHandler:
         # ??? creates a variable called ct that contains the CentroidTracker???
         self.ct = tracking.CentroidTracker()
         # sets the path where the haarcascade_frontalface_default.xml file is found (recognEYEz\Library\haarcascade_frontalface_default.xml)
-        cascade_path = (Path(__file__).resolve().parent) + "/" + cascade_xml
+        cascade_path = Path(__file__).resolve().parent.joinpath("/").joinpath(cascade_xml)
         # loads the OpenCV face_detector / CascadeClassifier from the cascade_path
-        self.face_detector = cv2.CascadeClassifier(cascade_path)
+        self.face_detector = cv2.CascadeClassifier(str(cascade_path))
         logging.info("OpenCV facedetector loaded")
 
 
@@ -418,7 +418,7 @@ class FaceHandler:
             if e.errno != errno.EEXIST:
                 raise
         cv2.imwrite(path, img[r[0]:r[2], r[3]:r[1]])
-        logging.info("Picture taken: " + path)
+        logging.info("Picture taken: {}".format(path))
 
 
 class Face:
