@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 import logging
 import threading
 import datetime
@@ -18,7 +18,7 @@ def camera_start_processing(app):
 def camera_stop_processing(app):
     if app.fh and app.fh.cam_is_running and app.fh.cam_is_processing:
         app.fh.cam_is_processing = False
-        app.preview_image = cv2.imread(os.path.join("Static","empty_pic.png"))
+        app.preview_image = cv2.imread(str(Path("Static","empty_pic.png")))
 
     logging.info("Camera scanning stopped")
 

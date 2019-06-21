@@ -3,6 +3,8 @@
 
 # Faces
 Static/unknown_pics
+Static/dnn
+Static/Images
 
 # Archived logs
 *.log.*

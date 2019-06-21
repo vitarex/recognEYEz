@@ -1,10 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, json
 from flask import current_app as app
 import flask_simplelogin as simplog
-import os
+from pathlib import Path
 import logging
 
-stat_folder = os.path.join(os.pardir, os.pardir, 'Static')
+stat_folder = Path('../../Static')
 person_edit = Blueprint("person_edit", __name__, static_folder=stat_folder, static_url_path='/Static')
 
 
@@ -12,6 +12,7 @@ person_edit = Blueprint("person_edit", __name__, static_folder=stat_folder, stat
 @simplog.login_required
 def change_pic_owner():
     """Places the selected pic to the selected persons folder"""
+    # FIXME
     old_name = request.args.get('oname', 0, type=str)
     new_name = request.args.get('nname', 0, type=str)
     pic = request.args.get('pic', 0, type=str)
@@ -30,6 +31,7 @@ def change_pic_owner():
 @simplog.login_required
 def edit_known_person():
     """ Webpage for editing a specific person (name, pref, pictures) """
+    # FIXME
     name = request.args.get("name")
     logging.info("The name is: {0} ".format(name))
     logging.info("thumb {0} ".format(app.fh.persons[name].thumbnail))
@@ -50,6 +52,7 @@ def edit_known_person():
 @simplog.login_required
 def change_thumbnail_for_person():
     """ Changes the thumbnail file name for the person int the database """
+    # FIXME
     name = request.form['n']
     pic = request.form['p']
     logging.info("Changing thumbnail for {0} ({1})".format(name, pic))
@@ -62,6 +65,7 @@ def change_thumbnail_for_person():
 @simplog.login_required
 def modify_person():
     """ Modifies the given persons parameters in the background"""
+    # FIXME
     old_name = request.form['old_name']
     new_name = request.form['new_name']
     extra = request.form['extra']
@@ -78,6 +82,7 @@ def modify_person():
 @simplog.login_required
 def remove_pic_for_person():
     """ Removes the selected picture in the background """
+    # FIXME
     name = request.form['n']
     pic = request.form['p']
     app.fh.file.remove_picture(name, pic)
