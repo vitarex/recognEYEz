@@ -22,6 +22,7 @@ most_recent_scan_date = None
 class FHApp(Flask):
     fh: FaceHandler = None
     ch: CameraHandler = None
+
 app: FHApp = None
 
 #cache_buster_config = {'extensions': ['.png', '.css', '.csv'], 'hash_size': 10}
@@ -92,7 +93,8 @@ def init_fh(app):
         # override the callback methods
         app.fh.on_known_face_enters = on_known_enters
         app.fh.on_known_face_leaves = on_known_leaves
-
+    if not app.ch:
+        app.ch = CameraHandler()
 
 def log(log_text):
     date = datetime.datetime.now().strftime(app.TIME_FORMAT)
