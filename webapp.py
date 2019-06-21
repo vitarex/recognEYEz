@@ -60,25 +60,25 @@ def validate_login(login_form):
 
 def on_known_enters(persons):
     """ Custom behaviour for the facehandler's callback method of the same name """
-    name = str(persons.keys())[11:-2]
-    logging.info("Entered: " + name)
-    app.fh.mqtt.publish(
-        app.fh.notification_settings["topic"],
-        "[recognEYEz][ARRIVED][date: " + datetime.datetime.now().strftime(app.config["TIME_FORMAT"]) + "]: " + name
-    )
-    app.fh.db.log_event("[ARRIVED]: %s" % name)
-    logging.info("[ARRIVED]: %s" % name)
+    for person in persons:
+        logging.info("Entered: {}".format(person.name))
+        app.fh.mqtt.publish(
+            app.fh.notification_settings["topic"],
+            "[recognEYEz][ARRIVED][date: {}]: {}".format(datetime.datetime.now().strftime(app.config["TIME_FORMAT"]), person.name)
+        )
+        app.fh.db.log_event("[ARRIVED]: {}".format(person.name))
+        logging.info("[ARRIVED]: {}".format(person.name))
 
 
 def on_known_leaves(persons):
     """ Custom behaviour for the facehandler's callback method of the same name """
-    name = str(persons.keys())[11:-2]
-    app.fh.mqtt.publish(
-        app.fh.notification_settings["topic"],
-        "[recognEYEz][LEFT][date: " + datetime.datetime.now().strftime(app.config["TIME_FORMAT"]) + "]: " + name
-    )
-    app.fh.db.log_event("[LEFT]: %s" % name)
-    logging.info("[LEFT]: %s" % name)
+    for person in persons:
+        app.fh.mqtt.publish(
+            app.fh.notification_settings["topic"],
+            "[recognEYEz][LEFT][date: {}]: {}".format(datetime.datetime.now().strftime(app.config["TIME_FORMAT"]), person.name)
+        )
+        app.fh.db.log_event("[LEFT]: {}".format(person.name))
+        logging.info("[LEFT]: {}".format(person.name))
 
 
 def init_fh(app):

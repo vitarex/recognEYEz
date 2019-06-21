@@ -38,8 +38,9 @@ def force_a_rescan():
 @actions.route('/retrain')
 @simplog.login_required
 def retrain_dnn():
-    app.fh.train_dnn()
-    logging.info("Camera algorithm retrained")
+    # TODO: fix train_dnn
+    # app.fh.train_dnn()
+    logging.info("NOT OPERATIONAL Camera algorithm retrained")
     return redirect("/")
 
 

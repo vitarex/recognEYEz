@@ -11,6 +11,7 @@ db = SqliteDatabase('recogneyez.db')
 
 
 class DBModel(Model):
+    _handler = None
     class Meta:
         database = db
 
@@ -18,7 +19,6 @@ class DBModel(Model):
 class Person(DBModel):
     name = TextField(unique=True)
     preference = TextField(null=True)
-    group = IntegerField(null=True)
     first_seen = DateTimeField(null=True)
     last_seen = DateTimeField(null=True)
     thumbnail = DeferredForeignKey(
@@ -29,7 +29,7 @@ class Person(DBModel):
         with db.atomic():
             self.update()
 
-    def merge_with(self, other: Person) -> bool:
+    def merge_with(self, other: 'Person') -> bool:
         with db.atomic():
             self.encodings.update(person=other)
             self.images.update(person=other)
@@ -47,6 +47,7 @@ class Person(DBModel):
 
     def add_image(self, image_name: str, set_as_thumbnail: bool = False):
         image = Image()
+        image.name = image_name
         image.person = self
         with db.atomic():
             image.save()
@@ -68,9 +69,9 @@ class Person(DBModel):
 
         self._invalidate_handler()
 
-        logging.info("A new encoding was added for the person {}".format(name))
+        logging.info("A new encoding was added for the person {}".format(self.name))
 
-    def set_thumbnail(self, thumbnail: Image):
+    def set_thumbnail(self, thumbnail: 'Image'):
         self.thumbnail = thumbnail
         with db.atomic():
             self.save()
@@ -108,8 +109,11 @@ class DatabaseHandler:
     valid = False
 
     def __init__(self, db_location):
+        DBModel._handler = self
+        
         self.db_loc = db_location
         self.active_connection = False
+
         db.connect()
         db.create_tables([UserEvent, Encoding, Person, Image])
         self.refresh()
@@ -118,18 +122,21 @@ class DatabaseHandler:
         new_person = Person()
         new_person.name = name
         new_person.first_seen = datetime.now()
-        new_person.last_seen = datetime.now()
+        new_person.last_seen = new_person.first_seen
         new_person.unknown = unknown
-        new_person.thumbnail = Image
+        new_person.thumbnail = thumbnail
         with db.atomic():
             new_person.save()
 
-        self.invalidate()
+        self.refresh()
 
         logging.info("A new {} person was added with the name {}".format(
             'unkown' if unknown else 'known', name))
         
         return new_person
+    
+    def get_person_by_name(self, name: str) -> Person:
+        return Person.get(Person.name == name)
 
     def open_and_get_cursor(self):
         """ Opens and stores connection for the db + returns a cursor object"""
@@ -154,11 +161,11 @@ class DatabaseHandler:
         self.valid = False
 
     def refresh(self):
-        _persons_select = Person.select()
-        _known_persons_select = Person.select().where(unknown=False)
-        _unknown_persons_select = Person.select().where(unknown=True)
-        _images_select = Image.select()
-        _encodings_select = Encoding.select()
+        self._persons_select = Person.select()
+        self._known_persons_select = Person.select().where(Person.unknown==False)
+        self._unknown_persons_select = Person.select().where(Person.unknown==True)
+        self._images_select = Image.select()
+        self._encodings_select = Encoding.select()
         self.valid = True
 
     def get_persons(self) -> List[Person]:

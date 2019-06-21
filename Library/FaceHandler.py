@@ -11,8 +11,7 @@ import errno
 import logging
 import os
 from itertools import *
-import typing
-from typing import List
+from typing import *
 from collections import Counter
 
 from Library.Mailer import Mailer
@@ -50,7 +49,7 @@ class FaceHandler:
         self.ct = tracking.CentroidTracker()
         # sets the path where the haarcascade_frontalface_default.xml file is found (recognEYEz\Library\haarcascade_frontalface_default.xml)
         cascade_path = Path(__file__).resolve(
-        ).parent.joinpath("/").joinpath(cascade_xml)
+        ).parent.joinpath(cascade_xml)
         # loads the OpenCV face_detector / CascadeClassifier from the cascade_path
         self.face_detector = cv2.CascadeClassifier(str(cascade_path))
         logging.info("OpenCV facedetector loaded")
@@ -95,10 +94,10 @@ class FaceHandler:
         self.settings = d
 
     def get_known_encodings(self) -> List[Encoding]:
-        return [encoding for person in self.db.get_known_persons() for encoding in person.encoding]
+        return [encoding for person in self.db.get_known_persons() for encoding in person.encodings]
 
     def get_unknown_encodings(self) -> List[Encoding]:
-        return [encoding for person in self.db.get_unknown_persons() for encoding in person.encoding]
+        return [encoding for person in self.db.get_unknown_persons() for encoding in person.encodings]
 
     def start_cam(self):
         if self.cam_is_running:
@@ -146,6 +145,7 @@ class FaceHandler:
         face_rects = [(y, x + w, y + h, x)
                       for (x, y, w, h) in self.detect_faces(gray)]
 
+        rect_to_person = dict()
         # executing DNN face recognition on found faces
         if use_dnn or ((len(face_rects) != len(self.visible_persons)) and self.settings["force_dnn_on_new"]):
             # the returned object is a dictionary of rectangles to persons
@@ -237,7 +237,7 @@ class FaceHandler:
             known_encodings = self.get_known_encodings()
             # check our current encoding against these known persons
             matches = face_recognition.compare_faces(
-                known_encodings, e, tolerance=float(self.settings["dnn_tresh"])
+                list(map(lambda encoding: np.frombuffer(encoding.encoding), known_encodings)), e, tolerance=float(self.settings["dnn_tresh"])
             )
             # if there was a match in the known persons
             if True in matches:
@@ -257,7 +257,7 @@ class FaceHandler:
                 # same logic as for known persons
                 unknown_encodings = self.get_unknown_encodings()
                 matches = face_recognition.compare_faces(
-                    unknown_encodings, e, tolerance=float(
+                    list(map(lambda encoding: np.frombuffer(encoding.encoding), unknown_encodings)), e, tolerance=float(
                         self.settings["dnn_tresh"])
                 )
                 if True in matches:
@@ -271,7 +271,7 @@ class FaceHandler:
                     if save_new_faces:
                         # save a new image
                         new_image_name = self.take_cropped_pic(
-                            frame, face_rects[rect_count], most_likely_match)
+                            frame, face_rects[rect_count], person=most_likely_match)
                         # record the image on the person object as well
                         most_likely_match.add_image(new_image_name)
 
@@ -287,7 +287,7 @@ class FaceHandler:
                         # add unkown person to db, along with the encoding and image
                         new_unk_person = self.db.add_person(unk_name)
                         new_image_name = self.take_cropped_pic(
-                            frame, face_rects[rect_count], new_unk_person)
+                            frame, face_rects[rect_count], person=new_unk_person)
                         new_unk_person.add_encoding(e.tobytes())
                         new_unk_person.add_image(new_image_name, True)
                         # TODO: refresh local copies?
@@ -311,8 +311,8 @@ class FaceHandler:
 
     # this function returns name of the next unknown person
     def next_unknown_name(self):
-        name = "_Unk_" + datetime.datetime.now().strftime("%m_%d_%H_%M_%S")
-        while name in [db.get_unknown_persons()]:
+        name = "_Unk_" + datetime.now().strftime("%m_%d_%H_%M_%S")
+        while name in [self.db.get_unknown_persons()]:
             name = name + "_"
         return name
 
@@ -390,7 +390,7 @@ class FaceHandler:
             db.add_person()
         # every image of the person gets a unique index
         image_name = '{}_{}.png'.format(
-            person.name, len(list(person.images)+1))
+            person.name, len(person.images)+1)
         path = Path(folder_path).joinpath(image_name)
         try:
             os.makedirs(folder_path)
