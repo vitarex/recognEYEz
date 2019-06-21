@@ -10,9 +10,13 @@ import sqlite3 as sql
 import errno
 import logging
 import os
+from itertools import *
+import typing
+from typing import List
+from collections import Counter
 
 from Library.Mailer import Mailer
-from Library.DatabaseHandler import DatabaseHandler
+from Library.DatabaseHandler import *
 from Library.FileHandler import FileHandler
 from Library.MqttHandler import MqttHandler
 
@@ -22,7 +26,7 @@ class FaceHandler:
     resolutions = {"vga": [640, 480], "qvga": [320, 240], "qqvga": [160, 120], "hd": [1280, 720], "fhd": [1920, 1080]}
     font = cv2.FONT_HERSHEY_DUPLEX
     TIME_FORMAT = "%Y_%m_%d__%H_%M_%S"
-    unknown_pic_folder_path = Path("Static","unknown_pics")
+    pic_folder_path = Path("Static","Images")
 
     def __init__(self,
                  cascade_xml="haarcascade_frontalface_default.xml",
@@ -86,6 +90,12 @@ class FaceHandler:
         for row in c.execute("SELECT * FROM face_recognition_settings"):
             d[row[0]] = row[1]
         self.settings = d
+
+    def get_known_encodings(self) -> List[Encoding]:
+        return [encoding for person in self.db.get_known_persons() for encoding in person.encoding]
+    
+    def get_unknown_encodings(self) -> List[Encoding]:
+        return [encoding for person in self.db.get_unknown_persons() for encoding in person.encoding]
 
     def load_encodings_from_database(self):
         names = list()
@@ -321,6 +331,81 @@ class FaceHandler:
                         logging.info("HOG method found a false positive or low quality face")
         return names
 
+    def recognize_faces(self, rgb, face_rects, frame, save_new_faces=False):
+        """
+        Make encodings from the found faces than check them against the stored encodings of known faces.
+        1st they are checked against known faces.
+        2nd if no match found check against recent unknowns
+        3rd if no match found check more precisely if it is a face or not
+            If it is, add it to the recent unknowns
+
+        Method: creates a 128D vector for every face and compares it to known vectors corresponding to known faces
+        There's a name connected to every vector, if a match is found, the name gets +1pt
+        Last, the name with the most points wins.
+
+        :param rgb: numpy array corresponding to an RGB pic
+        :param face_rects: rectangle coordinates for found faces
+        :param frame: numpy array corresponding to the original BGR pic
+        :return: a list for the found persons
+        """
+        face_encodings = face_recognition.face_encodings(rgb, face_rects)
+        persons = []
+        # check every face
+        for rect_count, e in enumerate(face_encodings):
+            # get a flat list of known encodings
+            known_encodings = self.get_known_encodings()
+            matches = face_recognition.compare_faces(
+                known_encodings, e, tolerance=float(self.settings["dnn_tresh"])
+            )
+            # if there was a match in knowns
+            if True in matches:
+                # face_recognition.compare_faces returns a list of boolean values indicating wether an item in the list matched the encoding
+                # so we filter out the encodings which didn't have any matches
+                found_encodings = list(compress(known_encodings, matches))
+                # let's map every encoding to their person, then count them up
+                # then take the most common element out of these persons
+                most_likely_match = Counter(map(lambda encoding: encoding.person, found_encodings)).most_common(1)[0][0]
+                persons.append(most_likely_match)
+            # if no match found in knowns, check recent unknowns
+            else:
+                unknown_encodings = self.get_unknown_encodings()
+                matches = face_recognition.compare_faces(
+                    unknown_encodings, e, tolerance=float(self.settings["dnn_tresh"])
+                )
+                # if recent unknown
+                if True in matches:
+                    found_encodings = list(compress(unknown_encodings, matches))
+
+                    most_likely_match = Counter(map(lambda encoding: encoding.person, found_encodings)).most_common(1)[0][0]
+                    persons.append(most_likely_match)
+                    logging.info("Found a previously seen unknown: {}".format(most_likely_match.name))
+                    self.on_unknown_face_found(most_likely_match)
+                    if save_new_faces:
+                        new_image_name = self.take_cropped_pic(frame, face_rects[rect_count], most_likely_match)
+                        most_likely_match.add_image(new_image_name)
+                # if nor in recent unknowns
+                else:
+                    # overview HOG with CNN, is it really a face?
+                    if self.is_it_a_face(frame, face_rects[rect_count]):
+                        logging.info("Found new unknown person")
+                        unk_name = self.next_unknown_name()
+                        new_unk_person = self.db.add_person(unk_name)
+                        self.take_cropped_pic(frame, face_rects[rect_count], new_unk_person)
+                        new_unk_person.add_encoding(e.tobytes())
+                        #TODO: check which, if any, of the following are needed ->
+                        #self.unknown_face_data["encodings"].append(e)
+                        #self.unknown_face_data["names"].append(unk_name)
+                        #self.load_unknown_persons_from_database()
+
+                        persons.append(new_unk_person)
+                        # TODO: this has no point at all
+                        #self.on_unknown_face_found(unk_name)
+                    else:
+                        # TODO: it's probably better not to rely in indices at all
+                        persons.append("not a face")  # to make correct indices
+                        logging.info("HOG method found a false positive or low quality face")
+        return persons
+
     # if there are faces on the picture, this function'll return true
     def is_it_a_face(self, img, r):
         if face_recognition.face_locations(img[r[0]:r[2], r[3]:r[1]], model='cnn'):
@@ -330,7 +415,7 @@ class FaceHandler:
     # this function returns name of the next unknown person
     def next_unknown_name(self):
         name = "_Unk_" + datetime.datetime.now().strftime("%m_%d_%H_%M_%S")
-        while name in self.unknown_face_data["names"]:
+        while name in [db.get_unknown_persons()]:
             name = name + "_"
         return name
 
@@ -355,7 +440,7 @@ class FaceHandler:
     def train_dnn(self, dataset=Path("Static").joinpath("dnn")):
         if self.cam_is_running:
             self.stop_cam()
-        logging.info("quantifying faces...")
+        logging.info("Quantifying faces...")
         self.db.empty_encodings()
         logging.info("Encodings table truncated")
 
@@ -403,17 +488,21 @@ class FaceHandler:
         self.load_encodings_from_database()
         self.load_unknown_encodings_from_database()
 
-    def take_cropped_pic(self, img, r, folder_path="Static/unknowns/", name=None):
-        if name is None:
-            name = datetime.datetime.now().strftime(self.TIME_FORMAT)
-        path = Path(folder_path).joinpath(name + '.png')
+    def take_cropped_pic(self, img, r, folder_path="Static/Images/", person=None):
+        if person is None:
+            # TODO: What happens if there's no person here?
+            raise Exception("Not implemented")
+            db.add_person()
+        image_name = '{}_{}.png'.format(person.name, len(list(person.encodings)+1))
+        path = Path(folder_path).joinpath(image_name)
         try:
             os.makedirs(folder_path)
         except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
         cv2.imwrite(str(path), img[r[0]:r[2], r[3]:r[1]])
-        logging.info("Picture taken: {}".format(path))
+        logging.info("Picture taken: {}".format(image_name))
+        return image_name
 
 
 class Face:

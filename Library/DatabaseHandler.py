@@ -25,35 +25,9 @@ class Person(DBModel):
         'Image', deferrable='INITIALLY DEFERRED', on_delete='SET_NULL', null=True)
     unknown = BooleanField(default=True)
 
-    @classmethod
-    def add(cls, name: str, unknown: bool = True, thumbnail: Image = None) -> Person:
-        new_person = cls()
-        new_person.name = name
-        new_person.first_seen = datetime.now()
-        new_person.last_seen = datetime.now()
-        new_person.unknown = unknown
-        new_person.thumbnail = Image
-        with db.atomic():
-            new_person.save()
-        logging.info("A new {} person was added with the name {}".format(
-            'unkown' if unknown else 'known', name))
-        return new_person
-
-    def change_name(self, new_name:str):
+    def change_name(self, new_name: str):
         with db.atomic():
             self.update()
-
-    def add_image(self, image_name: str, set_as_thumbnail: bool = False):
-        image = Image()
-        image.person = self
-        with db.atomic():
-            image.save()
-
-        if set_as_thumbnail:
-            self.set_thumbnail(image)
-
-        logging.info("{} image was added for the person {}".format(
-            image_name, self.name))
 
     def merge_with(self, other: Person) -> bool:
         with db.atomic():
@@ -69,6 +43,21 @@ class Person(DBModel):
     def remove(self):
         with db.atomic():
             self.delete_instance()
+        self._invalidate_handler()
+
+    def add_image(self, image_name: str, set_as_thumbnail: bool = False):
+        image = Image()
+        image.person = self
+        with db.atomic():
+            image.save()
+
+        if set_as_thumbnail:
+            self.set_thumbnail(image)
+
+        self._invalidate_handler()
+
+        logging.info("{} image was added for the person {}".format(
+            image_name, self.name))
 
     def add_encoding(self, name: str, encodingbytes: bytes):
         encoding = Encoding()
@@ -76,12 +65,19 @@ class Person(DBModel):
         encoding.person = self
         with db.atomic():
             encoding.save()
+
+        self._invalidate_handler()
+
         logging.info("A new encoding was added for the person {}".format(name))
 
     def set_thumbnail(self, thumbnail: Image):
         self.thumbnail = thumbnail
         with db.atomic():
             self.save()
+
+    def _invalidate_handler(self):
+        if self._handler is not None:
+            self._handler.invalidate()
 
 
 class Encoding(DBModel):
@@ -118,6 +114,23 @@ class DatabaseHandler:
         db.create_tables([UserEvent, Encoding, Person, Image])
         self.refresh()
 
+    def add_person(self, name: str, unknown: bool = True, thumbnail: Image = None) -> Person:
+        new_person = Person()
+        new_person.name = name
+        new_person.first_seen = datetime.now()
+        new_person.last_seen = datetime.now()
+        new_person.unknown = unknown
+        new_person.thumbnail = Image
+        with db.atomic():
+            new_person.save()
+
+        self.invalidate()
+
+        logging.info("A new {} person was added with the name {}".format(
+            'unkown' if unknown else 'known', name))
+        
+        return new_person
+
     def open_and_get_cursor(self):
         """ Opens and stores connection for the db + returns a cursor object"""
         self.active_connection = sql.connect(self.db_loc)
@@ -142,8 +155,8 @@ class DatabaseHandler:
 
     def refresh(self):
         _persons_select = Person.select()
-        _known_persons_select = Person.select().where(unknown = False)
-        _unknown_persons_select = Person.select().where(unknown = True)
+        _known_persons_select = Person.select().where(unknown=False)
+        _unknown_persons_select = Person.select().where(unknown=True)
         _images_select = Image.select()
         _encodings_select = Encoding.select()
         self.valid = True
@@ -168,23 +181,6 @@ class DatabaseHandler:
         if not self.valid:
             self.refresh()
         return prefetch(self._unknown_persons_select, self._images_select, self._encodings_select)
-
-    def update_person_data(self, old_name: str, new_name: str = None, new_pref: str = None) -> Person:
-        """
-        Updates recors in persons table
-        Uses the old name to find the record
-        Returns the new person
-        """
-        if not new_name:
-            new_name = old_name
-        if new_pref:
-            Person.update(name=new_name, preference=new_pref).where(
-                Person.name == old_name).execute()
-        else:
-            Person.update(name=new_name).where(
-                Person.name == old_name).execute()
-        logging.info("Updated person {}".format(new_name))
-        return Person.get(Person.name == new_name)
 
     def update_face_recognition_settings(self, form):
         c = self.open_and_get_cursor()
