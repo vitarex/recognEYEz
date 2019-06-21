@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 import logging
 import threading
 import datetime
@@ -20,7 +20,8 @@ class CameraHandler:
             self.cam_is_processing = True
             app.fh.running_since = datetime.datetime.now()
             if app.camera_thread == None:
-                app.camera_thread = threading.Thread(target=self.camera_process, daemon=True, args=(app,))
+                app.camera_thread = threading.Thread(
+                    target=self.camera_process, daemon=True, args=(app,))
                 app.camera_thread.start()
             logging.info("Camera started")
         logging.info("Camera scanning started")
@@ -28,7 +29,8 @@ class CameraHandler:
     def camera_stop_processing(self, app):
         if app.fh and self.cam_is_running and self.cam_is_processing:
             self.cam_is_processing = False
-            app.preview_image = cv2.imread(os.path.join("Static","empty_pic.png"))
+            app.preview_image = cv2.imread(
+                os.path.join("Static", "empty_pic.png"))
 
         logging.info("Camera scanning stopped")
 
@@ -42,13 +44,15 @@ class CameraHandler:
         while app.fh.cam_is_running:
             try:
                 if ticker > int(app.fh.face_rec_settings["dnn_scan_freq"]) or app.force_rescan:
-                    names, frame, rects = app.fh.process_next_frame(True, save_new_faces=True, app=app)
+                    names, frame, rects = app.fh.process_next_frame(
+                        True, save_new_faces=True, app=app)
                     ticker = 0
                     app.force_rescan = False
 
                     app.preview_image = frame
                 else:
-                    names, frame, rects = app.fh.process_next_frame(save_new_faces=True, app=app)
+                    names, frame, rects = app.fh.process_next_frame(
+                        save_new_faces=True, app=app)
                 ticker += 1
                 error_count = 0
             except Exception as e:

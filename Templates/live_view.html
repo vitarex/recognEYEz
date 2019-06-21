@@ -38,7 +38,7 @@
 		<div style="margin-right: 25px;padding-bottom: 20px;">
 			<p style=" max-height:600px; background: #222; overflow-y: scroll; word-wrap: break-word; width: 90%;">
 			{% for l in log %}
-			{{l}}<br>
+			{{l.datetime}}: {{l.event}}<br>
 			{% endfor %}
 			</p>
 		</div>

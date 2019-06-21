@@ -11,37 +11,35 @@
                             <th>Name (first appearance)</th>
                             <th style="width: 160px">Actions</th>
                         </tr>
-                        {% for d in unk_data %}
-                        <tr class="w3-hover-black" id="{{ d['folder'] }}">
+                        {% for person in unk_persons %}
+                        <tr class="w3-hover-black" id="{{ person.name }}">
                             <td style="text-align: center;">
                                 <span class="tooltip">
                                     <span class="tooltiptext">
-                                        {% for p in d['other pics'] %}
-                                            <img src="unknown_pics/{{ d['folder'] }}/{{ p }}" style="width: 100px; display: inline-block;border-radius: 10%">
+                                        {% for i in person.images %}
+                                            <img src="Static/Images/{{ i.name }}" style="width: 100px; display: inline-block;border-radius: 10%">
                                         {% endfor %}
                                     </span>
-                                    <img src="unknown_pics/{{ d['folder'] }}/{{ d['first pic'] }}"
+                                    <img src="Static/Images/{{ person.thumbnail.name }}"
                                          style="width: 100px;border-radius: 10%;"
                                          onerror="if (this.src != 'empty_pic.png') this.src = 'empty_pic.png';"
                                     >
                                 </span>
                             </td>
                             <td style="text-align: center; font-size: 20px;">
-                                {{ d['pic count'] }}
+                                {{ person.images|length }}
                             </td>
                             <td>
-                                {{ d['name'] }}
+                                {{ person.name }}
                             </td>
                             <td>
                                 <button class="my-button my-add-button">
                                     Add / Merge
-                                    <span class="add-arg"style="display:none;">{{ d['name'] }}</span>
-                                    <span class="add-folder-arg" style="display:none;">{{ d['folder'] }}</span>
+                                    <span class="add-arg"style="display:none;">{{ person.name }}</span>
                                 </button><br>
                                 <button class="my-button my-remove-button remove-person-btn">
                                     Remove
-                                    <span class="remove-arg"style="display:none;">{{ d['name'] }}</span>
-                                    <span class="remove-folder-arg"style="display:none;">{{ d['folder'] }}</span>
+                                    <span class="remove-arg"style="display:none;">{{ person.name }}</span>
                                 </button>
                             </td>
 
