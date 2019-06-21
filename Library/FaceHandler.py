@@ -14,10 +14,12 @@ from Library.Mailer import Mailer
 from Library.DatabaseHandler import DatabaseHandler
 from Library.FileHandler import FileHandler
 from Library.MqttHandler import MqttHandler
-
+from Library.CameraHandler import CameraHandler
 import sys
 
+
 class FaceHandler:
+
     resolutions = {"vga": [640, 480], "qvga": [320, 240], "qqvga": [160, 120], "hd": [1280, 720], "fhd": [1920, 1080]}
     font = cv2.FONT_HERSHEY_DUPLEX
     TIME_FORMAT = "%Y_%m_%d__%H_%M_%S"
@@ -33,11 +35,6 @@ class FaceHandler:
         self.db = DatabaseHandler(self.database_location)
         self.load_settings_from_db()
 
-        # loads video with OpenCV
-        self.cam_is_running = False
-        self.cam_is_processing = False
-        self.start_cam()
-        logging.info("Camera opened")
 
         # ??? creates a variable called ct that contains the CentroidTracker???
         self.ct = tracking.CentroidTracker()
@@ -137,23 +134,7 @@ class FaceHandler:
         del self.visible_persons[name]
         self.persons[name].is_visible = False
 
-    def start_cam(self):
-        if self.cam_is_running:
-            return
 
-        self.cam = cv2.VideoCapture(int(self.settings["cam_id"]))
-
-        res = self.resolutions[self.settings["resolution"]]
-        self.cam.set(3, res[0])  # set video width
-        self.cam.set(4, res[1])  # set video height
-        self.minW = 0.1 * self.cam.get(3)
-        self.minH = 0.1 * self.cam.get(4)
-        self.cam_is_running = True
-
-    def stop_cam(self):
-        if self.cam_is_running:
-            self.cam.release()
-            self.cam_is_running = False
 
     def process_next_frame(self, use_dnn=False, show_preview=False, save_new_faces=False, app=None):
         """
@@ -172,7 +153,7 @@ class FaceHandler:
         """
 
         start_t = time.time()
-        ret, frame = self.cam.read()
+        ret, frame = app.fh.cam.read()
         if self.settings["flip_cam"] == "on":
             frame = cv2.flip(frame, -1)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -354,8 +335,8 @@ class FaceHandler:
         self.db.add_encoding(name, encoding.tobytes())
 
     def train_dnn(self, dataset=os.path.join("Static", "dnn")):
-        if self.cam_is_running:
-            self.stop_cam()
+        if app.ch.cam_is_running:
+            app.ch.stop_cam()
         logging.info("quantifying faces...")
         self.db.empty_encodings()
         logging.info("Encodings table truncated")

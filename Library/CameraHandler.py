@@ -4,27 +4,35 @@ import threading
 import datetime
 import cv2
 
+
 class CameraHandler:
 
-    def camera_start_processing(app):
+    def __init__(self):
+        # loads video with OpenCV
+        self.cam_is_running = False
+        self.cam_is_processing = False
+        self.start_cam(self)
+        logging.info("Camera opened")
+
+    def camera_start_processing(self, app):
         logging.info("The facehandler object: {}".format(app.fh))
-        if app.fh and app.fh.cam_is_running and not app.fh.cam_is_processing:
-            app.fh.cam_is_processing = True
+        if app.fh and self.cam_is_running and not self.cam_is_processing:
+            self.cam_is_processing = True
             app.fh.running_since = datetime.datetime.now()
             if app.camera_thread == None:
-                app.camera_thread = threading.Thread(target=camera_process, daemon=True, args=(app,))
+                app.camera_thread = threading.Thread(target=self.camera_process, daemon=True, args=(app,))
                 app.camera_thread.start()
             logging.info("Camera started")
         logging.info("Camera scanning started")
 
-    def camera_stop_processing(app):
-        if app.fh and app.fh.cam_is_running and app.fh.cam_is_processing:
-            app.fh.cam_is_processing = False
+    def camera_stop_processing(self, app):
+        if app.fh and self.cam_is_running and self.cam_is_processing:
+            self.cam_is_processing = False
             app.preview_image = cv2.imread(os.path.join("Static","empty_pic.png"))
 
         logging.info("Camera scanning stopped")
 
-    def camera_process(app):
+    def camera_process(self, app):
         """
         Continously calls the process_next_frame() method to process frames from the camera
         app_cont: used to access the main application instance from blueprints
@@ -49,5 +57,23 @@ class CameraHandler:
                     app.fh.cam.release()
                 logging.info(e)
                 if error_count > 5:
-                    app.fh.cam_is_running = False
+                    self.cam_is_running = False
                 raise e
+
+        def start_cam(self):
+            if self.cam_is_running:
+                return
+
+            self.cam = cv2.VideoCapture(int(self.settings["cam_id"]))
+
+            res = self.resolutions[self.settings["resolution"]]
+            self.cam.set(3, res[0])  # set video width
+            self.cam.set(4, res[1])  # set video height
+            self.minW = 0.1 * self.cam.get(3)
+            self.minH = 0.1 * self.cam.get(4)
+            self.cam_is_running = True
+
+        def stop_cam(self):
+            if self.cam_is_running:
+                self.cam.release()
+                self.cam_is_running = False

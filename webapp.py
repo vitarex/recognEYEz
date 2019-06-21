@@ -3,11 +3,12 @@ from flask import Flask, render_template
 from flask_admin import Admin
 import flask_simplelogin as simplog
 from Library.FaceHandler import FaceHandler
+from Library.CameraHandler import CameraHandler
 import logging
 import os
 import cv2
 
-from Library.CameraHandler import camera_start_processing
+
 
 #from flask_cache_buster import CacheBuster
 
@@ -19,9 +20,8 @@ most_recent_scan_date = None
 
 class FHApp(Flask):
     fh: FaceHandler = None
-
+    ch: CameraHandler = None
 app: FHApp = None
-
 
 #cache_buster_config = {'extensions': ['.png', '.css', '.csv'], 'hash_size': 10}
 #cache_buster = CacheBuster(config=cache_buster_config)
