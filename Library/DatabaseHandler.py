@@ -59,7 +59,7 @@ class Person(DBModel):
         logging.info("{} image was added for the person {}".format(
             image_name, self.name))
 
-    def add_encoding(self, name: str, encodingbytes: bytes):
+    def add_encoding(self, encodingbytes: bytes):
         encoding = Encoding()
         encoding.encoding = encodingbytes
         encoding.person = self
