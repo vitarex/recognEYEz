@@ -46,7 +46,7 @@ class CameraHandler(Handler):
         error_count = 0
         try:
             while self.cam_is_running:
-                if ticker > int(self.app.sh.get_face_rec_settings()["dnn_scan_freq"]) or self.app.force_rescan:
+                if ticker > int(self.app.sh.get_face_recognition_settings()["dnn_scan_freq"]) or self.app.force_rescan:
                     names, frame, rects = self.app.fh.process_next_frame(
                         True, save_new_faces=True)
                     ticker = 0
@@ -73,8 +73,8 @@ class CameraHandler(Handler):
         if self.cam_is_running:
             return
 
-        self.cam = cv2.VideoCapture(int(self.app.sh.get_face_rec_settings()["cam_id"]))
-        res = self.resolutions[self.app.sh.get_face_rec_settings()["resolution"]]
+        self.cam = cv2.VideoCapture(int(self.app.sh.get_face_recognition_settings()["cam_id"]))
+        res = self.resolutions[self.app.sh.get_face_recognition_settings()["resolution"]]
         self.cam.set(3, res[0])  # set video width
         self.cam.set(4, res[1])  # set video height
         self.minW = 0.1 * self.cam.get(3)

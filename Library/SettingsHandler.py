@@ -4,7 +4,7 @@ import json
 from Library.Handler import Handler
 
 class SettingsHandler(Handler):
-    __face_rec_settings = dict()
+    __face_recognition_settings = dict()
     __notification_settings = dict()
 
     def __init__(self, app):
@@ -31,12 +31,12 @@ class SettingsHandler(Handler):
         with open(Path("Data/NotificationSettings.json"), 'w') as nfp:
             json.dump(sett, nfp)
 
-    def get_face_rec_settings(self) ->Dict:
-        if not self.__face_rec_settings:
-            self.__face_rec_settings = self.load_face_rec_settings()
-        return self.__face_rec_settings
+    def get_face_recognition_settings(self) ->Dict:
+        if not self.__face_recognition_settings:
+            self.__face_recognition_settings = self.load_face_recognition_settings()
+        return self.__face_recognition_settings
 
-    def load_face_rec_settings(self) ->Dict:
+    def load_face_recognition_settings(self) ->Dict:
         with open("Data/FaceRecSettings.json") as ffp:
             return json.load(ffp)
 
