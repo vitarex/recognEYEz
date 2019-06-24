@@ -58,6 +58,8 @@ class CameraHandler(Handler):
                         save_new_faces=True)
                 ticker += 1
                 error_count = 0
+            except AssertionError as e:
+                print(e)
             except Exception as e:
                 error_count += 1
                 if self.cam:
