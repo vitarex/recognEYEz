@@ -44,8 +44,8 @@ class CameraHandler(Handler):
         """
         ticker = 0
         error_count = 0
-        while self.cam_is_running:
-            try:
+        try:
+            while self.cam_is_running:
                 if ticker > int(self.app.sh.get_face_rec_settings()["dnn_scan_freq"]) or self.app.force_rescan:
                     names, frame, rects = self.app.fh.process_next_frame(
                         True, save_new_faces=True)
@@ -58,16 +58,16 @@ class CameraHandler(Handler):
                         save_new_faces=True)
                 ticker += 1
                 error_count = 0
-            except AssertionError as e:
-                print(e)
-            except Exception as e:
-                error_count += 1
-                if self.cam:
-                    self.cam.release()
-                logging.info(e)
-                if error_count > 5:
-                    self.cam_is_running = False
-                raise e
+        except AssertionError as e:
+            print(e)
+        except Exception as e:
+            error_count += 1
+            if self.cam:
+                self.cam.release()
+            logging.info(e)
+            if error_count > 5:
+                self.cam_is_running = False
+            raise e
 
     def start_cam(self):
         if self.cam_is_running:
