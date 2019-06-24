@@ -100,7 +100,7 @@ class FaceHandler(Handler):
 
         start_t = time.time()
         ret, frame = self.app.ch.cam.read()
-        if not ret:
+        if not ret and frame == None:
             raise Exception("The camera didn't return a frame object. Maybe it failed to start properly.")
         if self.app.sh.get_face_rec_settings()["flip_cam"] == "on":
             frame = cv2.flip(frame, -1)
@@ -113,7 +113,7 @@ class FaceHandler(Handler):
 
         rect_to_person = dict()
         # executing DNN face recognition on found faces
-        if use_dnn or ((len(face_rects) != len(self.visible_persons)) and self.app.sh.get_face_rec_settings["force_dnn_on_new"]):
+        if use_dnn or ((len(face_rects) != len(self.visible_persons)) and self.app.sh.get_face_rec_settings()["force_dnn_on_new"]):
             # the returned object is a dictionary of rectangles to persons
             # only the rectangles that have a person associated with them are returned here
             rect_to_person = self.recognize_faces(
@@ -203,7 +203,7 @@ class FaceHandler(Handler):
             known_encodings = self.get_known_encodings()
             # check our current encoding against these known persons
             matches = face_recognition.compare_faces(
-                list(map(lambda encoding: np.frombuffer(encoding.encoding), known_encodings)), e, tolerance=float(self.app.sh.get_face_rec_settings["dnn_tresh"])
+                list(map(lambda encoding: np.frombuffer(encoding.encoding), known_encodings)), e, tolerance=float(self.app.sh.get_face_rec_settings()["dnn_tresh"])
             )
             # if there was a match in the known persons
             if True in matches:
@@ -224,7 +224,7 @@ class FaceHandler(Handler):
                 unknown_encodings = self.get_unknown_encodings()
                 matches = face_recognition.compare_faces(
                     list(map(lambda encoding: np.frombuffer(encoding.encoding), unknown_encodings)), e, tolerance=float(
-                        self.app.sh.get_face_rec_settings["dnn_tresh"])
+                        self.app.sh.get_face_rec_settings()["dnn_tresh"])
                 )
                 if True in matches:
                     found_encodings = list(

@@ -17,13 +17,13 @@ actions = Blueprint("actions", __name__)
 @actions.route('/start_camera')
 @simplog.login_required
 def start_cam():
-    app.ch.camera_start_processing(app)
+    app.ch.camera_start_processing()
     return redirect("/")
 
 @actions.route('/stop_camera')
 @simplog.login_required
 def stop_cam():
-    app.ch.camera_stop_processing(app)
+    app.ch.camera_stop_processing()
     return redirect("/")
 
 
