@@ -91,6 +91,10 @@ def init_app(app, db_loc="facerecognition.db"):
     """ Initializes handlers instance """
     if not app.dh:
         app.dh = DatabaseHandler(app, db_loc)
+    if not app.sh:
+        app.sh = SettingsHandler(app)
+    if not app.ch:
+        app.ch = CameraHandler(app)
     if not app.fh:
         app.fh = FaceHandler(app,
             db_loc,
@@ -101,10 +105,6 @@ def init_app(app, db_loc="facerecognition.db"):
         # override the callback methods
         app.fh.on_known_face_enters = on_known_enters
         app.fh.on_known_face_leaves = on_known_leaves
-    if not app.sh:
-        app.sh = SettingsHandler(app)
-    if not app.ch:
-        app.ch = CameraHandler(app)
 
 
 

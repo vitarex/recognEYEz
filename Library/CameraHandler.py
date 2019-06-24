@@ -18,14 +18,14 @@ class CameraHandler(Handler):
         logging.info("Camera opened")
 
     def camera_start_processing(self):
-        logging.info("The facehandler object: {}".format(self.app.fh))
+        logging.info("The camera handler object: {}".format(self))
         if self.app.fh and self.cam_is_running and not self.cam_is_processing:
-            self.cam_is_processing = True
             self.app.fh.running_since = datetime.datetime.now()
             if self.app.camera_thread == None:
                 self.app.camera_thread = threading.Thread(
-                    target=self.camera_process, daemon=True, args=(self.app,))
+                    target=self.camera_process, daemon=True)
                 self.app.camera_thread.start()
+            self.cam_is_processing = True
             logging.info("Camera started")
         logging.info("Camera scanning started")
 
@@ -33,7 +33,7 @@ class CameraHandler(Handler):
         if self.app.fh and self.cam_is_running and self.cam_is_processing:
             self.cam_is_processing = False
             self.app.preview_image = cv2.imread(
-                os.path.join("Static", "empty_pic.png"))
+                str(Path("Static", "empty_pic.png")))
 
         logging.info("Camera scanning stopped")
 
@@ -60,8 +60,8 @@ class CameraHandler(Handler):
                 error_count = 0
             except Exception as e:
                 error_count += 1
-                if self.app.fh.cam:
-                    self.app.fh.cam.release()
+                if self.cam:
+                    self.cam.release()
                 logging.info(e)
                 if error_count > 5:
                     self.cam_is_running = False

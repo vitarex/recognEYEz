@@ -99,7 +99,9 @@ class FaceHandler(Handler):
         """
 
         start_t = time.time()
-        ret, frame = self.app.fh.cam.read()
+        ret, frame = self.app.ch.cam.read()
+        if not ret:
+            raise Exception("The camera didn't return a frame object. Maybe it failed to start properly.")
         if self.app.sh.get_face_rec_settings()["flip_cam"] == "on":
             frame = cv2.flip(frame, -1)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
