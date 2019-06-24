@@ -1,4 +1,7 @@
+if False:
+    import webapp
+
 class Handler:
-    app = None
-    def __init__(self, app):
+    app: webapp.FHApp = None
+    def __init__(self, app: webapp.FHApp):
         self.app = app
