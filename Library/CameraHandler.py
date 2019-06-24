@@ -11,7 +11,7 @@ class CameraHandler:
         # loads video with OpenCV
         self.cam_is_running = False
         self.cam_is_processing = False
-        self.start_cam(self)
+        self.start_cam()
         logging.info("Camera opened")
 
     def camera_start_processing(self, app):
@@ -64,20 +64,19 @@ class CameraHandler:
                     self.cam_is_running = False
                 raise e
 
-        def start_cam(self):
-            if self.cam_is_running:
-                return
+    def start_cam(self):
+        if self.cam_is_running:
+            return
 
-            self.cam = cv2.VideoCapture(int(self.settings["cam_id"]))
+        self.cam = cv2.VideoCapture(int(self.settings["cam_id"]))
+        res = self.resolutions[self.settings["resolution"]]
+        self.cam.set(3, res[0])  # set video width
+        self.cam.set(4, res[1])  # set video height
+        self.minW = 0.1 * self.cam.get(3)
+        self.minH = 0.1 * self.cam.get(4)
+        self.cam_is_running = True
 
-            res = self.resolutions[self.settings["resolution"]]
-            self.cam.set(3, res[0])  # set video width
-            self.cam.set(4, res[1])  # set video height
-            self.minW = 0.1 * self.cam.get(3)
-            self.minH = 0.1 * self.cam.get(4)
-            self.cam_is_running = True
-
-        def stop_cam(self):
-            if self.cam_is_running:
-                self.cam.release()
-                self.cam_is_running = False
+    def stop_cam(self):
+        if self.cam_is_running:
+            self.cam.release()
+            self.cam_is_running = False

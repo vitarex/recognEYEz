@@ -31,7 +31,7 @@ class Person(DBModel):
         with db.atomic():
             self.update()
 
-    def merge_with(self, other: 'Person') -> bool:
+    def merge_with(self, other: 'Person'):
         with db.atomic():
             self.encodings.update(person=other)
             self.images.update(person=other)
@@ -192,28 +192,8 @@ class DatabaseHandler:
             self.refresh()
         return prefetch(self._unknown_persons_select, self._images_select, self._encodings_select)
 
-    def update_face_recognition_settings(self, form):
-        sett = {}
-        for key, value in form.items():
-            sett[key] = value
-        checkbox_names = ["force_dnn_on_new", "flip_cam", "cache_unknown"]
-        for box in checkbox_names:
-            if box not in list(form.keys()):
-                sett[box] = "off"
-        with open(Path("Data/FaceRecSettings.json"), 'w') as fp:
-            json.dump(sett, fp)
 
-    def update_notification_settings(self, form):
-        sett = {}
-        for key, value in form.items():
-            sett[key] = value
-        checkbox_names = ["m_notif_spec", "m_notif_kno",
-                          "m_notif_unk", "e_notif_spec", "e_notif_kno", "e_notif_unk"]
-        for box in checkbox_names:
-            if box not in list(form.keys()):
-                sett[box] = "off"
-        with open(Path("Data/NotificationSettings.json"), 'w') as fp:
-            json.dump(sett, fp)
+
 
     # loads the face_recognition_settings table from the database into a dictionary
     def load_face_recognition_settings(self):
