@@ -6,6 +6,10 @@ from webapp import set_hashed_login_passwd
 
 config_page = Blueprint("config_page", __name__)
 
+import webapp
+
+app: webapp.FHApp
+
 
 @config_page.route('/change_password', methods=['POST'])
 @simplog.login_required
@@ -19,25 +23,23 @@ def change_password():
 def config_view():
     return render_template(
         "config.html",
-        frec=app.dh.load_face_recognition_settings(),
-        notif=app.dh.load_notification_settings()
+        frec=app.sh.get_face_recognition_settings(),
+        notif=app.sh.get_notification_settings()
     )
 
 
 @config_page.route('/face_recognition_settings', methods=['POST'])
 @simplog.login_required
 def update_face_recognition_settings():
-    app.dh.update_face_recognition_settings(request.form)
-    restart = app.fh.cam_is_running
-    app.fh.load_settings_from_db()
-    if restart:
-        app.fh.stop_cam()
-        app.fh.start_cam()
+    app.sh.update_face_recognition_settings(request.form)
+    if app.ch.cam_is_running:
+        app.ch.stop_cam()
+        app.ch.start_cam()
     return redirect("/config")
 
 
 @config_page.route('/notification_settings', methods=['POST'])
 @simplog.login_required
 def update_notification_settings():
-    app.dh.update_notification_settings(request.form)
+    app.sh.update_notification_settings(request.form)
     return redirect("/config")
