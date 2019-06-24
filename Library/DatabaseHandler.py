@@ -113,7 +113,7 @@ class DatabaseHandler(Handler):
     valid = False
 
     def __init__(self, app, db_location):
-        super.__init__(app)
+        super().__init__(app)
         DBModel._handler = self
 
         self.db_loc = db_location

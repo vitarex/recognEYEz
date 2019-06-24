@@ -72,7 +72,7 @@ def on_known_enters(persons):
             app.fh.notification_settings["topic"],
             "[recognEYEz][ARRIVED][date: {}]: {}".format(datetime.datetime.now().strftime(app.config["TIME_FORMAT"]), person.name)
         )
-        app.fh.db.log_event("[ARRIVED]: {}".format(person.name))
+        app.dh.log_event("[ARRIVED]: {}".format(person.name))
         logging.info("[ARRIVED]: {}".format(person.name))
 
 
@@ -83,14 +83,17 @@ def on_known_leaves(persons):
             app.fh.notification_settings["topic"],
             "[recognEYEz][LEFT][date: {}]: {}".format(datetime.datetime.now().strftime(app.config["TIME_FORMAT"]), person.name)
         )
-        app.fh.db.log_event("[LEFT]: {}".format(person.name))
+        app.dh.log_event("[LEFT]: {}".format(person.name))
         logging.info("[LEFT]: {}".format(person.name))
 
 
-def init_app(app):
-    """ Initializes a face handler instance """
+def init_app(app, db_loc="facerecognition.db"):
+    """ Initializes handlers instance """
+    if not app.dh:
+        app.dh = DatabaseHandler(app, db_loc)
     if not app.fh:
-        app.fh = FaceHandler(
+        app.fh = FaceHandler(app,
+            db_loc,
             cascade_xml="haarcascade_frontalface_default.xml",
             img_root=Path("Static").joinpath("dnn")
         )
@@ -98,12 +101,12 @@ def init_app(app):
         # override the callback methods
         app.fh.on_known_face_enters = on_known_enters
         app.fh.on_known_face_leaves = on_known_leaves
-    if not app.ch:
-        app.ch = CameraHandler()
     if not app.sh:
-        app.sh = SettingsHandler()
-    if not app.dh:
-        app.dh = DatabaseHandler()
+        app.sh = SettingsHandler(app)
+    if not app.ch:
+        app.ch = CameraHandler(app)
+
+
 
 def log(log_text):
     date = datetime.datetime.now().strftime(app.TIME_FORMAT)
@@ -156,6 +159,6 @@ def create_app(config_class=Config):
 
     app.camera_thread = None
 
-    camera_start_processing(app)
+    app.ch.camera_start_processing()
 
     return app

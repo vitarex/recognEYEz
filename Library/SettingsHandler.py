@@ -8,7 +8,7 @@ class SettingsHandler(Handler):
     __notification_settings = dict()
 
     def __init__(self, app):
-        super.__init__(app)
+        super().__init__(app)
 
     def get_notification_settings(self) ->Dict:
         if not self.__notification_settings:
@@ -32,9 +32,9 @@ class SettingsHandler(Handler):
             json.dump(sett, nfp)
 
     def get_face_rec_settings(self) ->Dict:
-        if not self.__face_rec_settings_settings:
-            self.__face_rec_settings_settings = self.load_face_rec_settings()
-        return self.__face_rec_settings_settings
+        if not self.__face_rec_settings:
+            self.__face_rec_settings = self.load_face_rec_settings()
+        return self.__face_rec_settings
 
     def load_face_rec_settings(self) ->Dict:
         with open("Data/FaceRecSettings.json") as ffp:

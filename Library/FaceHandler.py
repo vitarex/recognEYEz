@@ -24,22 +24,19 @@ import sys
 
 
 class FaceHandler(Handler):
-    resolutions = {"vga": [640, 480], "qvga": [320, 240], "qqvga": [
-        160, 120], "hd": [1280, 720], "fhd": [1920, 1080]}
     font = cv2.FONT_HERSHEY_DUPLEX
     TIME_FORMAT = "%Y_%m_%d__%H_%M_%S"
     pic_folder_path = Path("Static", "Images")
 
     def __init__(self,
                  app,
+                 db_loc,
                  cascade_xml="haarcascade_frontalface_default.xml",
-                 db_loc="facerecognition.db",
                  img_root="Images"
                  ):
         logging.info("FaceHandler init started")
-        super.__init__(app)
+        super().__init__(app)
         self.database_location = db_loc
-        self.db = DatabaseHandler(self.database_location)
 
         # ??? creates a variable called ct that contains the CentroidTracker???
         self.ct = tracking.CentroidTracker()
@@ -49,8 +46,6 @@ class FaceHandler(Handler):
         # loads the OpenCV face_detector / CascadeClassifier from the cascade_path
         self.face_detector = cv2.CascadeClassifier(str(cascade_path))
         logging.info("OpenCV facedetector loaded")
-
-        self.database_location = db_loc
 
         """ # creates empty directories and fills them with info from database
         self.load_encodings_from_database()
@@ -63,10 +58,10 @@ class FaceHandler(Handler):
         self.visible_persons = set()
         self.prev_visible_persons = set()
 
-        self.notification_settings = self.db.load_notification_settings()
+        self.notification_settings = self.app.dh.load_notification_settings()
 
         # loads the face_recognition_settings table from the database into self.face_rec_settings
-        self.face_rec_settings = self.db.load_face_recognition_settings()
+        self.face_rec_settings = self.app.dh.load_face_recognition_settings()
         logging.info("Database tables loaded")
 
         # MQTT setup
@@ -82,12 +77,12 @@ class FaceHandler(Handler):
         logging.info("FaceHandler init finished")
 
     def get_known_encodings(self) -> List[Encoding]:
-        return [encoding for person in self.db.get_known_persons() for encoding in person.encodings]
+        return [encoding for person in self.app.dh.get_known_persons() for encoding in person.encodings]
 
     def get_unknown_encodings(self) -> List[Encoding]:
-        return [encoding for person in self.db.get_unknown_persons() for encoding in person.encodings]
+        return [encoding for person in self.app.dh.get_unknown_persons() for encoding in person.encodings]
 
-    def process_next_frame(self, use_dnn=False, show_preview=False, save_new_faces=False, app=None):
+    def process_next_frame(self, use_dnn=False, show_preview=False, save_new_faces=False):
         """
         If use_dnn is set, checks faces with a Neural Network, if not, then only detects the faces and tries to guess
         the owner by the positions on the previous frame. If the number of faces differs from the previous frame, or
@@ -104,8 +99,8 @@ class FaceHandler(Handler):
         """
 
         start_t = time.time()
-        ret, frame = app.fh.cam.read()
-        if app.sh.["flip_cam"] == "on":
+        ret, frame = self.app.fh.cam.read()
+        if self.app.sh.get_face_rec_settings()["flip_cam"] == "on":
             frame = cv2.flip(frame, -1)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -116,7 +111,7 @@ class FaceHandler(Handler):
 
         rect_to_person = dict()
         # executing DNN face recognition on found faces
-        if use_dnn or ((len(face_rects) != len(self.visible_persons)) and self.settings["force_dnn_on_new"]):
+        if use_dnn or ((len(face_rects) != len(self.visible_persons)) and self.app.sh.get_face_rec_settings["force_dnn_on_new"]):
             # the returned object is a dictionary of rectangles to persons
             # only the rectangles that have a person associated with them are returned here
             rect_to_person = self.recognize_faces(
@@ -176,7 +171,7 @@ class FaceHandler(Handler):
             gray,
             scaleFactor=1.2,
             minNeighbors=5,
-            minSize=(int(app.ch.minW), int(app.ch.minH)))
+            minSize=(int(self.app.ch.minW), int(self.app.ch.minH)))
         return faces  # x, y, w, h
 
     def recognize_faces(self, rgb, face_rects, frame, save_new_faces=False) -> Dict[Tuple, Person]:
@@ -206,7 +201,7 @@ class FaceHandler(Handler):
             known_encodings = self.get_known_encodings()
             # check our current encoding against these known persons
             matches = face_recognition.compare_faces(
-                list(map(lambda encoding: np.frombuffer(encoding.encoding), known_encodings)), e, tolerance=float(self.settings["dnn_tresh"])
+                list(map(lambda encoding: np.frombuffer(encoding.encoding), known_encodings)), e, tolerance=float(self.app.sh.get_face_rec_settings["dnn_tresh"])
             )
             # if there was a match in the known persons
             if True in matches:
@@ -227,7 +222,7 @@ class FaceHandler(Handler):
                 unknown_encodings = self.get_unknown_encodings()
                 matches = face_recognition.compare_faces(
                     list(map(lambda encoding: np.frombuffer(encoding.encoding), unknown_encodings)), e, tolerance=float(
-                        self.settings["dnn_tresh"])
+                        self.app.sh.get_face_rec_settings["dnn_tresh"])
                 )
                 if True in matches:
                     found_encodings = list(
@@ -254,7 +249,7 @@ class FaceHandler(Handler):
                         logging.info(
                             "Found new unknown person and named them {}".format(unk_name))
                         # add unkown person to db, along with the encoding and image
-                        new_unk_person = self.db.add_person(unk_name)
+                        new_unk_person = self.app.dh.add_person(unk_name)
                         new_image_name = self.take_cropped_pic(
                             frame, face_rects[rect_count], person=new_unk_person)
                         new_unk_person.add_encoding(e.tobytes())
@@ -281,7 +276,7 @@ class FaceHandler(Handler):
     # this function returns name of the next unknown person
     def next_unknown_name(self):
         name = "_Unk_" + datetime.now().strftime("%m_%d_%H_%M_%S")
-        while name in [self.db.get_unknown_persons()]:
+        while name in [self.app.dh.get_unknown_persons()]:
             name = name + "_"
         return name
 
@@ -303,14 +298,14 @@ class FaceHandler(Handler):
         face_id = input('\n enter user id and press <return> ==>  ')
 
     def save_unknown_encoding_to_db(self, name, encoding):
-        self.db.add_encoding(name, encoding.tobytes())
+        self.app.dh.add_encoding(name, encoding.tobytes())
 
     def train_dnn(self, dataset=Path("Static").joinpath("dnn")):
         # TODO: Fix this whole method
-        if app.ch.cam_is_running:
-            app.ch.stop_cam()
+        if self.app.ch.cam_is_running:
+            self.app.ch.stop_cam()
         logging.info("Quantifying faces...")
-        self.db.empty_encodings()
+        self.app.dh.empty_encodings()
         logging.info("Encodings table truncated")
 
         image_paths = list(paths.list_images(dataset))
@@ -340,16 +335,16 @@ class FaceHandler(Handler):
                 # dump the facial encodings + names to disk
         logging.info("Loading data into the DB...")
 
-        person_names = (person.name for person in self.db.get_persons())
+        person_names = (person.name for person in self.app.dh.get_persons())
         # logging.info(persons)
         for n in known_names:
             if n not in person_names:
                 logging.info("Inserting new name to DB: " + n)
-                self.db.add_person(n, False)
+                self.app.dh.add_person(n, False)
                 person_names.append(n)
 
         for n, e in zip(known_names, known_encodings):
-            self.db.add_encoding(n, e.tobytes())
+            self.app.dh.add_encoding(n, e.tobytes())
         # self.reload_from_db() !!!
 
     def take_cropped_pic(self, img, r, folder_path="Static/Images/", person=None):

@@ -19,15 +19,15 @@ def change_password():
 def config_view():
     return render_template(
         "config.html",
-        frec=app.fh.db.load_face_recognition_settings(),
-        notif=app.fh.db.load_notification_settings()
+        frec=app.dh.load_face_recognition_settings(),
+        notif=app.dh.load_notification_settings()
     )
 
 
 @config_page.route('/face_recognition_settings', methods=['POST'])
 @simplog.login_required
 def update_face_recognition_settings():
-    app.fh.db.update_face_recognition_settings(request.form)
+    app.dh.update_face_recognition_settings(request.form)
     restart = app.fh.cam_is_running
     app.fh.load_settings_from_db()
     if restart:
@@ -39,5 +39,5 @@ def update_face_recognition_settings():
 @config_page.route('/notification_settings', methods=['POST'])
 @simplog.login_required
 def update_notification_settings():
-    app.fh.db.update_notification_settings(request.form)
+    app.dh.update_notification_settings(request.form)
     return redirect("/config")
