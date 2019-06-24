@@ -3,12 +3,31 @@ import logging
 import threading
 import datetime
 import cv2
+import numpy as np
 from Library.Handler import Handler
 
 
-class CameraHandler(Handler):
+class Camera:
+    def read(self):
+        return np.empty((0,0))
+
+class WebcamCamera(Camera):
     resolutions = {"vga": [640, 480], "qvga": [320, 240], "qqvga": [
         160, 120], "hd": [1280, 720], "fhd": [1920, 1080]}
+    def __init__(self, cam_id:int, res):
+        self.cam = cv2.VideoCapture(cam_id)
+        self.cam.set(3, res[0])  # set video width
+        self.cam.set(4, res[1])  # set video height
+        self.minW = 0.1 * self.cam.get(3)
+        self.minH = 0.1 * self.cam.get(4)
+        self.cam_is_running = True
+
+    def read(self):
+        return self.cam.read()
+
+class CameraHandler(Handler):
+    cam:Camera = None
+
     def __init__(self, app):
         super().__init__(app)
         # loads video with OpenCV
@@ -73,13 +92,11 @@ class CameraHandler(Handler):
         if self.cam_is_running:
             return
 
-        self.cam = cv2.VideoCapture(int(self.app.sh.get_face_recognition_settings()["cam_id"]))
-        res = self.resolutions[self.app.sh.get_face_recognition_settings()["resolution"]]
-        self.cam.set(3, res[0])  # set video width
-        self.cam.set(4, res[1])  # set video height
-        self.minW = 0.1 * self.cam.get(3)
-        self.minH = 0.1 * self.cam.get(4)
-        self.cam_is_running = True
+
+        self.cam = WebcamCamera(
+            int(self.app.sh.get_face_recognition_settings()["cam_id"]),
+            self.resolutions[self.app.sh.get_face_recognition_settings()["resolution"]])
+
 
     def stop_cam(self):
         if self.cam_is_running:
