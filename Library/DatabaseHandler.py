@@ -7,6 +7,7 @@ import logging
 from imutils import paths
 import json
 from pathlib import Path
+from Library.Handler import Handler
 
 db = SqliteDatabase('recogneyez.db')
 
@@ -102,7 +103,7 @@ class Image(DBModel):
         self.person.set_thumbnail(self)
 
 
-class DatabaseHandler:
+class DatabaseHandler(Handler):
     TIME_FORMAT = "%Y.%m.%d. %H:%M:%S"
     _persons_select: Select = None
     _unknown_persons_select: Select = None
@@ -111,7 +112,8 @@ class DatabaseHandler:
     _encodings_select: Select = None
     valid = False
 
-    def __init__(self, db_location):
+    def __init__(self, app, db_location):
+        super.__init__(app)
         DBModel._handler = self
 
         self.db_loc = db_location

@@ -19,10 +19,11 @@ from Library.DatabaseHandler import *
 from Library.FileHandler import FileHandler
 from Library.MqttHandler import MqttHandler
 from Library.CameraHandler import CameraHandler
+from Library.Handler import Handler
 import sys
 
 
-class FaceHandler:
+class FaceHandler(Handler):
     resolutions = {"vga": [640, 480], "qvga": [320, 240], "qqvga": [
         160, 120], "hd": [1280, 720], "fhd": [1920, 1080]}
     font = cv2.FONT_HERSHEY_DUPLEX
@@ -30,14 +31,15 @@ class FaceHandler:
     pic_folder_path = Path("Static", "Images")
 
     def __init__(self,
+                 app,
                  cascade_xml="haarcascade_frontalface_default.xml",
                  db_loc="facerecognition.db",
                  img_root="Images"
                  ):
         logging.info("FaceHandler init started")
+        super.__init__(app)
         self.database_location = db_loc
         self.db = DatabaseHandler(self.database_location)
-        self.load_settings_from_db()
 
         # ??? creates a variable called ct that contains the CentroidTracker???
         self.ct = tracking.CentroidTracker()
@@ -79,14 +81,6 @@ class FaceHandler:
         self.mail.last_mail_sent_date = None
         logging.info("FaceHandler init finished")
 
-    def load_settings_from_db(self):
-        con = sql.connect(self.database_location)
-        c = con.cursor()
-        d = dict()
-        for row in c.execute("SELECT * FROM face_recognition_settings"):
-            d[row[0]] = row[1]
-        self.settings = d
-
     def get_known_encodings(self) -> List[Encoding]:
         return [encoding for person in self.db.get_known_persons() for encoding in person.encodings]
 
@@ -111,7 +105,7 @@ class FaceHandler:
 
         start_t = time.time()
         ret, frame = app.fh.cam.read()
-        if self.settings["flip_cam"] == "on":
+        if app.sh.["flip_cam"] == "on":
             frame = cv2.flip(frame, -1)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)

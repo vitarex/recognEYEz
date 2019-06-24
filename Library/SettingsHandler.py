@@ -1,10 +1,14 @@
 from typing import *
 from pathlib import Path
 import json
+from Library.Handler import Handler
 
-class SettingsHandler:
+class SettingsHandler(Handler):
     __face_rec_settings = dict()
     __notification_settings = dict()
+
+    def __init__(self, app):
+        super.__init__(app)
 
     def get_notification_settings(self) ->Dict:
         if not self.__notification_settings:

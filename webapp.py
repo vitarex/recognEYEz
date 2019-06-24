@@ -4,6 +4,8 @@ from flask_admin import Admin
 import flask_simplelogin as simplog
 from Library.FaceHandler import FaceHandler
 from Library.CameraHandler import CameraHandler
+from Library.SettingsHandler import SettingsHandler
+from Library.DatabaseHandler import DatabaseHandler
 import logging
 import os
 import cv2
@@ -22,8 +24,11 @@ most_recent_scan_date = None
 class FHApp(Flask):
     fh: FaceHandler = None
     ch: CameraHandler = None
+    sh: SettingsHandler = None
+    dh: DatabaseHandler = None
 
 app: FHApp = None
+
 
 #cache_buster_config = {'extensions': ['.png', '.css', '.csv'], 'hash_size': 10}
 #cache_buster = CacheBuster(config=cache_buster_config)
@@ -82,7 +87,7 @@ def on_known_leaves(persons):
         logging.info("[LEFT]: {}".format(person.name))
 
 
-def init_fh(app):
+def init_app(app):
     """ Initializes a face handler instance """
     if not app.fh:
         app.fh = FaceHandler(
@@ -95,6 +100,10 @@ def init_fh(app):
         app.fh.on_known_face_leaves = on_known_leaves
     if not app.ch:
         app.ch = CameraHandler()
+    if not app.sh:
+        app.sh = SettingsHandler()
+    if not app.dh:
+        app.dh = DatabaseHandler()
 
 def log(log_text):
     date = datetime.datetime.now().strftime(app.TIME_FORMAT)
@@ -113,7 +122,7 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
     # t = threading.Thread(target=init_fh, args=(app,))
     # t.start()
-    init_fh(app)
+    init_app(app)
 
     # import the blueprints
     from blueprints.live_view.routes import live_view

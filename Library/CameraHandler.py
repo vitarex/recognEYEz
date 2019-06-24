@@ -3,11 +3,13 @@ import logging
 import threading
 import datetime
 import cv2
+from Library.Handler import Handler
 
 
-class CameraHandler:
+class CameraHandler(Handler):
 
-    def __init__(self):
+    def __init__(self, app):
+        super.__init__(app)
         # loads video with OpenCV
         self.cam_is_running = False
         self.cam_is_processing = False
