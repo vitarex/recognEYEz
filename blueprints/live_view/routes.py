@@ -20,11 +20,11 @@ def home():
         prev_date = "NOT FOUND"
     names = []
     if app.fh != None:
-        logs = app.fh.db.get_all_events()
+        logs = app.dh.get_all_events()
         names = [p.name for p in app.fh.visible_persons]
     return render_template(
         "live_view.html",
-        running=app.fh.cam_is_processing,
+        running=app.ch.cam_is_processing,
         names=names,
         recpicdate=prev_date,
         log=logs,

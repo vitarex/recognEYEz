@@ -1,3 +1,5 @@
+<script type=text/javascript src="config.js">
+</script>
 <div class="w3-row my-panel">
 	<div class=" w3-container">
 		<h1 class="w3-text-teal">Face recognition settings</h1>
@@ -8,10 +10,22 @@
 			<select type="select" name="cam_id" >
 				<option value="0" {% if frec['cam_id'] == "0" %} selected {% endif %}>Webcam 1</option>
 				<option value="1" {% if frec['cam_id'] == "1" %} selected {% endif %}>Webcam 2</option>
-				<option value="2" {% if frec['cam_id'] == "2" %} selected {% endif %}>Pi Camera</option>
-				<option value="3" {% if frec['cam_id'] == "3" %} selected {% endif %}>IP Webcam</option>
-				<option value="4" {% if frec['cam_id'] == "4" %} selected {% endif %}>Camera</option>
+				<option value="2" {% if frec['cam_id'] == "2" %} selected {% endif %}>Webcam 3</option>
+				<option value="3" {% if frec['cam_id'] == "3" %} selected {% endif %}>Webcam 4</option>
 			</select> <br>
+
+
+			<input type="radio" class="camera-select" name="camera" id="Webcam1" value="Webcam1" > Webcam 1<br>
+			<input type="radio" class="camera-select" name="camera" id="Webcam2" value="Webcam2" >  Webcam 2<br>
+			<input type="radio" class="camera-select" name="camera" id="Webcam3" value="Webcam3" > Webcam 3<br>
+			<input type="radio" class="camera-select" name="camera" id="Webcam4" value="Webcam4" > Webcam 4<br>
+			<input type="radio" class="camera-select" name="camera" id="IpWebcam" value="IpWebcam" > IP Webcam<br>
+			<fieldset class="camera-fieldset" id="IpWebcam-fieldset">
+			<label>URL:</label> <input type="url" id="url" name="URL">
+			</fieldset>
+			<input type="radio" class="camera-select" name="camera" id="PiCam" value="PiCam"> Pi Camera<br>
+
+
 
 			Resolution: <br>
 			&nbsp;&nbsp;&nbsp;

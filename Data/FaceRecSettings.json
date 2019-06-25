@@ -1,1 +1,10 @@
-{"cam_id": "1", "resolution": "qvga", "dnn_tresh": "0.6", "dnn_scan_freq": "30", "force_dnn_on_new": "on", "cache_unknown": "on", "flip_cam": "off"}
+{
+   "cam_id": "0",
+   "URL": "",
+   "resolution": "hd",
+   "dnn_tresh": "0.6",
+   "dnn_scan_freq": "50",
+   "force_dnn_on_new": "on",
+   "cache_unknown": "on",
+   "flip_cam": "off"
+}

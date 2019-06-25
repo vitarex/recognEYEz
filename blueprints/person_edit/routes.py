@@ -56,7 +56,7 @@ def change_thumbnail_for_person():
     name = request.form['n']
     pic = request.form['p']
     logging.info("Changing thumbnail for {0} ({1})".format(name, pic))
-    app.fh.db.change_thumbnail(name, pic)
+    app.dh.change_thumbnail(name, pic)
     app.fh.persons[name].thumbnail = pic
     return json.dumps({'status': 'OK', 'n': name, 'p': pic})
 
@@ -70,7 +70,7 @@ def modify_person():
     new_name = request.form['new_name']
     extra = request.form['extra']
     logging.info(old_name, new_name, extra)
-    app.fh.db.update_person_data(old_name, new_name, extra)
+    app.dh.update_person_data(old_name, new_name, extra)
     app.fh.load_persons_from_database()
     app.fh.load_encodings_from_database()
     if old_name != new_name:

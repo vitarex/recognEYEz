@@ -14,11 +14,11 @@ persons_database = Blueprint("persons_database", __name__)
 def create_new_person_from_unknown():
     """"""
     name = request.args.get('n', 0, type=str)
-    person_to_change = app.fh.db.get_person_by_name(name)
+    person_to_change = app.dh.get_person_by_name(name)
     if person_to_change.unknown:
         logging.info("Creating new person: {}".format(name))
         person_to_change.convert_to_known()
-        app.fh.db.invalidate()
+        app.dh.invalidate()
         #app.fh.file.create_new_person_from_unk(name)
     return redirect("/person_db")
 
@@ -31,8 +31,8 @@ def person_db_view():
     """
     return render_template(
         "person_db.html",
-        persons=app.fh.db.get_known_persons(),
-        unk_persons=app.fh.db.get_unknown_persons(),
+        persons=app.dh.get_known_persons(),
+        unk_persons=app.dh.get_unknown_persons(),
         folder_location=app.config["PICTURE_FOLDER"]
     )
 
@@ -48,7 +48,7 @@ def remove_person():
     """When remove is clicked on person db page"""
     name = request.args.get('p', "missing argument", type=str)
     logging.info("Removing: " + name)
-    app.fh.db.remove_name(name)
+    app.dh.remove_name(name)
     if app.fh.file.remove_known_files(name):
        logging.info("Removed: " + name)
     app.fh.reload_from_db()
@@ -64,7 +64,7 @@ def remove_unknown_person():
     logging.info("Removing: " + name)
     if app.fh.file.remove_unknown_files(folder):
        logging.info(name + "'s folder removed successfully")
-    if app.fh.db.remove_unknown_name(name):
+    if app.dh.remove_unknown_name(name):
        logging.info(name + " removed successfully from the database")
     app.fh.reload_from_db()
     return redirect("/person_db")
@@ -78,7 +78,7 @@ def merge_unknown_with():
     folder = request.args.get('f', 0, type=str)
     merge_to = request.args.get('m2', 0, type=str)
     logging.info("Mergeing: " + name + " and its folder " + folder + " into " + merge_to)
-    app.fh.db.merge_unknown(name, merge_to)
+    app.dh.merge_unknown(name, merge_to)
     app.fh.file.merge_unk_file_with(folder, merge_to)
     app.fh.reload_from_db()
     return redirect("/person_db")

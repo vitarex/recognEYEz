@@ -3,12 +3,15 @@ from flask import Flask, render_template
 from flask_admin import Admin
 import flask_simplelogin as simplog
 from Library.FaceHandler import FaceHandler
+from Library.CameraHandler import CameraHandler
+from Library.SettingsHandler import SettingsHandler
+from Library.DatabaseHandler import DatabaseHandler
 import logging
 import os
 import cv2
 from pathlib import Path
 
-from Library.CameraHandler import camera_start_processing
+
 
 #from flask_cache_buster import CacheBuster
 
@@ -20,6 +23,9 @@ most_recent_scan_date = None
 
 class FHApp(Flask):
     fh: FaceHandler = None
+    ch: CameraHandler = None
+    sh: SettingsHandler = None
+    dh: DatabaseHandler = None
 
 app: FHApp = None
 
@@ -66,7 +72,7 @@ def on_known_enters(persons):
             app.fh.notification_settings["topic"],
             "[recognEYEz][ARRIVED][date: {}]: {}".format(datetime.datetime.now().strftime(app.config["TIME_FORMAT"]), person.name)
         )
-        app.fh.db.log_event("[ARRIVED]: {}".format(person.name))
+        app.dh.log_event("[ARRIVED]: {}".format(person.name))
         logging.info("[ARRIVED]: {}".format(person.name))
 
 
@@ -77,14 +83,21 @@ def on_known_leaves(persons):
             app.fh.notification_settings["topic"],
             "[recognEYEz][LEFT][date: {}]: {}".format(datetime.datetime.now().strftime(app.config["TIME_FORMAT"]), person.name)
         )
-        app.fh.db.log_event("[LEFT]: {}".format(person.name))
+        app.dh.log_event("[LEFT]: {}".format(person.name))
         logging.info("[LEFT]: {}".format(person.name))
 
 
-def init_fh(app):
-    """ Initializes a face handler instance """
+def init_app(app, db_loc="facerecognition.db"):
+    """ Initializes handlers instance """
+    if not app.dh:
+        app.dh = DatabaseHandler(app, db_loc)
+    if not app.sh:
+        app.sh = SettingsHandler(app)
+    if not app.ch:
+        app.ch = CameraHandler(app)
     if not app.fh:
-        app.fh = FaceHandler(
+        app.fh = FaceHandler(app,
+            db_loc,
             cascade_xml="haarcascade_frontalface_default.xml",
             img_root=Path("Static").joinpath("dnn")
         )
@@ -92,6 +105,7 @@ def init_fh(app):
         # override the callback methods
         app.fh.on_known_face_enters = on_known_enters
         app.fh.on_known_face_leaves = on_known_leaves
+
 
 
 def log(log_text):
@@ -111,7 +125,7 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
     # t = threading.Thread(target=init_fh, args=(app,))
     # t.start()
-    init_fh(app)
+    init_app(app)
 
     # import the blueprints
     from blueprints.live_view.routes import live_view
@@ -145,6 +159,6 @@ def create_app(config_class=Config):
 
     app.camera_thread = None
 
-    camera_start_processing(app)
+    #app.ch.camera_start_processing()
 
     return app
