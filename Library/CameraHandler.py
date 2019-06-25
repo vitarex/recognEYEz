@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 import urllib.request
 import imutils
+import json
 #import os
 #from PIL import Image
 #from PIL import ImageDraw
@@ -16,6 +17,9 @@ from Library.Handler import Handler
 class Camera:
     def read(self):
         return np.empty((0, 0))
+
+    def release(self) -> bool:
+        return True
 
 
 class WebcamCamera(Camera):
@@ -31,6 +35,15 @@ class WebcamCamera(Camera):
 
     def read(self):
         return self.cam.read()
+
+    def release(self) -> bool:
+        try:
+            self.cam.release()
+            return True
+        except Exception as e:
+            print(e)
+            return False
+
 
 
 class IPWebcam(Camera):
@@ -123,12 +136,14 @@ class CameraHandler(Handler):
         if self.cam_is_running:
             return
 
-        self.cam = WebcamCamera(
-            int(self.app.sh.get_face_recognition_settings()["cam_id"]),
-            self.app.sh.get_face_recognition_settings()["resolution"])
-        self.cam_is_running = self.cam.cam_is_running
+        if int(self.app.sh.get_face_recognition_settings()["cam_id"]) is 0:
+            self.cam = WebcamCamera(
+                int(self.app.sh.get_face_recognition_settings()["cam_id"]),
+                self.app.sh.get_face_recognition_settings()["resolution"])
+            self.cam_is_running = self.cam.cam_is_running
 
     def stop_cam(self):
         if self.cam_is_running:
-            self.cam.release()
+            if not self.cam.release():
+                raise Exception("Couldn't release camera object")
             self.cam_is_running = False
