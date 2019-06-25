@@ -1,7 +1,7 @@
 import datetime
 from flask import Flask, render_template
 from flask_admin import Admin
-import flask_simplelogin as simplog
+from flask_simplelogin import SimpleLogin
 from Library.FaceHandler import FaceHandler
 from Library.CameraHandler import CameraHandler
 from Library.SettingsHandler import SettingsHandler
@@ -14,16 +14,15 @@ from config import Config
 from bcrypt import hashpw, gensalt, checkpw
 import sqlite3 as sql
 
-most_recent_scan_date = None
 
 class FHApp(Flask):
-    fh: FaceHandler = None
-    ch: CameraHandler = None
-    sh: SettingsHandler = None
-    dh: DatabaseHandler = None
+    fh: FaceHandler
+    ch: CameraHandler
+    sh: SettingsHandler
+    dh: DatabaseHandler
 
 
-app: FHApp = None
+app: FHApp
 
 
 # cache_buster_config = {'extensions': ['.png', '.css', '.csv'], 'hash_size': 10}
@@ -102,13 +101,6 @@ def init_app(app, db_loc="facerecognition.db"):
         app.fh.on_known_face_enters = on_known_enters
         app.fh.on_known_face_leaves = on_known_leaves
 
-
-def log(log_text):
-    date = datetime.datetime.now().strftime(app.TIME_FORMAT)
-    with open("log.txt", "a+") as f:
-        f.write("[" + date + "] " + str(log_text) + " <br>\n")
-
-
 def login():
     """ needed for simple login to render the proper template """
     return render_template("login.html")
@@ -146,7 +138,7 @@ def create_app(config_class=Config):
     app.admin = Admin(app, name='recogneyez', template_mode='bootstrap3')
     app.ticker = 0
 
-    simplog.SimpleLogin(app, login_checker=validate_login)
+    SimpleLogin(app, login_checker=validate_login)
     # cache_buster.register_cache_buster(app)
     app.force_rescan = False
 
