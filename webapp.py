@@ -159,6 +159,6 @@ def create_app(config_class=Config):
 
     app.camera_thread = None
 
-    app.ch.camera_start_processing()
+    #app.ch.camera_start_processing()
 
     return app
