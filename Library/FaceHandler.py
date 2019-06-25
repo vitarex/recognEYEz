@@ -1,3 +1,4 @@
+from __future__ import division
 import cv2
 import datetime
 from pathlib import Path
@@ -6,21 +7,17 @@ import numpy as np
 import face_recognition
 import Library.tracking as tracking
 from imutils import paths
-import sqlite3 as sql
 import errno
 import logging
 import os
-from itertools import *
-from typing import *
+from itertools import compress
+from typing import List
 from collections import Counter
 
 from Library.Mailer import Mailer
-from Library.DatabaseHandler import *
 from Library.FileHandler import FileHandler
 from Library.MqttHandler import MqttHandler
-from Library.CameraHandler import CameraHandler
 from Library.Handler import Handler
-import sys
 
 
 class FaceHandler(Handler):
@@ -46,13 +43,6 @@ class FaceHandler(Handler):
         # loads the OpenCV face_detector / CascadeClassifier from the cascade_path
         self.face_detector = cv2.CascadeClassifier(str(cascade_path))
         logging.info("OpenCV facedetector loaded")
-
-        """ # creates empty directories and fills them with info from database
-        self.load_encodings_from_database()
-        self.load_unknown_encodings_from_database()
-
-        self.load_persons_from_database()
-        self.load_unknown_persons_from_database() """
 
         # creates two empty dictionaries that will be modified by later functions
         self.visible_persons = set()
@@ -353,7 +343,6 @@ class FaceHandler(Handler):
         if person is None:
             # TODO: What happens if there's no person here?
             raise Exception("Not implemented")
-            db.add_person()
         # every image of the person gets a unique index
         image_name = '{}_{}.png'.format(
             person.name, len(person.images)+1)
