@@ -11,11 +11,12 @@ import errno
 import logging
 import os
 from itertools import compress
-from typing import List
+from typing import List, Dict, Tuple
 from collections import Counter
 
 from Library.Mailer import Mailer
 from Library.FileHandler import FileHandler
+from Library.DatabaseHandler import Encoding, Person
 from Library.MqttHandler import MqttHandler
 from Library.Handler import Handler
 
@@ -89,7 +90,8 @@ class FaceHandler(Handler):
         """
 
         start_t = time.time()
-        ret, frame = self.app.ch.cam.read()
+        with self.app.ch.cam_lock:
+            ret, frame = self.app.ch.cam.read()
         if not ret and frame == None:
             raise AssertionError("The camera didn't return a frame object. Maybe it failed to start properly.")
         if self.app.sh.get_face_recognition_settings()["flip_cam"] == "on":

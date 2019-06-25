@@ -32,9 +32,10 @@ def config_view():
 @simplog.login_required
 def update_face_recognition_settings():
     app.sh.update_face_recognition_settings(request.form)
-    if app.ch.cam_is_running:
-        app.ch.stop_cam()
-        app.ch.start_cam()
+    with app.ch.cam_lock:
+        if app.ch.cam_is_running:
+            app.ch.stop_cam()
+            app.ch.start_cam()
     return redirect("/config")
 
 

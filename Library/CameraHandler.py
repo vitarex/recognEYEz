@@ -71,6 +71,7 @@ class IPWebcam(Camera):
 
 class CameraHandler(Handler):
     cam: Camera = None
+    cam_lock: threading.RLock = threading.RLock()
 
     def __init__(self, app):
         super().__init__(app)
@@ -81,24 +82,26 @@ class CameraHandler(Handler):
         logging.info("Camera opened")
 
     def camera_start_processing(self):
-        logging.info("The camera handler object: {}".format(self))
-        if self.app.fh and self.cam_is_running and not self.cam_is_processing:
-            self.app.fh.running_since = datetime.datetime.now()
-            if self.app.camera_thread == None:
-                self.app.camera_thread = threading.Thread(
-                    target=self.camera_process, daemon=True)
-                self.app.camera_thread.start()
-            self.cam_is_processing = True
-            logging.info("Camera started")
-        logging.info("Camera scanning started")
+        with self.cam_lock:
+            logging.info("The camera handler object: {}".format(self))
+            if self.app.fh and self.cam_is_running and not self.cam_is_processing:
+                self.app.fh.running_since = datetime.datetime.now()
+                if self.app.camera_thread == None:
+                    self.app.camera_thread = threading.Thread(
+                        target=self.camera_process, daemon=True)
+                    self.app.camera_thread.start()
+                self.cam_is_processing = True
+                logging.info("Camera started")
+            logging.info("Camera scanning started")
 
     def camera_stop_processing(self):
-        if self.app.fh and self.cam_is_running and self.cam_is_processing:
-            self.cam_is_processing = False
-            self.app.preview_image = cv2.imread(
-                str(Path("Static", "empty_pic.png")))
+        with self.cam_lock:
+            if self.app.fh and self.cam_is_running and self.cam_is_processing:
+                self.cam_is_processing = False
+                self.app.preview_image = cv2.imread(
+                    str(Path("Static", "empty_pic.png")))
 
-        logging.info("Camera scanning stopped")
+            logging.info("Camera scanning stopped")
 
     def camera_process(self):
         """
@@ -134,17 +137,19 @@ class CameraHandler(Handler):
             raise e
 
     def start_cam(self):
-        if self.cam_is_running:
-            return
+        with self.cam_lock:
+            if self.cam_is_running:
+                return
 
-        if int(self.app.sh.get_face_recognition_settings()["cam_id"]) is 0:
-            self.cam = WebcamCamera(
-                int(self.app.sh.get_face_recognition_settings()["cam_id"]),
-                self.app.sh.get_face_recognition_settings()["resolution"])
-            self.cam_is_running = self.cam.cam_is_running
+            if int(self.app.sh.get_face_recognition_settings()["cam_id"]) is 0:
+                self.cam = WebcamCamera(
+                    int(self.app.sh.get_face_recognition_settings()["cam_id"]),
+                    self.app.sh.get_face_recognition_settings()["resolution"])
+                self.cam_is_running = self.cam.cam_is_running
 
     def stop_cam(self):
-        if self.cam_is_running:
-            if not self.cam.release():
-                raise Exception("Couldn't release camera object")
-            self.cam_is_running = False
+        with self.cam_lock:
+            if self.cam_is_running:
+                if not self.cam.release():
+                    raise Exception("Couldn't release camera object")
+                self.cam_is_running = False
