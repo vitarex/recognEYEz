@@ -173,7 +173,7 @@ class FaceHandler(Handler):
             gray,
             scaleFactor=1.2,
             minNeighbors=5,
-            minSize=(int(self.app.ch.minW), int(self.app.ch.minH)))
+            minSize=(int(gray.shape[0]), int(gray.shape[1])))
         return faces  # x, y, w, h
 
     def recognize_faces(self, rgb, face_rects, frame, save_new_faces=False) -> Dict[Tuple, Person]:

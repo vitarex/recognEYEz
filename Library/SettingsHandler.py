@@ -30,6 +30,7 @@ class SettingsHandler(Handler):
                 sett[box] = "off"
         with open(Path("Data/NotificationSettings.json"), 'w') as nfp:
             json.dump(sett, nfp, indent=3)
+        self.__notification_settings = sett
 
     def get_face_recognition_settings(self) ->Dict:
         if not self.__face_recognition_settings:
@@ -50,4 +51,4 @@ class SettingsHandler(Handler):
                 sett[box] = "off"
         with open(Path("Data/FaceRecSettings.json"), 'w') as ffp:
             json.dump(sett, ffp, indent=3)
-
+        self.__face_recognition_settings = sett

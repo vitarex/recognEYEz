@@ -3,12 +3,58 @@ import logging
 import threading
 import datetime
 import cv2
+import numpy as np
+import urllib.request
+import imutils
+#import os
+#from PIL import Image
+#from PIL import ImageDraw
+#from imutils.video import VideoStream
 from Library.Handler import Handler
 
 
-class CameraHandler(Handler):
+class Camera:
+    def read(self):
+        return np.empty((0,0))
+
+class WebcamCamera(Camera):
     resolutions = {"vga": [640, 480], "qvga": [320, 240], "qqvga": [
         160, 120], "hd": [1280, 720], "fhd": [1920, 1080]}
+    def __init__(self, cam_id:int, res):
+        self.cam = cv2.VideoCapture(cam_id)
+        self.cam.set(3, res[0])  # set video width
+        self.cam.set(4, res[1])  # set video height
+        self.cam_is_running = True
+
+    def read(self):
+        return self.cam.read()
+
+class IPWebcam(Camera):
+    def __init__(self, cam_id:int, url:str, width: int = 400):
+        self.stream = urllib.request.urlopen("url")
+        self.bytes = b''
+        self.width = width
+        self.cam_is_running = True
+
+    def read(self):
+        while True:
+            self.bytes += self.stream.read(1024)
+            start = self.bytes.find(b'\xff\xd8')
+            end = self.bytes.find(b'\xff\xd9')
+            if start != -1 and end != -1:
+                jpg = self.bytes[start:end + 2]
+                self.bytes = self.bytes[end + 2:]
+                frame = cv2.imdecode(np.fromstring(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
+                frame = imutils.resize(frame, width=self.width)
+                break
+        return frame
+
+class RPiCam(Camera):
+
+
+class CameraHandler(Handler):
+    cam:Camera = None
+
     def __init__(self, app):
         super().__init__(app)
         # loads video with OpenCV
@@ -73,13 +119,11 @@ class CameraHandler(Handler):
         if self.cam_is_running:
             return
 
-        self.cam = cv2.VideoCapture(int(self.app.sh.get_face_recognition_settings()["cam_id"]))
-        res = self.resolutions[self.app.sh.get_face_recognition_settings()["resolution"]]
-        self.cam.set(3, res[0])  # set video width
-        self.cam.set(4, res[1])  # set video height
-        self.minW = 0.1 * self.cam.get(3)
-        self.minH = 0.1 * self.cam.get(4)
-        self.cam_is_running = True
+
+        self.cam = WebcamCamera(
+            int(self.app.sh.get_face_recognition_settings()["cam_id"]),
+            self.resolutions[self.app.sh.get_face_recognition_settings()["resolution"]])
+
 
     def stop_cam(self):
         if self.cam_is_running:
