@@ -5,7 +5,6 @@ import os
 import sys
 import cv2
 import logging
-from Library.Handler import Handler
 
 #from Library.CameraHandler import camera_start_processing, camera_stop_processing
 

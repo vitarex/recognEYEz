@@ -14,6 +14,7 @@ from Library.Handler import Handler
 
 
 class Camera:
+    """Base camera class"""
     def read(self):
         return np.empty((0, 0))
 
@@ -96,14 +97,14 @@ class CameraHandler(Handler):
         try:
             while self.cam_is_running:
                 if ticker > int(self.app.sh.get_face_recognition_settings()["dnn_scan_freq"]) or self.app.force_rescan:
-                    names, frame, rects = self.app.fh.process_next_frame(
+                    _, frame, _ = self.app.fh.process_next_frame(
                         True, save_new_faces=True)
                     ticker = 0
                     self.app.force_rescan = False
 
                     self.app.preview_image = frame
                 else:
-                    names, frame, rects = self.app.fh.process_next_frame(
+                    _, frame, _ = self.app.fh.process_next_frame(
                         save_new_faces=True)
                     self.app.preview_image = frame
                 ticker += 1
