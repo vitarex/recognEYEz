@@ -3,5 +3,6 @@ if False:
 
 class Handler:
     app: 'webapp.FHApp' = None
+
     def __init__(self, app: 'webapp.FHApp'):
         self.app = app

@@ -1,8 +1,5 @@
-import subprocess
 import smtplib
 from email.mime.text import MIMEText
-import datetime
-import time
 
 
 class Mailer:
@@ -28,4 +25,3 @@ class Mailer:
         self.smtpserver.sendmail(self.from_email, [to_email], msg.as_string())
         # Closes the smtp server.
         self.smtpserver.quit()
-

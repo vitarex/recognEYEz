@@ -1,13 +1,12 @@
 import sqlite3 as sql
 from datetime import datetime
 import logging
-from peewee import *
 from typing import List
-import logging
-from imutils import paths
 import json
 from pathlib import Path
 from Library.Handler import Handler
+from peewee import (TextField, DateTimeField, DeferredForeignKey, BooleanField,
+                    SqliteDatabase, prefetch, Model, ForeignKeyField, BlobField, Select)
 
 db = SqliteDatabase('recogneyez.db')
 
@@ -167,8 +166,8 @@ class DatabaseHandler(Handler):
 
     def refresh(self):
         self._persons_select = Person.select()
-        self._known_persons_select = Person.select().where(Person.unknown == False)
-        self._unknown_persons_select = Person.select().where(Person.unknown == True)
+        self._known_persons_select = Person.select().where(Person.unknown is False)
+        self._unknown_persons_select = Person.select().where(Person.unknown is True)
         self._images_select = Image.select()
         self._encodings_select = Encoding.select()
         self.valid = True
@@ -194,10 +193,8 @@ class DatabaseHandler(Handler):
             self.refresh()
         return prefetch(self._unknown_persons_select, self._images_select, self._encodings_select)
 
-
-
-
     # loads the face_recognition_settings table from the database into a dictionary
+
     def load_face_recognition_settings(self):
         with open(Path("Data/FaceRecSettings.json")) as json_file:
             sett = json.load(json_file)
