@@ -6,11 +6,6 @@ import cv2
 import numpy as np
 import urllib.request
 import imutils
-import json
-#import os
-#from PIL import Image
-#from PIL import ImageDraw
-#from imutils.video import VideoStream
 from Library.Handler import Handler
 
 
@@ -44,7 +39,6 @@ class WebcamCamera(Camera):
         except Exception as e:
             print(e)
             return False
-
 
 
 class IPWebcam(Camera):
@@ -84,9 +78,11 @@ class CameraHandler(Handler):
     def camera_start_processing(self):
         with self.cam_lock:
             logging.info("The camera handler object: {}".format(self))
-            if self.app.fh and self.cam_is_running and not self.cam_is_processing:
+            if self.app.fh\
+                    and self.cam_is_running\
+                    and not self.cam_is_processing:
                 self.app.fh.running_since = datetime.datetime.now()
-                if self.app.camera_thread == None:
+                if self.app.camera_thread is None:
                     self.app.camera_thread = threading.Thread(
                         target=self.camera_process, daemon=True)
                     self.app.camera_thread.start()
@@ -105,14 +101,15 @@ class CameraHandler(Handler):
 
     def camera_process(self):
         """
-        Continously calls the process_next_frame() method to process frames from the camera
-        self.app_cont: used to access the main self.application instance from blueprints
+        Continously calls the process_next_frame() method
+        to process frames from the camera
         """
         ticker = 0
         error_count = 0
         try:
             while self.cam_is_running:
-                if ticker > int(self.app.sh.get_face_recognition_settings()["dnn_scan_freq"]) or self.app.force_rescan:
+                if ticker > int(self.app.sh.get_face_recognition_settings()["dnn_scan_freq"])\
+                        or self.app.force_rescan:
                     _, frame, _ = self.app.fh.process_next_frame(
                         True, save_new_faces=True)
                     ticker = 0
@@ -141,7 +138,7 @@ class CameraHandler(Handler):
             if self.cam_is_running:
                 return
 
-            if int(self.app.sh.get_face_recognition_settings()["cam_id"]) is 0:
+            if int(self.app.sh.get_face_recognition_settings()["cam_id"]) == 0:
                 self.cam = WebcamCamera(
                     int(self.app.sh.get_face_recognition_settings()["cam_id"]),
                     self.app.sh.get_face_recognition_settings()["resolution"])
