@@ -20,7 +20,8 @@ class Camera:
 class WebcamCamera(Camera):
     resolutions = {"vga": [640, 480], "qvga": [320, 240], "qqvga": [
         160, 120], "hd": [1280, 720], "fhd": [1920, 1080]}
-    def __init__(self, cam_id:int, res):
+    def __init__(self, cam_id:int, res: str):
+        res = self.resolutions[res]
         self.cam = cv2.VideoCapture(cam_id)
         self.cam.set(3, res[0])  # set video width
         self.cam.set(4, res[1])  # set video height
@@ -49,7 +50,6 @@ class IPWebcam(Camera):
                 break
         return frame
 
-class RPiCam(Camera):
 
 
 class CameraHandler(Handler):
@@ -102,6 +102,7 @@ class CameraHandler(Handler):
                 else:
                     names, frame, rects = self.app.fh.process_next_frame(
                         save_new_faces=True)
+                    self.app.preview_image = frame
                 ticker += 1
                 error_count = 0
         except AssertionError as e:
@@ -122,7 +123,8 @@ class CameraHandler(Handler):
 
         self.cam = WebcamCamera(
             int(self.app.sh.get_face_recognition_settings()["cam_id"]),
-            self.resolutions[self.app.sh.get_face_recognition_settings()["resolution"]])
+            self.app.sh.get_face_recognition_settings()["resolution"])
+        self.cam_is_running = self.cam.cam_is_running
 
 
     def stop_cam(self):
