@@ -4,6 +4,12 @@ import threading
 import datetime
 import cv2
 import numpy as np
+import urllib.request
+import imutils
+#import os
+#from PIL import Image
+#from PIL import ImageDraw
+#from imutils.video import VideoStream
 from Library.Handler import Handler
 
 
@@ -18,12 +24,33 @@ class WebcamCamera(Camera):
         self.cam = cv2.VideoCapture(cam_id)
         self.cam.set(3, res[0])  # set video width
         self.cam.set(4, res[1])  # set video height
-        self.minW = 0.1 * self.cam.get(3)
-        self.minH = 0.1 * self.cam.get(4)
         self.cam_is_running = True
 
     def read(self):
         return self.cam.read()
+
+class IPWebcam(Camera):
+    def __init__(self, cam_id:int, url:str, width: int = 400):
+        self.stream = urllib.request.urlopen("url")
+        self.bytes = b''
+        self.width = width
+        self.cam_is_running = True
+
+    def read(self):
+        while True:
+            self.bytes += self.stream.read(1024)
+            start = self.bytes.find(b'\xff\xd8')
+            end = self.bytes.find(b'\xff\xd9')
+            if start != -1 and end != -1:
+                jpg = self.bytes[start:end + 2]
+                self.bytes = self.bytes[end + 2:]
+                frame = cv2.imdecode(np.fromstring(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
+                frame = imutils.resize(frame, width=self.width)
+                break
+        return frame
+
+class RPiCam(Camera):
+
 
 class CameraHandler(Handler):
     cam:Camera = None
