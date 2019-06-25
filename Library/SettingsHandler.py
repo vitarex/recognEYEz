@@ -1,4 +1,4 @@
-from typing import *
+from typing import Dict
 from pathlib import Path
 import json
 from Library.Handler import Handler
@@ -10,12 +10,12 @@ class SettingsHandler(Handler):
     def __init__(self, app):
         super().__init__(app)
 
-    def get_notification_settings(self) ->Dict:
-        if not self.__notification_settings:
+    def get_notification_settings(self, force_refresh: bool = False) -> Dict:
+        if not self.__notification_settings or force_refresh:
             self.__notification_settings = self.load_notification_settings()
         return self.__notification_settings
 
-    def load_notification_settings(self) ->Dict:
+    def load_notification_settings(self) -> Dict:
         with open("Data/NotificationSettings.json") as nfp:
             return json.load(nfp)
 
@@ -30,17 +30,18 @@ class SettingsHandler(Handler):
                 sett[box] = "off"
         with open(Path("Data/NotificationSettings.json"), 'w') as nfp:
             json.dump(sett, nfp)
+        self.__notification_settings = sett
 
-    def get_face_recognition_settings(self) ->Dict:
-        if not self.__face_recognition_settings:
+    def get_face_recognition_settings(self, force_refresh: bool = False) -> Dict:
+        if not self.__face_recognition_settings or force_refresh:
             self.__face_recognition_settings = self.load_face_recognition_settings()
         return self.__face_recognition_settings
 
-    def load_face_recognition_settings(self) ->Dict:
+    def load_face_recognition_settings(self) -> Dict:
         with open("Data/FaceRecSettings.json") as ffp:
             return json.load(ffp)
 
-    def update_face_recognition_settings(self, form):
+    def update_face_recognition_settings(self, form: Dict):
         sett = {}
         for key, value in form.items():
             sett[key] = value
@@ -50,3 +51,4 @@ class SettingsHandler(Handler):
                 sett[box] = "off"
         with open(Path("Data/FaceRecSettings.json"), 'w') as ffp:
             json.dump(sett, ffp)
+        self.__face_recognition_settings = sett
