@@ -38,7 +38,8 @@ class FaceHandler(Handler):
 
         # ??? creates a variable called ct that contains the CentroidTracker???
         self.ct = tracking.CentroidTracker()
-        # sets the path where the haarcascade_frontalface_default.xml file is found (recognEYEz\Library\haarcascade_frontalface_default.xml)
+        # sets the path where the haarcascade_frontalface_default.xml file is found
+        # (recognEYEz\Library\haarcascade_frontalface_default.xml)
         cascade_path = Path(__file__).resolve(
         ).parent.joinpath(cascade_xml)
         # loads the OpenCV face_detector / CascadeClassifier from the cascade_path
@@ -92,7 +93,7 @@ class FaceHandler(Handler):
         start_t = time.time()
         with self.app.ch.cam_lock:
             ret, frame = self.app.ch.cam.read()
-        if not ret and frame == None:
+        if not ret and frame is None:
             raise AssertionError("The camera didn't return a frame object. Maybe it failed to start properly.")
         if self.app.sh.get_face_recognition_settings()["flip_cam"] == "on":
             frame = cv2.flip(frame, -1)
@@ -105,7 +106,8 @@ class FaceHandler(Handler):
 
         rect_to_person = dict()
         # executing DNN face recognition on found faces
-        if use_dnn or ((len(face_rects) != len(self.visible_persons)) and self.app.sh.get_face_recognition_settings()["force_dnn_on_new"]):
+        if use_dnn or ((len(face_rects) != len(self.visible_persons))
+                       and self.app.sh.get_face_recognition_settings()["force_dnn_on_new"]):
             # the returned object is a dictionary of rectangles to persons
             # only the rectangles that have a person associated with them are returned here
             rect_to_person = self.recognize_faces(
@@ -116,8 +118,7 @@ class FaceHandler(Handler):
             # also twins
             self.visible_persons = set(rect_to_person.values())
 
-        centroid_objects = self.ct.update(
-            face_rects, [person.id for person in self.visible_persons])
+        self.ct.update(face_rects, [person.id for person in self.visible_persons])
 
         # drawing dots(?), rectangles and names on the frame
         if self.visible_persons:
@@ -195,11 +196,14 @@ class FaceHandler(Handler):
             known_encodings = self.get_known_encodings()
             # check our current encoding against these known persons
             matches = face_recognition.compare_faces(
-                list(map(lambda encoding: np.frombuffer(encoding.encoding), known_encodings)), e, tolerance=float(self.app.sh.get_face_recognition_settings()["dnn_tresh"])
+                list(map(lambda encoding: np.frombuffer(encoding.encoding), known_encodings)),
+                e,
+                tolerance=float(self.app.sh.get_face_recognition_settings()["dnn_tresh"])
             )
             # if there was a match in the known persons
             if True in matches:
-                # face_recognition.compare_faces returns a list of boolean values indicating wether an item in the list matched the encoding
+                # face_recognition.compare_faces returns a list of boolean values
+                # indicating wether an item in the list matched the encoding
                 # so we filter out the encodings which didn't have any matches
                 found_encodings = list(compress(known_encodings, matches))
                 # let's map every encoding to their person, then count them up
@@ -289,7 +293,7 @@ class FaceHandler(Handler):
 
     # Type the id of the new person
     def gather_new_face_data(self, id):
-        face_id = input('\n enter user id and press <return> ==>  ')
+        input('\n enter user id and press <return> ==>  ')
 
     def save_unknown_encoding_to_db(self, name, encoding):
         self.app.dh.add_encoding(name, encoding.tobytes())
