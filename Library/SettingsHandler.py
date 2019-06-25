@@ -1,4 +1,4 @@
-from typing import *
+from typing import Dict
 from pathlib import Path
 import json
 from Library.Handler import Handler
@@ -10,12 +10,12 @@ class SettingsHandler(Handler):
     def __init__(self, app):
         super().__init__(app)
 
-    def get_notification_settings(self) ->Dict:
+    def get_notification_settings(self) -> Dict:
         if not self.__notification_settings:
             self.__notification_settings = self.load_notification_settings()
         return self.__notification_settings
 
-    def load_notification_settings(self) ->Dict:
+    def load_notification_settings(self) -> Dict:
         with open("Data/NotificationSettings.json") as nfp:
             return json.load(nfp)
 
@@ -32,12 +32,12 @@ class SettingsHandler(Handler):
             json.dump(sett, nfp, indent=3)
         self.__notification_settings = sett
 
-    def get_face_recognition_settings(self) ->Dict:
+    def get_face_recognition_settings(self) -> Dict:
         if not self.__face_recognition_settings:
             self.__face_recognition_settings = self.load_face_recognition_settings()
         return self.__face_recognition_settings
 
-    def load_face_recognition_settings(self) ->Dict:
+    def load_face_recognition_settings(self) -> Dict:
         with open("Data/FaceRecSettings.json") as ffp:
             return json.load(ffp)
 

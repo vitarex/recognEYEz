@@ -1,6 +1,5 @@
 import paho.mqtt.client as mqtt
 import sqlite3 as sql
-import time
 import logging
 
 
@@ -20,7 +19,7 @@ class MqttHandler:
         c = con.cursor()
         for row in c.execute('SELECT * FROM notification_settings'):
             self.data[row[0]] = row[1]
-        #logging.info(self.data)
+        # logging.info(self.data)
         con.close()
 
     def start_loop(self):
@@ -32,7 +31,7 @@ class MqttHandler:
     def connect(self):
         """ connects to the broker defined in the db """
         if self.client.connect(self.data["broker_url"], int(self.data["port"])):
-           logging.info("MQTT connected to " + self.data["broker_url"])
+            logging.info("MQTT connected to " + self.data["broker_url"])
 
     def publish(self, topic, payload=None):
         self.client.publish(topic, payload)
@@ -43,6 +42,3 @@ class MqttHandler:
     def on_message(self, client, userdata, message):
         logging.info("[MQTT-REC][" + message.topic + "]: " + str(message.payload.decode("utf-8")))
         pass
-
-    def publish(self, topic, payload):
-        self.client.publish(topic, payload)

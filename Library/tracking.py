@@ -32,7 +32,7 @@ class CentroidTracker():
             del self.objects[id]
             del self.disappeared[id]
         except IndexError:
-            pass # TODO make it more elegant
+            pass  # TODO make it more elegant
 
     def update(self, rects, ids):
         # check to see if the list of input bounding box rectangles
@@ -62,7 +62,6 @@ class CentroidTracker():
             if len(self.objects) == 0:
                 for i in range(0, len(inputCentroids)):
                     self.register(inputCentroids[i], ids[i])
-
 
         # otherwise, we are currently tracking objects so we need to
         # try to match the input centroids to existing object
@@ -118,7 +117,7 @@ class CentroidTracker():
                     usedCols.add(col)
 
         except IndexError:
-        # if False:
+            # if False:
             logging.info("Index error in tracking.py")
             # compute both the row and column index we have NOT yet
             # examined
@@ -154,4 +153,3 @@ class CentroidTracker():
             # return the set of trackable objects
         self.prev_ids = ids
         return self.objects
-

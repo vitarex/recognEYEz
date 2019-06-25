@@ -7,13 +7,8 @@ from Library.CameraHandler import CameraHandler
 from Library.SettingsHandler import SettingsHandler
 from Library.DatabaseHandler import DatabaseHandler
 import logging
-import os
 import cv2
 from pathlib import Path
-
-
-
-#from flask_cache_buster import CacheBuster
 
 from config import Config
 from bcrypt import hashpw, gensalt, checkpw
@@ -27,11 +22,12 @@ class FHApp(Flask):
     sh: SettingsHandler = None
     dh: DatabaseHandler = None
 
+
 app: FHApp = None
 
 
-#cache_buster_config = {'extensions': ['.png', '.css', '.csv'], 'hash_size': 10}
-#cache_buster = CacheBuster(config=cache_buster_config)
+# cache_buster_config = {'extensions': ['.png', '.css', '.csv'], 'hash_size': 10}
+# cache_buster = CacheBuster(config=cache_buster_config)
 
 def get_hashed_login_passwd():
     """returns the hash of the current password stored in the database"""
@@ -97,15 +93,14 @@ def init_app(app, db_loc="facerecognition.db"):
         app.ch = CameraHandler(app)
     if not app.fh:
         app.fh = FaceHandler(app,
-            db_loc,
-            cascade_xml="haarcascade_frontalface_default.xml",
-            img_root=Path("Static").joinpath("dnn")
-        )
+                             db_loc,
+                             cascade_xml="haarcascade_frontalface_default.xml",
+                             img_root=Path("Static").joinpath("dnn")
+                             )
         app.fh.running_since = datetime.datetime.now()
         # override the callback methods
         app.fh.on_known_face_enters = on_known_enters
         app.fh.on_known_face_leaves = on_known_leaves
-
 
 
 def log(log_text):
@@ -121,7 +116,7 @@ def login():
 # parameter is the config Class from config.py
 def create_app(config_class=Config):
     global app
-    app = FHApp(__name__, static_url_path='', static_folder = './Static', template_folder='./Templates')
+    app = FHApp(__name__, static_url_path='', static_folder='./Static', template_folder='./Templates')
     app.config.from_object(config_class)
     # t = threading.Thread(target=init_fh, args=(app,))
     # t.start()
@@ -152,13 +147,13 @@ def create_app(config_class=Config):
     app.ticker = 0
 
     simplog.SimpleLogin(app, login_checker=validate_login)
-#   cache_buster.register_cache_buster(app)
+    # cache_buster.register_cache_buster(app)
     app.force_rescan = False
 
     app.preview_image = cv2.imread("Static/empty_pic.png")
 
     app.camera_thread = None
 
-    #app.ch.camera_start_processing()
+    # app.ch.camera_start_processing()
 
     return app

@@ -36,4 +36,3 @@ class Config:
     SIMPLELOGIN_USERNAME = 'admin'
     IMAGES_PATH = 'Static'
     SEND_FILE_MAX_AGE_DEFAULT = 0  # to update images with the same filename, but dif content
-

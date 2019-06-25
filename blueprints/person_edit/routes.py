@@ -41,7 +41,7 @@ def edit_known_person():
         folder_location=app.config["PICTURE_FOLDER"],
         # check if thmb is set (eg in case of manual folder addition
         # thumbnail= app.fh.persons[name].thumbnail if app.fh.persons[name].thumbnail else "not set",
-        thumbnail= app.fh.persons[name].thumbnail or "not set",
+        thumbnail=app.fh.persons[name].thumbnail or "not set",
         img_names=app.fh.file.get_all_dnn_pic_name_for_person_name(name),
         extra=app.fh.persons[name].pref,
         names=app.fh.persons.keys()
@@ -88,4 +88,3 @@ def remove_pic_for_person():
     app.fh.file.remove_picture(name, pic)
     logging.info("person pic removed: " + name + " - " + pic)
     return json.dumps({'status': 'OK', 'n': name, 'p': pic})
-
