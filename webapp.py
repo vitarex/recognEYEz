@@ -9,54 +9,29 @@ from Library.DatabaseHandler import DatabaseHandler
 import logging
 import cv2
 from pathlib import Path
+from nacl.pwhash import InvalidkeyError
 
 from config import Config
-from bcrypt import hashpw, gensalt, checkpw
-import sqlite3 as sql
 
 
 class FHApp(Flask):
-    fh: FaceHandler
-    ch: CameraHandler
-    sh: SettingsHandler
-    dh: DatabaseHandler
+    fh: FaceHandler = None
+    ch: CameraHandler = None
+    sh: SettingsHandler = None
+    dh: DatabaseHandler = None
 
 
 app: FHApp
 
 
-# cache_buster_config = {'extensions': ['.png', '.css', '.csv'], 'hash_size': 10}
-# cache_buster = CacheBuster(config=cache_buster_config)
-
-def get_hashed_login_passwd():
-    """returns the hash of the current password stored in the database"""
-    connection = sql.connect(app.config["PAGE_DATABASE"])
-    cursor = connection.cursor()
-    cursor.execute('SELECT password FROM users WHERE name="admin"')
-    pwd_hash = cursor.fetchone()
-    connection.close()
-    return pwd_hash[0]
-
-
-def set_hashed_login_passwd(pwd):
-    """ updates the password hash in the database """
-    pwd = hashpw(pwd.encode('utf-8'), gensalt())
-    connection = sql.connect(app.config["PAGE_DATABASE"])
-    cursor = connection.cursor()
-    cursor.execute('UPDATE users SET password = ? WHERE name="admin"', (pwd,))
-    connection.commit()
-    connection.close()
-    logging.info("Password changed")
-    return pwd
-
-
 def validate_login(login_form):
-    """ used to override simple_login's loginchecker, thus allowing the use of encrypted passwords """
-    correct_hash = get_hashed_login_passwd()
-    candidate_password = login_form['password'].encode('utf-8')
-    if checkpw(candidate_password, correct_hash):
+    """ Override simple_login's loginchecker, thus allowing the use of encrypted passwords """
+    try:
+        app.dh.get_user_by_name(login_form['username']).verify(login_form['password'])
         return True
-    return False
+    except InvalidkeyError:
+        logging.error("Invalid password given for the user {}".format(login_form['username']))
+        return False
 
 
 def on_known_enters(persons):

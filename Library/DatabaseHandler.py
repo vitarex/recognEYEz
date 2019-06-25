@@ -4,6 +4,7 @@ import logging
 from typing import List
 import json
 from pathlib import Path
+from nacl import pwhash
 from Library.Handler import Handler
 from peewee import (TextField, DateTimeField, DeferredForeignKey, BooleanField,
                     SqliteDatabase, prefetch, Model, ForeignKeyField, BlobField, Select)
@@ -102,6 +103,20 @@ class Image(DBModel):
         self.person.set_thumbnail(self)
 
 
+class User(DBModel):
+    name = TextField(unique=True)
+    password_hash = BlobField()
+
+    def verify(self, password: str) -> bool:
+        return pwhash.verify(self.password_hash, password.encode())
+
+    def change_password(self, old_password: str, new_password: str) -> bool:
+        if self.verify(old_password):
+            self.password_hash = pwhash.str(new_password.encode())
+            return True
+        return False
+
+
 class DatabaseHandler(Handler):
     TIME_FORMAT = "%Y.%m.%d. %H:%M:%S"
     _persons_select: Select = None
@@ -141,6 +156,9 @@ class DatabaseHandler(Handler):
 
     def get_person_by_name(self, name: str) -> Person:
         return Person.get(Person.name == name)
+
+    def get_user_by_name(self, name: str) -> User:
+        return User.get(User.name == name)
 
     def open_and_get_cursor(self):
         """ Opens and stores connection for the db + returns a cursor object"""

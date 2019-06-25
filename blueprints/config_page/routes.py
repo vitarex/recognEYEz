@@ -3,8 +3,6 @@ from flask import current_app as app
 from flask_simplelogin import login_required
 import webapp
 
-from webapp import set_hashed_login_passwd
-
 config_page = Blueprint("config_page", __name__)
 
 
@@ -14,7 +12,7 @@ app: webapp.FHApp
 @config_page.route('/change_password', methods=['POST'])
 @login_required
 def change_password():
-    set_hashed_login_passwd(request.form["new_password"])
+    app.dh.get_user_by_name(request.form['username']).change_password(request.form["old_password"], request.form["new_password"])
     return redirect("/config")
 
 
