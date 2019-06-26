@@ -39,7 +39,8 @@ def config_view():
         "config.html",
         frec=app.sh.get_face_recognition_settings(),
         notif=app.sh.get_notification_settings(),
-        cam_dict=app.ch.available_cameras()
+        cam_dict = camera_dict
+        #app.ch.available_cameras()
     )
 
 
