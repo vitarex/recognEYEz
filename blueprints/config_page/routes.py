@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect
 from flask import current_app as app
 from flask_simplelogin import login_required
+
 import webapp
 
 config_page = Blueprint("config_page", __name__)

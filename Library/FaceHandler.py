@@ -17,7 +17,6 @@ from collections import Counter
 from Library.Mailer import Mailer
 from Library.FileHandler import FileHandler
 from Library.DatabaseHandler import Encoding, Person
-from Library.MqttHandler import MqttHandler
 from Library.Handler import Handler
 
 
@@ -55,11 +54,6 @@ class FaceHandler(Handler):
         # loads the face_recognition_settings table from the database into self.face_rec_settings
         self.face_rec_settings = self.app.dh.load_face_recognition_settings()
         logging.info("Database tables loaded")
-
-        # MQTT setup
-        self.mqtt = MqttHandler(self.database_location)
-        self.mqtt.subscribe(self.notification_settings["topic"])
-        logging.info("MQTT connected")
 
         self.file = FileHandler(img_root)
         # TODO: use mailer to send notifications to users

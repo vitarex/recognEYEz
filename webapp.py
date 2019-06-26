@@ -2,15 +2,16 @@ import datetime
 from flask import Flask, render_template
 from flask_admin import Admin
 from flask_simplelogin import SimpleLogin
-from Library.FaceHandler import FaceHandler
-from Library.CameraHandler import CameraHandler
-from Library.SettingsHandler import SettingsHandler
-from Library.DatabaseHandler import DatabaseHandler
 import logging
 import cv2
 from pathlib import Path
 from nacl.pwhash import InvalidkeyError
 
+from Library.FaceHandler import FaceHandler
+from Library.CameraHandler import CameraHandler
+from Library.SettingsHandler import SettingsHandler
+from Library.DatabaseHandler import DatabaseHandler
+from Library.MqttHandler import MqttHandler
 from config import Config
 
 
@@ -19,6 +20,7 @@ class FHApp(Flask):
     ch: CameraHandler = None
     sh: SettingsHandler = None
     dh: DatabaseHandler = None
+    mh: MqttHandler = None
 
 
 app: FHApp
@@ -38,7 +40,7 @@ def on_known_enters(persons):
     """ Custom behaviour for the facehandler's callback method of the same name """
     for person in persons:
         logging.info("Entered: {}".format(person.name))
-        app.fh.mqtt.publish(
+        app.mh.publish(
             app.fh.notification_settings["topic"],
             "[recognEYEz][ARRIVED][date: {}]: {}".format(datetime.datetime.now().strftime(app.config["TIME_FORMAT"]), person.name)
         )
@@ -57,12 +59,16 @@ def on_known_leaves(persons):
         logging.info("[LEFT]: {}".format(person.name))
 
 
-def init_app(app, db_loc="facerecognition.db"):
+def init_app(app: FHApp, db_loc="recogneyez.db"):
     """ Initializes handlers instance """
     if not app.dh:
         app.dh = DatabaseHandler(app, db_loc)
     if not app.sh:
         app.sh = SettingsHandler(app)
+    if not app.mh:
+        app.mh = MqttHandler(app)
+        app.mh.subscribe(app.sh.get_notification_settings()["topic"])
+        logging.info("MQTT connected")
     if not app.ch:
         app.ch = CameraHandler(app)
     if not app.fh:
