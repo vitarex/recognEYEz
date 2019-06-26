@@ -13,6 +13,7 @@ from Library.Handler import Handler
 
 class Camera:
     """Base camera class"""
+
     def read(self):
         return np.empty((0, 0))
 
@@ -157,13 +158,19 @@ class CameraHandler(Handler):
         cameras = dict()
         cameras['webcams'] = list()
         i = 0
-        while cv2.VideoCapture(i).isOpened():
+
+        cam = cv2.VideoCapture(i)
+        while cam.isOpened():
+            cam.release()
             cameras['webcams'].append({'id': i})
             i += 1
+            cam = cv2.VideoCapture(i)
+
+        cam.release()
 
         if platform.system == 'Linux' and platform.machine.startswith('arm'):
             import subprocess
-            c = subprocess.check_output(["vcgencmd","get_camera"])
+            c = subprocess.check_output(["vcgencmd", "get_camera"])
             if int(c.strip()[-1]):
                 cameras['pi_camera'] = True
             else:
@@ -171,4 +178,3 @@ class CameraHandler(Handler):
         else:
             cameras['pi_camera'] = False
         return cameras
-
