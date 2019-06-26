@@ -5,4 +5,9 @@ $(document).ready(function()
         $(".camera-fieldset").hide()
         $("#"+e.target.id+"-fieldset").show()
     })
+
+    $(".has-surrogate").click(function(e)
+    {
+        $("#"+e.target.id+"-surrogate").checked = !e.target.checked
+    })
 })

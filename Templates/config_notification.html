@@ -16,21 +16,24 @@
 							Notify about unknown faces:  <br>
 							&nbsp;&nbsp;&nbsp;
 							<label for="e-notif-unk" class="switch">
-								<input type="checkbox"  id="e-notif-unk" name="e_notif_unk" {% if notif['e_notif_unk'] == "on" %} checked {% endif %}>
+								<input type="checkbox" class="has-surrogate" id="e-notif-unk-surrogate" name="e-notif-unk" value="off" {% if notif['e-notif-unk'] == "on" %} checked {% endif %} hidden>
+								<input type="checkbox" id="e-notif-unk" name="e-notif-unk" {% if notif['e-notif-unk'] == "on" %} checked {% endif %}>
 								<span class="slider round"></span>
 							</label><br>
 
 							Notify about known faces:  <br>
 							&nbsp;&nbsp;&nbsp;
 							<label for="e-notif-kno" class="switch">
-								<input type="checkbox"  id="e-notif-kno" name="e_notif_kno" {% if notif['e_notif_kno'] == "on" %} checked {% endif %}>
+								<input type="checkbox" class="has-surrogate" value="off" id="e-notif-kno-surrogate" name="e-notif-kno" {% if notif['e-notif-kno'] == "on" %} checked {% endif %} hidden>
+								<input type="checkbox"  id="e-notif-kno" name="e-notif-kno" {% if notif['e-notif-kno'] == "on" %} checked {% endif %}>
 								<span class="slider round"></span>
 							</label><br>
 
 							Notify about special faces: <br>
 							&nbsp;&nbsp;&nbsp;
 							<label for="e-notif-spec" class="switch">
-								<input type="checkbox"  id="e-notif-spec" name="e_notif_spec" {% if notif['e_notif_spec'] == "on" %} checked {% endif %}>
+								<input type="checkbox" class="has-surrogate" value="off" id="e-notif-spec-surrogate" name="e-notif-spec" {% if notif['e-notif-spec'] == "on" %} checked {% endif %} hidden>
+								<input type="checkbox" id="e-notif-spec" name="e-notif-spec" {% if notif['e-notif-spec'] == "on" %} checked {% endif %}>
 								<span class="slider round"></span>
 							</label>
 						</span>
@@ -49,21 +52,24 @@
 						Notify about unknown faces:  <br>
 						&nbsp;&nbsp;&nbsp;
 						<label for="m-notif-unk" class="switch">
-							<input type="checkbox"  id="m-notif-unk" name="m_notif_unk" {% if notif['m_notif_unk'] == "on" %} checked {% endif %}>
+							<input type="checkbox" class="has-surrogate" value="off" id="m-notif-unk-surrogate" name="m-notif-unk" {% if notif['m-notif-unk'] == "on" %} checked {% endif %} hidden>
+							<input type="checkbox" id="m-notif-unk" name="m-notif-unk" {% if notif['m-notif-unk'] == "on" %} checked {% endif %}>
 							<span class="slider round"></span>
 						</label><br>
 
 						Notify about known faces:  <br>
 						&nbsp;&nbsp;&nbsp;
 						<label for="m-notif-kno" class="switch">
-							<input type="checkbox"  id="m-notif-kno" name="m_notif_kno" {% if notif['m_notif_kno'] == "on" %} checked {% endif %}>
+							<input type="checkbox" class="has-surrogate" value="off" id="m-notif-kno-surrogate" name="m-notif-kno" {% if notif['m-notif-kno'] == "on" %} checked {% endif %} hidden>
+							<input type="checkbox" id="m-notif-kno" name="m-notif-kno" {% if notif['m-notif-kno'] == "on" %} checked {% endif %}>
 							<span class="slider round"></span>
 						</label><br>
 
 						Notify about special faces: <br>
 						&nbsp;&nbsp;&nbsp;
 						<label for="m-notif-spec" class="switch">
-							<input type="checkbox"  id="m-notif-spec" name="m_notif_spec" {% if notif['m_notif_spec'] == "on" %} checked {% endif %}>
+							<input type="checkbox" class="has-surrogate" value="off" id="m-notif-spec-surrogate" name="m-notif-spec" {% if notif['m-notif-spec'] == "on" %} checked {% endif %} hidden>
+							<input type="checkbox" id="m-notif-spec" name="m-notif-spec" {% if notif['m-notif-spec'] == "on" %} checked {% endif %}>
 							<span class="slider round"></span>
 						</label>
 					</td>
