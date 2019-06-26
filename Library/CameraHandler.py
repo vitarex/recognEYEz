@@ -5,6 +5,8 @@ import datetime
 import cv2
 import numpy as np
 import urllib.request
+from typing import Dict
+import platform
 import imutils
 from Library.Handler import Handler
 
@@ -150,3 +152,23 @@ class CameraHandler(Handler):
                 if not self.cam.release():
                     raise Exception("Couldn't release camera object")
                 self.cam_is_running = False
+
+
+def available_cameras() -> Dict:
+    cameras = dict()
+    cameras['webcams'] = list()
+    i = 0
+    while cv2.VideoCapture(i).isOpened():
+        cameras['webcams'].append({'id': i})
+        i += 1
+
+    if platform.system == 'Linux' and platform.machine.startswith('arm'):
+        import subprocess
+        c = subprocess.check_output(["vcgencmd","get_camera"])
+        if int(c.strip()[-1]):
+            cameras['pi_camera'] = True
+        else:
+            cameras['pi_camera'] = False
+    else:
+        cameras['pi_camera'] = False
+    return cameras
