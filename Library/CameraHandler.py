@@ -161,11 +161,11 @@ class CameraHandler(Handler):
 
         cam = cv2.VideoCapture(i)
         while cam.isOpened():
+            if cam.read()[1] is not None:
+                cameras['webcams'].append({'id': i})
             cam.release()
-            cameras['webcams'].append({'id': i})
             i += 1
             cam = cv2.VideoCapture(i)
-
         cam.release()
 
         if platform.system == 'Linux' and platform.machine.startswith('arm'):
