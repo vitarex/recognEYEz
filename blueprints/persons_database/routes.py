@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect
 from flask import current_app as app
-import flask_simplelogin as simplog
+from flask_simplelogin import login_required
 import logging
 from typing import List
 
@@ -8,7 +8,7 @@ persons_database = Blueprint("persons_database", __name__)
 
 
 @persons_database.route('/_new_person_from_unk')
-@simplog.login_required
+@login_required
 def create_new_person_from_unknown():
     """"""
     name = request.args.get('n', 0, type=str)
@@ -21,7 +21,7 @@ def create_new_person_from_unknown():
     return redirect("/person_db")
 
 @persons_database.route('/person_db')
-@simplog.login_required
+@login_required
 def person_db_view():
     """
 
@@ -41,7 +41,7 @@ def check_length(list_of_lists: List[List], i: int) -> bool:
     return True
 
 @persons_database.route('/_remove_person')
-@simplog.login_required
+@login_required
 def remove_person():
     """When remove is clicked on person db page"""
     name = request.args.get('p', "missing argument", type=str)
@@ -54,7 +54,7 @@ def remove_person():
 
 
 @persons_database.route('/_remove_unknown_person')
-@simplog.login_required
+@login_required
 def remove_unknown_person():
     """When remove is clicked on person db page"""
     name = request.args.get('p', "missing argument", type=str)
@@ -69,7 +69,7 @@ def remove_unknown_person():
 
 
 @persons_database.route('/_merge_with')
-@simplog.login_required
+@login_required
 def merge_unknown_with():
     """"""
     name = request.args.get('n', 0, type=str)

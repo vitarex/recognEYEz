@@ -1,6 +1,6 @@
 from flask import Blueprint, redirect, make_response
 from flask import current_app as app
-import flask_simplelogin as simplog
+from flask_simplelogin import login_required
 import os
 import sys
 import cv2
@@ -12,21 +12,21 @@ actions = Blueprint("actions", __name__)
 # background process
 
 @actions.route('/start_camera')
-@simplog.login_required
+@login_required
 def start_cam():
     app.ch.camera_start_processing()
     return redirect("/")
 
 
 @actions.route('/stop_camera')
-@simplog.login_required
+@login_required
 def stop_cam():
     app.ch.camera_stop_processing()
     return redirect("/")
 
 
 @actions.route('/force_rescan')
-@simplog.login_required
+@login_required
 def force_a_rescan():
     app.force_rescan = True
     while app.force_rescan\
@@ -37,7 +37,7 @@ def force_a_rescan():
 
 
 @actions.route('/retrain')
-@simplog.login_required
+@login_required
 def retrain_dnn():
     # TODO: fix train_dnn
     # app.fh.train_dnn()
@@ -46,7 +46,7 @@ def retrain_dnn():
 
 
 @actions.route('/hard_reset')
-@simplog.login_required
+@login_required
 def hard_reset():
     logging.info("Camera performing hard reset")
     try:
@@ -60,7 +60,7 @@ def hard_reset():
 
 
 @actions.route('/preview')
-@simplog.login_required
+@login_required
 def preview():
     image_binary = app.preview_image
     retval, buffer = cv2.imencode('.png', image_binary)
