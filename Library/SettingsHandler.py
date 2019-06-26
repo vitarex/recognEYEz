@@ -42,13 +42,9 @@ class SettingsHandler(Handler):
             return json.load(ffp)
 
     def update_face_recognition_settings(self, form):
-        sett = {}
+        sett = self.load_face_recognition_settings()
         for key, value in form.items():
             sett[key] = value
-        checkbox_names = ["force_dnn_on_new", "flip_cam", "cache_unknown"]
-        for box in checkbox_names:
-            if box not in list(form.keys()):
-                sett[box] = "off"
         with open(Path("Data/FaceRecSettings.json"), 'w') as ffp:
             json.dump(sett, ffp, indent=3)
         self.__face_recognition_settings = sett

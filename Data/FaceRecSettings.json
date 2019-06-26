@@ -1,10 +1,7 @@
 {
    "cam_id": 0,
    "resolution": "qqvga",
-   "flip_cam4": "on",
-   "camera": "IpWebcam",
-   "URL": "http://www.google.com",
-   "flip_cam5": "on",
+   "URL": "",
    "dnn_tresh": "0.6",
    "dnn_scan_freq": "50",
    "force_dnn_on_new": "on",
