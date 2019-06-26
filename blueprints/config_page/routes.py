@@ -17,6 +17,20 @@ def change_password():
     set_hashed_login_passwd(request.form["new_password"])
     return redirect("/config")
 
+camera_dict = {
+        "pi_camera": True,
+        "webcams":[
+            {
+                "id": 0,
+                "name": "webcam0"
+            },
+            {
+                "id": 1,
+                "name": "webcam1"
+            }
+        ]
+    }
+
 
 @config_page.route('/config')
 @simplog.login_required
@@ -24,7 +38,8 @@ def config_view():
     return render_template(
         "config.html",
         frec=app.sh.get_face_recognition_settings(),
-        notif=app.sh.get_notification_settings()
+        notif=app.sh.get_notification_settings(),
+        cam_dict=camera_dict
     )
 
 

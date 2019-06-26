@@ -5,43 +5,47 @@
 		<h1 class="w3-text-teal">Face recognition settings</h1>
 
 		<form id="face-recognition-settings" action="/face_recognition_settings" method="post" style="margin-bottom: 15px; line-height: 2;">
-			Prefered camera ID (if you have multiple cameras): <br>
-			&nbsp;&nbsp;&nbsp;
-			<select type="select" name="cam_id" >
-				<option value="0" {% if frec['cam_id'] == "0" %} selected {% endif %}>Webcam 1</option>
-				<option value="1" {% if frec['cam_id'] == "1" %} selected {% endif %}>Webcam 2</option>
-				<option value="2" {% if frec['cam_id'] == "2" %} selected {% endif %}>Webcam 3</option>
-				<option value="3" {% if frec['cam_id'] == "3" %} selected {% endif %}>Webcam 4</option>
-			</select> <br>
+			{%for webcam in cam_dict["webcams"]%}
+				{% set curid = webcam["id"] %}
+				<input type="radio" class="camera-select" name="camera" id="webcam{{curid}}" value="Webcam{{curid}}" > Webcam {{curid}}<br>
+				<fieldset class="camera-fieldset" id="webcam{{curid}}-fieldset" hidden>
+						Resolution: <br>&nbsp;&nbsp;&nbsp;
+					<select type="select" name="resolution">
+						<option value="qvga" {% if frec['resolution'] == "qvga" %} selected {% endif  %}>qvga - 320x240 (recommended)</option>
+						<option value="fhd"  {% if frec['resolution'] == "fhd" %} selected {% endif   %}>fhd - 1920x1080</option>
+						<option value="hd"   {% if frec['resolution'] == "hd" %} selected {% endif    %}>hd - 1280x720</option>
+						<option value="vga"  {% if frec['resolution'] == "vga" %} selected {% endif   %}>vga - 640x480</option>
+						<option value="qqvga"{% if frec['resolution'] == "qqvga" %} selected {% endif %}>qqvga - 160x120</option>
+					</select><br>
+					Rotate 180°: <br>
+					&nbsp;&nbsp;&nbsp; <label for="flip-cam{{curid}}" class="switch">
+						<input type="checkbox"  id="flip-cam{{curid}}" name="flip_cam" {% if frec['flip_cam' + curid|string] == "on" %} checked {% endif %}>
+						<span class="slider round"></span>
+					</label><br>
+				</fieldset>
+			{%endfor%}
 
-
-			<input type="radio" class="camera-select" name="camera" id="Webcam1" value="Webcam1" > Webcam 1<br>
-			<input type="radio" class="camera-select" name="camera" id="Webcam2" value="Webcam2" >  Webcam 2<br>
-			<input type="radio" class="camera-select" name="camera" id="Webcam3" value="Webcam3" > Webcam 3<br>
-			<input type="radio" class="camera-select" name="camera" id="Webcam4" value="Webcam4" > Webcam 4<br>
-			<input type="radio" class="camera-select" name="camera" id="IpWebcam" value="IpWebcam" > IP Webcam<br>
-			<fieldset class="camera-fieldset" id="IpWebcam-fieldset">
-			<label>URL:</label> <input type="url" id="url" name="URL">
+			<input type="radio" class="camera-select" name="camera" id="ipcamera" value="ipcamera" > IP Webcam<br>
+			<fieldset class="camera-fieldset" id="ipcamera-fieldset" hidden>
+			<label>URL:</label> <input type="url" id="url" name="URL"><br>
+				Rotate 180°: <br>
+				 <label for="flip-ipcamera" class="switch">
+					<input type="checkbox"  id="flip-ipcamera" name="flip_ipcamera" {% if frec['flip_ipcamera'] == "on" %} checked {% endif %}>
+					<span class="slider round"></span>
+				</label><br>
 			</fieldset>
-			<input type="radio" class="camera-select" name="camera" id="PiCam" value="PiCam"> Pi Camera<br>
 
-
-
-			Resolution: <br>
-			&nbsp;&nbsp;&nbsp;
-			<select type="select" name="resolution">
-				<option value="qvga" {% if frec['resolution'] == "qvga" %} selected {% endif  %}>qvga - 320x240 (recommended)</option>
-				<option value="fhd"  {% if frec['resolution'] == "fhd" %} selected {% endif   %}>fhd - 1920x1080</option>
-				<option value="hd"   {% if frec['resolution'] == "hd" %} selected {% endif    %}>hd - 1280x720</option>
-				<option value="vga"  {% if frec['resolution'] == "vga" %} selected {% endif   %}>vga - 640x480</option>
-				<option value="qqvga"{% if frec['resolution'] == "qqvga" %} selected {% endif %}>qqvga - 160x120</option>
-			</select><br>
-
+			{% if cam_dict["pi_camera"] %}
+			<input type="radio" class="camera-select" name="camera" id="picamera" value="picamera"> Pi Camera<br>
+			<fieldset class="camera-fieldset" id="picamera-fieldset" hidden>
 			Rotate 180°: <br>
-			&nbsp;&nbsp;&nbsp; <label for="flip-cam" class="switch">
-				<input type="checkbox"  id="flip-cam" name="flip_cam" {% if frec['flip_cam'] == "on" %} checked {% endif %}>
-				<span class="slider round"></span>
-			</label><br>
+				 <label for="flip-picamera" class="switch">
+					<input type="checkbox"  id="flip-picamera" name="flip-picamera" {% if frec['flip-picamera'] == "on" %} checked {% endif %}>
+					<span class="slider round"></span>
+				</label><br>
+			</fieldset>
+			{%endif%}
+
 
 			Face recognition tolerance (lower is more strict) (0.4 - 0.8, recommended: 0.6):<br>
 			&nbsp;&nbsp;&nbsp;
