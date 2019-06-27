@@ -52,9 +52,9 @@ class SettingsHandler(Handler):
     def transform_form_to_dict(self, form) -> Dict:
         tr_form = {}
         for key, value in form.items():
-            if value is "on":
+            if value == "on":
                 tr_form[key] = True
-            elif value is "off":
+            elif value == "off":
                 tr_form[key] = False
             elif key.endswith("-float"):
                 tr_form[key] = float(value)
