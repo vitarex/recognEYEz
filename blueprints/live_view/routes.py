@@ -1,13 +1,13 @@
 from flask import Blueprint, render_template
 from flask import current_app as app
-import flask_simplelogin as simplog
+from flask_simplelogin import login_required
 
 live_view = Blueprint("live_view", __name__)
 
 
 @live_view.route('/live_view')
 @live_view.route('/')
-@simplog.login_required
+@login_required
 def home():
     names = []
     if app.fh is not None:

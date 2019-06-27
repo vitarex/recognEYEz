@@ -1,21 +1,19 @@
-import sqlite3 as sql
 from datetime import datetime
 import logging
 from typing import List
 import json
 from pathlib import Path
-from Library.Handler import Handler
+from nacl import pwhash
 from peewee import (TextField, DateTimeField, DeferredForeignKey, BooleanField,
                     SqliteDatabase, prefetch, Model, ForeignKeyField, BlobField, Select)
 
-db = SqliteDatabase('recogneyez.db')
-
+from Library.Handler import Handler
 
 class DBModel(Model):
     _handler = None
 
     class Meta:
-        database = db
+        database: SqliteDatabase = None
 
 
 class Person(DBModel):
@@ -28,22 +26,22 @@ class Person(DBModel):
     unknown = BooleanField(default=True)
 
     def change_name(self, new_name: str):
-        with db.atomic():
+        with self._meta.database.atomic():
             self.update()
 
     def merge_with(self, other: 'Person'):
-        with db.atomic():
+        with self._meta.database.atomic():
             self.encodings.update(person=other)
             self.images.update(person=other)
-        self.remove()
+            self.remove()
 
     def convert_to_known(self):
         self.unknown = False
-        with db.atomic():
+        with self._meta.database.atomic():
             self.save()
 
     def remove(self):
-        with db.atomic():
+        with self._meta.database.atomic():
             self.delete_instance()
         self._invalidate_handler()
 
@@ -51,11 +49,11 @@ class Person(DBModel):
         image = Image()
         image.name = image_name
         image.person = self
-        with db.atomic():
+        with self._meta.database.atomic():
             image.save()
 
-        if set_as_thumbnail:
-            self.set_thumbnail(image)
+            if set_as_thumbnail:
+                self.set_thumbnail(image)
 
         self._invalidate_handler()
 
@@ -66,7 +64,7 @@ class Person(DBModel):
         encoding = Encoding()
         encoding.encoding = encodingbytes
         encoding.person = self
-        with db.atomic():
+        with self._meta.database.atomic():
             encoding.save()
 
         self._invalidate_handler()
@@ -76,7 +74,7 @@ class Person(DBModel):
 
     def set_thumbnail(self, thumbnail: 'Image'):
         self.thumbnail = thumbnail
-        with db.atomic():
+        with self._meta.database.atomic():
             self.save()
 
     def _invalidate_handler(self):
@@ -102,6 +100,20 @@ class Image(DBModel):
         self.person.set_thumbnail(self)
 
 
+class User(DBModel):
+    name = TextField(unique=True)
+    password_hash = BlobField()
+
+    def verify(self, password: str) -> bool:
+        return pwhash.verify(self.password_hash, password.encode())
+
+    def change_password(self, old_password: str, new_password: str) -> bool:
+        if self.verify(old_password):
+            self.password_hash = pwhash.str(new_password.encode())
+            return True
+        return False
+
+
 class DatabaseHandler(Handler):
     TIME_FORMAT = "%Y.%m.%d. %H:%M:%S"
     _persons_select: Select = None
@@ -110,17 +122,24 @@ class DatabaseHandler(Handler):
     _images_select: Select = None
     _encodings_select: Select = None
     valid = False
+    database: SqliteDatabase = None
 
     def __init__(self, app, db_location):
         super().__init__(app)
+
         DBModel._handler = self
-
-        self.db_loc = db_location
-        self.active_connection = False
-
-        db.connect()
-        db.create_tables([UserEvent, Encoding, Person, Image])
+        self.database = SqliteDatabase(db_location)
+        self.database.connect()
+        self.init_tables([UserEvent, Encoding, Person, Image, User])
+        # db.close()
         self.refresh()
+
+    def init_tables(self, tables: List[DBModel]):
+        # for some reason, changing the meta database on the DBModel doesn't inherit to the model implementations
+        # so we have to set it on each table manually
+        for table in tables:
+            table._meta.database = self.database
+        self.database.create_tables(tables)
 
     def add_person(self, name: str, unknown: bool = True, thumbnail: Image = None) -> Person:
         new_person = Person()
@@ -129,7 +148,7 @@ class DatabaseHandler(Handler):
         new_person.last_seen = new_person.first_seen
         new_person.unknown = unknown
         new_person.thumbnail = thumbnail
-        with db.atomic():
+        with self.database.atomic():
             new_person.save()
 
         self.refresh()
@@ -142,17 +161,8 @@ class DatabaseHandler(Handler):
     def get_person_by_name(self, name: str) -> Person:
         return Person.get(Person.name == name)
 
-    def open_and_get_cursor(self):
-        """ Opens and stores connection for the db + returns a cursor object"""
-        self.active_connection = sql.connect(self.db_loc)
-        return self.active_connection.cursor()
-
-    def commit_and_close_connection(self):
-        """Commits the current changes and closes the connection"""
-        self.active_connection.commit()
-        self.active_connection.close()
-        self.active_connection = False
-        return True
+    def get_user_by_name(self, name: str) -> User:
+        return User.get(User.name == name)
 
     def get_all_events(self) -> List:
         return UserEvent.select()

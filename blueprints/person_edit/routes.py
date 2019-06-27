@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, json
 from flask import current_app as app
-import flask_simplelogin as simplog
+from flask_simplelogin import login_required
 from pathlib import Path
 import logging
 
@@ -9,7 +9,7 @@ person_edit = Blueprint("person_edit", __name__, static_folder=stat_folder, stat
 
 
 @person_edit.route('/change_pic_owner')
-@simplog.login_required
+@login_required
 def change_pic_owner():
     """Places the selected pic to the selected persons folder"""
     # FIXME
@@ -28,7 +28,7 @@ def change_pic_owner():
 
 
 @person_edit.route('/edit_known_person/', methods=['GET', 'POST'])
-@simplog.login_required
+@login_required
 def edit_known_person():
     """ Webpage for editing a specific person (name, pref, pictures) """
     # FIXME
@@ -49,7 +49,7 @@ def edit_known_person():
 
 
 @person_edit.route('/change_thumbnail_for_person', methods=['POST'])
-@simplog.login_required
+@login_required
 def change_thumbnail_for_person():
     """ Changes the thumbnail file name for the person int the database """
     # FIXME
@@ -62,7 +62,7 @@ def change_thumbnail_for_person():
 
 
 @person_edit.route('/modify_person', methods=['GET', 'POST'])
-@simplog.login_required
+@login_required
 def modify_person():
     """ Modifies the given persons parameters in the background"""
     # FIXME
@@ -79,7 +79,7 @@ def modify_person():
 
 
 @person_edit.route('/delete_pic_of_person', methods=['POST'])
-@simplog.login_required
+@login_required
 def remove_pic_for_person():
     """ Removes the selected picture in the background """
     # FIXME
