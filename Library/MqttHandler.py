@@ -1,6 +1,7 @@
 import paho.mqtt.client as mqtt
 import logging
 from Library.Handler import Handler
+from socket import gaierror
 
 class MqttHandler(Handler):
 
@@ -10,7 +11,11 @@ class MqttHandler(Handler):
         self.client = mqtt.Client()
         # self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
-        self.connect()
+        try:
+            self.connect()
+        except gaierror as error:
+            logging.info("Can't set up MQTT since there is probably no internet: {}".format(error))
+            return
         self.client.loop_start()
 
     def start_loop(self):

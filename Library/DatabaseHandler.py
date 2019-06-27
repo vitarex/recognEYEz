@@ -33,7 +33,7 @@ class Person(DBModel):
         with self._meta.database.atomic():
             self.encodings.update(person=other)
             self.images.update(person=other)
-        self.remove()
+            self.remove()
 
     def convert_to_known(self):
         self.unknown = False
@@ -52,8 +52,8 @@ class Person(DBModel):
         with self._meta.database.atomic():
             image.save()
 
-        if set_as_thumbnail:
-            self.set_thumbnail(image)
+            if set_as_thumbnail:
+                self.set_thumbnail(image)
 
         self._invalidate_handler()
 
