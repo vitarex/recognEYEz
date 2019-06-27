@@ -4,7 +4,7 @@
    "URL": "",
    "dnn_tresh": "0.6",
    "dnn_scan_freq": "50",
-   "force_dnn_on_new": "on",
-   "cache_unknown": "on",
+   "force_dnn_on_new": "off",
+   "cache_unknown": "off",
    "flip_cam": "off"
 }
