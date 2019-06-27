@@ -52,11 +52,11 @@
 
 			Face recognition tolerance (lower is more strict) (0.4 - 0.8, recommended: 0.6):<br>
 			&nbsp;&nbsp;&nbsp;
-			<input type="number" name="dnn_tresh" min="0.4" max="0.8" step="0.05" value="{{frec['dnn_tresh'] }}"><br>
+			<input type="number" name="dnn-tresh-float" min="0.4" max="0.8" step="0.05" value="{{frec['dnn_tresh'] }}"><br>
 
 			Number of fast scans between slow scans with Neural Network (1-10 000):<br>
 			&nbsp;&nbsp;&nbsp; 
-			<input type="number" name="dnn_scan_freq" min="1" max="10000" value="{{frec['dnn_scan_freq'] }}"><br>
+			<input type="number" name="dnn-scan-freq-int" min="1" max="10000" value="{{frec['dnn_scan_freq'] }}"><br>
 
 			Force DNN scan on faces just appeared: <br>
 			&nbsp;&nbsp;&nbsp;
