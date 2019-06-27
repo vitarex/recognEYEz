@@ -1,26 +1,22 @@
 import paho.mqtt.client as mqtt
-import sqlite3 as sql
 import logging
+from Library.Handler import Handler
+from socket import gaierror
 
+class MqttHandler(Handler):
 
-class MqttHandler:
-
-    def __init__(self, db_address):
-        self.init_from_db(db_address)
+    def __init__(self, app):
+        super().__init__(app)
+        self.data = self.app.sh.get_notification_settings()
         self.client = mqtt.Client()
         # self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
-        self.connect()
+        try:
+            self.connect()
+        except gaierror as error:
+            logging.info("Can't set up MQTT since there is probably no internet: {}".format(error))
+            return
         self.client.loop_start()
-
-    def init_from_db(self, db_address):
-        self.data = dict()
-        con = sql.connect(db_address)
-        c = con.cursor()
-        for row in c.execute('SELECT * FROM notification_settings'):
-            self.data[row[0]] = row[1]
-        # logging.info(self.data)
-        con.close()
 
     def start_loop(self):
         self.client.loop_start()

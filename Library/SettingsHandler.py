@@ -41,10 +41,25 @@ class SettingsHandler(Handler):
         with open("Data/FaceRecSettings.json") as ffp:
             return json.load(ffp)
 
-    def update_face_recognition_settings(self, form):
+    def update_face_recognition_settings(self, form_dict):
         sett = self.load_face_recognition_settings()
-        for key, value in form.items():
+        for key, value in form_dict.items():
             sett[key] = value
         with open(Path("Data/FaceRecSettings.json"), 'w') as ffp:
             json.dump(sett, ffp, indent=3)
         self.__face_recognition_settings = sett
+
+    def transform_form_to_dict(self, form) -> Dict:
+        tr_form = {}
+        for key, value in form.items():
+            if value == "on":
+                tr_form[key] = True
+            elif value == "off":
+                tr_form[key] = False
+            elif key.endswith("-float"):
+                tr_form[key] = float(value)
+            elif key.endswith("-int"):
+                tr_form[key] = int(value)
+            else:
+                tr_form[key] = value
+        return tr_form

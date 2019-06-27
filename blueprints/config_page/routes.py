@@ -1,9 +1,8 @@
 from flask import Blueprint, render_template, request, redirect
 from flask import current_app as app
-import flask_simplelogin as simplog
-import webapp
+from flask_simplelogin import login_required
 
-from webapp import set_hashed_login_passwd
+import webapp
 
 config_page = Blueprint("config_page", __name__)
 
@@ -12,9 +11,9 @@ app: webapp.FHApp
 
 
 @config_page.route('/change_password', methods=['POST'])
-@simplog.login_required
+@login_required
 def change_password():
-    set_hashed_login_passwd(request.form["new_password"])
+    app.dh.get_user_by_name(request.form['username']).change_password(request.form["old_password"], request.form["new_password"])
     return redirect("/config")
 
 camera_dict = {
@@ -33,7 +32,7 @@ camera_dict = {
 
 
 @config_page.route('/config')
-@simplog.login_required
+@login_required
 def config_view():
     return render_template(
         "config.html",
@@ -45,9 +44,9 @@ def config_view():
 
 
 @config_page.route('/face_recognition_settings', methods=['POST'])
-@simplog.login_required
+@login_required
 def update_face_recognition_settings():
-    app.sh.update_face_recognition_settings(request.form)
+    app.sh.update_face_recognition_settings(app.sh.transform_form_to_dict(request.form))
     with app.ch.cam_lock:
         if app.ch.cam_is_running:
             app.ch.stop_cam()
@@ -56,7 +55,7 @@ def update_face_recognition_settings():
 
 
 @config_page.route('/notification_settings', methods=['POST'])
-@simplog.login_required
+@login_required
 def update_notification_settings():
-    app.sh.update_notification_settings(request.form)
+    app.sh.update_notification_settings(app.sh.transform_form_to_dict(request.form))
     return redirect("/config")

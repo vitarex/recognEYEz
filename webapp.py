@@ -1,70 +1,46 @@
 import datetime
 from flask import Flask, render_template
 from flask_admin import Admin
-import flask_simplelogin as simplog
+from flask_simplelogin import SimpleLogin
+import logging
+import cv2
+from pathlib import Path
+from nacl.pwhash import InvalidkeyError
+
 from Library.FaceHandler import FaceHandler
 from Library.CameraHandler import CameraHandler
 from Library.SettingsHandler import SettingsHandler
 from Library.DatabaseHandler import DatabaseHandler
-import logging
-import cv2
-from pathlib import Path
-
+from Library.MqttHandler import MqttHandler
 from config import Config
-from bcrypt import hashpw, gensalt, checkpw
-import sqlite3 as sql
 
-most_recent_scan_date = None
 
 class FHApp(Flask):
     fh: FaceHandler = None
     ch: CameraHandler = None
     sh: SettingsHandler = None
     dh: DatabaseHandler = None
+    mh: MqttHandler = None
 
 
-app: FHApp = None
-
-
-# cache_buster_config = {'extensions': ['.png', '.css', '.csv'], 'hash_size': 10}
-# cache_buster = CacheBuster(config=cache_buster_config)
-
-def get_hashed_login_passwd():
-    """returns the hash of the current password stored in the database"""
-    connection = sql.connect(app.config["PAGE_DATABASE"])
-    cursor = connection.cursor()
-    cursor.execute('SELECT password FROM users WHERE name="admin"')
-    pwd_hash = cursor.fetchone()
-    connection.close()
-    return pwd_hash[0]
-
-
-def set_hashed_login_passwd(pwd):
-    """ updates the password hash in the database """
-    pwd = hashpw(pwd.encode('utf-8'), gensalt())
-    connection = sql.connect(app.config["PAGE_DATABASE"])
-    cursor = connection.cursor()
-    cursor.execute('UPDATE users SET password = ? WHERE name="admin"', (pwd,))
-    connection.commit()
-    connection.close()
-    logging.info("Password changed")
-    return pwd
+app: FHApp
 
 
 def validate_login(login_form):
-    """ used to override simple_login's loginchecker, thus allowing the use of encrypted passwords """
-    correct_hash = get_hashed_login_passwd()
-    candidate_password = login_form['password'].encode('utf-8')
-    if checkpw(candidate_password, correct_hash):
+    """ Override simple_login's loginchecker, thus allowing the use of encrypted passwords """
+    try:
+        app.dh.get_user_by_name(login_form['username']).verify(login_form['password'])
         return True
-    return False
+    except InvalidkeyError:
+        logging.error("Invalid password given for the user {}".format(login_form['username']))
+        return False
 
 
 def on_known_enters(persons):
     """ Custom behaviour for the facehandler's callback method of the same name """
     for person in persons:
         logging.info("Entered: {}".format(person.name))
-        app.fh.mqtt.publish(
+        app.mh.publish(
             app.fh.notification_settings["topic"],
             "[recognEYEz][ARRIVED][date: {}]: {}".format(datetime.datetime.now().strftime(app.config["TIME_FORMAT"]), person.name)
         )
@@ -83,12 +59,16 @@ def on_known_leaves(persons):
         logging.info("[LEFT]: {}".format(person.name))
 
 
-def init_app(app, db_loc="facerecognition.db"):
+def init_app(app: FHApp, db_loc="recogneyez.db"):
     """ Initializes handlers instance """
     if not app.dh:
         app.dh = DatabaseHandler(app, db_loc)
     if not app.sh:
         app.sh = SettingsHandler(app)
+    if not app.mh:
+        app.mh = MqttHandler(app)
+        app.mh.subscribe(app.sh.get_notification_settings()["topic"])
+        logging.info("MQTT connected")
     if not app.ch:
         app.ch = CameraHandler(app)
     if not app.fh:
@@ -101,13 +81,6 @@ def init_app(app, db_loc="facerecognition.db"):
         # override the callback methods
         app.fh.on_known_face_enters = on_known_enters
         app.fh.on_known_face_leaves = on_known_leaves
-
-
-def log(log_text):
-    date = datetime.datetime.now().strftime(app.TIME_FORMAT)
-    with open("log.txt", "a+") as f:
-        f.write("[" + date + "] " + str(log_text) + " <br>\n")
-
 
 def login():
     """ needed for simple login to render the proper template """
@@ -146,7 +119,7 @@ def create_app(config_class=Config):
     app.admin = Admin(app, name='recogneyez', template_mode='bootstrap3')
     app.ticker = 0
 
-    simplog.SimpleLogin(app, login_checker=validate_login)
+    SimpleLogin(app, login_checker=validate_login)
     # cache_buster.register_cache_buster(app)
     app.force_rescan = False
 
@@ -155,5 +128,5 @@ def create_app(config_class=Config):
     app.camera_thread = None
 
     # app.ch.camera_start_processing()
-
+   # import pdb; pdb.set_trace()
     return app

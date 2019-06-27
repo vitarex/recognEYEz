@@ -1,13 +1,18 @@
 import smtplib
 from email.mime.text import MIMEText
-
+from socket import gaierror
+import logging
 
 class Mailer:
 
     def __init__(self, from_email, from_password):
         self.from_email = from_email
         self.from_password = from_password
-        self.smtpserver = smtplib.SMTP('smtp.gmail.com', 587)  # Server to use.
+        try:
+            self.smtpserver = smtplib.SMTP('smtp.gmail.com', 587)  # Server to use.
+        except gaierror as error:
+            logging.info("Can't set up mailer since there is probably no internet: {}".format(error))
+            return
         self.send_mail_cooldown_seconds = None
         self.last_mail_sent_date = None
 

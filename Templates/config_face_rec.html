@@ -8,7 +8,7 @@
 			{%for webcam in cam_dict["webcams"]%}
 				{% set curid = webcam["id"] %}
 				<input type="radio" class="camera-select" name="camera" id="webcam{{curid}}" value="Webcam{{curid}}" > Webcam {{curid}}<br>
-				<fieldset class="camera-fieldset" id="webcam{{curid}}-fieldset" hidden>
+				<fieldset class="camera-fieldset" id="webcam{{curid}}-fieldset" hidden disabled>
 						Resolution: <br>&nbsp;&nbsp;&nbsp;
 					<select type="select" name="resolution">
 						<option value="qvga" {% if frec['resolution'] == "qvga" %} selected {% endif  %}>qvga - 320x240 (recommended)</option>
@@ -27,7 +27,7 @@
 			{%endfor%}
 
 			<input type="radio" class="camera-select" name="camera" id="ipcamera" value="ipcamera" > IP Webcam<br>
-			<fieldset class="camera-fieldset" id="ipcamera-fieldset" hidden>
+			<fieldset class="camera-fieldset" id="ipcamera-fieldset" hidden disabled>
 			<label>URL:</label> <input type="url" id="url" name="URL"><br>
 				Rotate 180°: <br>
 				 <label for="flip-ipcamera" class="switch">
@@ -39,7 +39,7 @@
 
 			{% if cam_dict["pi_camera"] %}
 			<input type="radio" class="camera-select" name="camera" id="picamera" value="picamera"> Pi Camera<br>
-			<fieldset class="camera-fieldset" id="picamera-fieldset" hidden>
+			<fieldset class="camera-fieldset" id="picamera-fieldset" hidden disabled>
 			Rotate 180°: <br>
 				 <label for="flip-picamera" class="switch">
 					<input type="checkbox" id="flip-picamera-surrogate" name="flip-picamera" value="off" {% if frec['flip-picamera'] == "on" %} checked {% endif %} hidden>
@@ -52,11 +52,11 @@
 
 			Face recognition tolerance (lower is more strict) (0.4 - 0.8, recommended: 0.6):<br>
 			&nbsp;&nbsp;&nbsp;
-			<input type="number" name="dnn_tresh" min="0.4" max="0.8" step="0.05" value="{{frec['dnn_tresh'] }}"><br>
+			<input type="number" name="dnn-tresh-float-static" min="0.4" max="0.8" step="0.05" value="{{frec['dnn_tresh'] }}"><br>
 
 			Number of fast scans between slow scans with Neural Network (1-10 000):<br>
 			&nbsp;&nbsp;&nbsp; 
-			<input type="number" name="dnn_scan_freq" min="1" max="10000" value="{{frec['dnn_scan_freq'] }}"><br>
+			<input type="number" name="dnn-scan-freq-int-static" min="1" max="10000" value="{{frec['dnn_scan_freq'] }}" ><br>
 
 			Force DNN scan on faces just appeared: <br>
 			&nbsp;&nbsp;&nbsp;
@@ -72,8 +72,8 @@
 
 			Cache unknown faces: <br>
 			&nbsp;&nbsp;&nbsp; <label for="cache-unknown" class="switch">
-			<input type="checkbox" id="cache-unknown-surrogate" name="cache_unknown" value="off" {% if frec['cache_unknown'] == "on" %} checked {% endif %} hidden>
-			<input type="checkbox" class="has-surrogate" id="cache-unknown" name="cache_unknown"  {% if frec['cache_unknown'] == "on" %} checked {% endif %}>
+			<input type="checkbox" id="cache-unknown-surrogate" name="cache-unknown-static" value="off" {% if frec['cache_unknown'] == "on" %} checked {% endif %} hidden>
+			<input type="checkbox" class="has-surrogate" id="cache-unknown" name="cache-unknown-static"  {% if frec['cache_unknown'] == "on" %} checked {% endif %}>
 			<span class="slider round"></span>
 			</label>
 
