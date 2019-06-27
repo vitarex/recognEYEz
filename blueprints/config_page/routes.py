@@ -47,7 +47,7 @@ def config_view():
 @config_page.route('/face_recognition_settings', methods=['POST'])
 @simplog.login_required
 def update_face_recognition_settings():
-    app.sh.update_face_recognition_settings(request.form)
+    app.sh.update_face_recognition_settings(app.sh.transform_form_to_dict(request.form))
     with app.ch.cam_lock:
         if app.ch.cam_is_running:
             app.ch.stop_cam()
@@ -58,5 +58,5 @@ def update_face_recognition_settings():
 @config_page.route('/notification_settings', methods=['POST'])
 @simplog.login_required
 def update_notification_settings():
-    app.sh.update_notification_settings(request.form)
+    app.sh.update_notification_settings(app.sh.transform_form_to_dict(request.form))
     return redirect("/config")
