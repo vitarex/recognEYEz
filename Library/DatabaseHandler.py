@@ -133,6 +133,7 @@ class DatabaseHandler(Handler):
         self.init_tables([UserEvent, Encoding, Person, Image, User])
         # db.close()
         self.refresh()
+        import pdb; pdb.set_trace()
 
     def init_tables(self, tables: List[DBModel]):
         # for some reason, changing the meta database on the DBModel doesn't inherit to the model implementations
