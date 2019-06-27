@@ -2,7 +2,6 @@ from flask import Blueprint, render_template, request, redirect
 from flask import current_app as app
 from flask_simplelogin import login_required
 import logging
-from typing import List
 
 persons_database = Blueprint("persons_database", __name__)
 
@@ -34,22 +33,15 @@ def person_db_view():
         folder_location=app.config["PICTURE_FOLDER"]
     )
 
-def check_length(list_of_lists: List[List], i: int) -> bool:
-    for list_to_check in list_of_lists:
-        if len(list_to_check) - 1 < i:
-            return False
-    return True
-
 @persons_database.route('/_remove_person')
 @login_required
 def remove_person():
     """When remove is clicked on person db page"""
     name = request.args.get('p', "missing argument", type=str)
     logging.info("Removing: " + name)
-    app.dh.remove_name(name)
-    if app.fh.file.remove_known_files(name):
-        logging.info("Removed: " + name)
-    app.fh.reload_from_db()
+    app.dh.get_person_by_name(name).remove()
+    logging.info("Removed: " + name)
+    app.dh.invalidate()
     return redirect("/person_db")
 
 
@@ -58,13 +50,10 @@ def remove_person():
 def remove_unknown_person():
     """When remove is clicked on person db page"""
     name = request.args.get('p', "missing argument", type=str)
-    folder = request.args.get('f', "missing argument", type=str)
     logging.info("Removing: " + name)
-    if app.fh.file.remove_unknown_files(folder):
-        logging.info(name + "'s folder removed successfully")
-    if app.dh.remove_unknown_name(name):
-        logging.info(name + " removed successfully from the database")
-    app.fh.reload_from_db()
+    app.dh.get_person_by_name(name).remove()
+    logging.info("{} removed successfully from the database".format(name))
+    app.dh.invalidate()
     return redirect("/person_db")
 
 
@@ -73,10 +62,8 @@ def remove_unknown_person():
 def merge_unknown_with():
     """"""
     name = request.args.get('n', 0, type=str)
-    folder = request.args.get('f', 0, type=str)
     merge_to = request.args.get('m2', 0, type=str)
-    logging.info("Mergeing: " + name + " and its folder " + folder + " into " + merge_to)
-    app.dh.merge_unknown(name, merge_to)
-    app.fh.file.merge_unk_file_with(folder, merge_to)
-    app.fh.reload_from_db()
+    logging.info("Merging {} into {}".format(name, merge_to))
+    app.dh.get_person_by_name(name).merge_with(app.dh.get_person_by_name(merge_to))
+    app.dh.invalidate()
     return redirect("/person_db")

@@ -32,8 +32,9 @@ class Person(DBModel):
         Arguments:
             new_name {str} -- The new name of the person
         """
+        self.name = new_name
         with self._meta.database.atomic():
-            self.update()
+            self.save()
 
     def merge_with(self, other: 'Person'):
         """Merge with other person
@@ -42,8 +43,14 @@ class Person(DBModel):
             other {Person} -- The person to merge this person to
         """
         with self._meta.database.atomic():
-            self.encodings.update(person=other)
-            self.images.update(person=other)
+            encodings = list(self.encodings)
+            images = list(self.images)
+            for e in encodings:
+                e.person = other
+            Encoding.bulk_update(encodings, [Encoding.person])
+            for i in images:
+                i.person = other
+            Image.bulk_update(images, [Image.person])
             self.remove()
 
     def convert_to_known(self):
@@ -232,8 +239,8 @@ class DatabaseHandler(Handler):
         self._persons_select = Person.select()
         # peewee doesn't work with an equality check in the format of Person.unknown is False
         # instead we should use Person.unknown == False
-        self._known_persons_select = Person.select().where(Person.unknown == False) # NOQA
-        self._unknown_persons_select = Person.select().where(Person.unknown == True) # NOQA
+        self._known_persons_select = Person.select().where(Person.unknown == False)  # NOQA
+        self._unknown_persons_select = Person.select().where(Person.unknown == True)  # NOQA
         self._images_select = Image.select()
         self._encodings_select = Encoding.select()
         self.valid = True
