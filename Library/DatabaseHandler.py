@@ -230,8 +230,10 @@ class DatabaseHandler(Handler):
 
     def refresh(self):
         self._persons_select = Person.select()
-        self._known_persons_select = Person.select().where(Person.unknown is False)
-        self._unknown_persons_select = Person.select().where(Person.unknown is True)
+        # peewee doesn't work with an equality check in the format of Person.unknown is False
+        # instead we should use Person.unknown == False
+        self._known_persons_select = Person.select().where(Person.unknown == False) # NOQA
+        self._unknown_persons_select = Person.select().where(Person.unknown == True) # NOQA
         self._images_select = Image.select()
         self._encodings_select = Encoding.select()
         self.valid = True
