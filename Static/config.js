@@ -8,6 +8,6 @@ $(document).ready(function()
 
     $(".has-surrogate").click(function(e)
     {
-        $("#"+e.target.id+"-surrogate").checked = !e.target.checked
+        $("#"+e.target.id+"-surrogate").prop("checked", !e.target.checked)
     })
 })
