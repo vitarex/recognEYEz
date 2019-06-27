@@ -63,3 +63,15 @@ class SettingsHandler(Handler):
             else:
                 tr_form[key] = value
         return tr_form
+
+    def save_face_rec_configuration(self, dict) ->Dict:
+        multidict={}
+        #copy statics
+        for key, value in dict.items():
+            if key.endswith("-static"):
+                multidict[key] = value
+            #elif value.startwith("Webcam"):
+               # multidict["camera"]=
+        return multidict
+
+    #def camera_t(self, dict):
