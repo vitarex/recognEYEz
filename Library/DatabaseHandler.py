@@ -10,6 +10,7 @@ from peewee import (TextField, DateTimeField, DeferredForeignKey, BooleanField,
 from Library.Handler import Handler
 
 class DBModel(Model):
+    """Base model for peewee models"""
     _handler = None
 
     class Meta:
@@ -26,26 +27,48 @@ class Person(DBModel):
     unknown = BooleanField(default=True)
 
     def change_name(self, new_name: str):
+        """Change person's name
+
+        Arguments:
+            new_name {str} -- The new name of the person
+        """
         with self._meta.database.atomic():
             self.update()
 
     def merge_with(self, other: 'Person'):
+        """Merge with other person
+
+        Arguments:
+            other {Person} -- The person to merge this person to
+        """
         with self._meta.database.atomic():
             self.encodings.update(person=other)
             self.images.update(person=other)
             self.remove()
 
     def convert_to_known(self):
+        """Convert person to known person
+        """
         self.unknown = False
         with self._meta.database.atomic():
             self.save()
 
     def remove(self):
+        """Remove person from database
+        """
         with self._meta.database.atomic():
             self.delete_instance()
         self._invalidate_handler()
 
     def add_image(self, image_name: str, set_as_thumbnail: bool = False):
+        """Add new image for this person, optionally setting it as the thumbnail
+
+        Arguments:
+            image_name {str} -- The name of the image file to add
+
+        Keyword Arguments:
+            set_as_thumbnail {bool} -- Whether to set the new image as the thumbnail of the person (default: {False})
+        """
         image = Image()
         image.name = image_name
         image.person = self
@@ -61,6 +84,11 @@ class Person(DBModel):
             image_name, self.name))
 
     def add_encoding(self, encodingbytes: bytes):
+        """Add a new face encoding for the person
+
+        Arguments:
+            encodingbytes {bytes} -- The face encoding to associate with the person
+        """
         encoding = Encoding()
         encoding.encoding = encodingbytes
         encoding.person = self
@@ -73,11 +101,18 @@ class Person(DBModel):
             "A new encoding was added for the person {}".format(self.name))
 
     def set_thumbnail(self, thumbnail: 'Image'):
+        """Change the person's thumbnail
+
+        Arguments:
+            thumbnail {Image} -- The Image object to set the thumbnail to
+        """
         self.thumbnail = thumbnail
         with self._meta.database.atomic():
             self.save()
 
     def _invalidate_handler(self):
+        """Invalidate the DatabaseHandler the model is associated with, causing a cache bust
+        """
         if self._handler is not None:
             self._handler.invalidate()
 
@@ -97,6 +132,8 @@ class Image(DBModel):
     person = ForeignKeyField(Person, backref='images', on_delete='CASCADE')
 
     def set_as_thumbnail(self):
+        """Set as the thumbnail for the person of this image
+        """
         self.person.set_thumbnail(self)
 
 
@@ -105,9 +142,26 @@ class User(DBModel):
     password_hash = BlobField()
 
     def verify(self, password: str) -> bool:
+        """Verify the login attempt from this user
+
+        Arguments:
+            password {str} -- The password of the login attempt
+
+        Returns:
+            bool -- Whether the login was accepted
+        """
         return pwhash.verify(self.password_hash, password.encode())
 
     def change_password(self, old_password: str, new_password: str) -> bool:
+        """Change the user's password
+
+        Arguments:
+            old_password {str} -- The old password of the user
+            new_password {str} -- The new password of the user
+
+        Returns:
+            bool -- Whether the password change was succesful
+        """
         if self.verify(old_password):
             self.password_hash = pwhash.str(new_password.encode())
             return True
