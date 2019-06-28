@@ -45,12 +45,19 @@ class Person(DBModel):
         with self._meta.database.atomic():
             encodings = list(self.encodings)
             images = list(self.images)
-            for e in encodings:
-                e.person = other
-            Encoding.bulk_update(encodings, [Encoding.person])
-            for i in images:
-                i.person = other
-            Image.bulk_update(images, [Image.person])
+
+            def bulk_update(model: DBModel, item_list: List, field_list: List, value_list: List):
+                if len(item_list) > 0 and len(field_list) > 0 and len(field_list) == len(value_list):
+                    for field, value in zip(field_list, value_list):
+                        for item in item_list:
+                            setattr(item, field.name, value)
+                    model.bulk_update(item_list, field_list)
+                else:
+                    raise AssertionError("Incorrect arguments given")
+
+            bulk_update(Encoding, encodings, [Encoding.person], [other])
+            bulk_update(Image, images, [Image.person], [other])
+
             self.remove()
 
     def convert_to_known(self):
