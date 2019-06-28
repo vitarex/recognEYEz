@@ -9,6 +9,7 @@ from peewee import (TextField, DateTimeField, DeferredForeignKey, BooleanField,
 
 from Library.Handler import Handler
 
+
 class DBModel(Model):
     """Base model for peewee models"""
     _handler = None
@@ -16,6 +17,26 @@ class DBModel(Model):
     class Meta:
         database: SqliteDatabase = None
 
+def bulk_update(model: DBModel, item_list: List, field_list: List, value_list: List):
+    """Bulk update the given fields with the given values on the list of items
+
+    Arguments:
+        model {DBModel} -- The model the items belong to
+        item_list {List} -- The list of items to update
+        field_list {List} -- The list of fields to update on the items
+        value_list {List} -- The list of values to assign to their respective fields
+
+    Raises:
+        AssertionError: Incorrect list lengths given
+    """
+    with model._meta.database.atomic():
+        if len(item_list) > 0 and len(field_list) > 0 and len(field_list) == len(value_list):
+            for field, value in zip(field_list, value_list):
+                for item in item_list:
+                    setattr(item, field.name, value)
+            model.bulk_update(item_list, field_list)
+        else:
+            raise AssertionError("Incorrect arguments given")
 
 class Person(DBModel):
     name = TextField(unique=True)
@@ -45,15 +66,6 @@ class Person(DBModel):
         with self._meta.database.atomic():
             encodings = list(self.encodings)
             images = list(self.images)
-
-            def bulk_update(model: DBModel, item_list: List, field_list: List, value_list: List):
-                if len(item_list) > 0 and len(field_list) > 0 and len(field_list) == len(value_list):
-                    for field, value in zip(field_list, value_list):
-                        for item in item_list:
-                            setattr(item, field.name, value)
-                    model.bulk_update(item_list, field_list)
-                else:
-                    raise AssertionError("Incorrect arguments given")
 
             bulk_update(Encoding, encodings, [Encoding.person], [other])
             bulk_update(Image, images, [Image.person], [other])
