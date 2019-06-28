@@ -51,7 +51,7 @@ def on_known_enters(persons):
 def on_known_leaves(persons):
     """ Custom behaviour for the facehandler's callback method of the same name """
     for person in persons:
-        app.fh.mqtt.publish(
+        app.mh.publish(
             app.fh.notification_settings["topic"],
             "[recognEYEz][LEFT][date: {}]: {}".format(datetime.datetime.now().strftime(app.config["TIME_FORMAT"]), person.name)
         )

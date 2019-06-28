@@ -15,9 +15,10 @@
         Choose a person to merge with: <br>
         <select id="merge-options" style="width: 100px; height: 25px;">
             {% for person in persons %}
-                {% if person.unkown != False %}
-                    <option value="{{ person.name }}">{{ person.name }}</option>
-                {% endif %}
+                <option value="{{ person.name }}">{{ person.name }}</option>
+            {% endfor %}
+            {% for person in unk_persons %}
+                <option value="{{ person.name }}">{{ person.name }}</option>
             {% endfor %}
         </select>
         <button id="merge-btn" class="tbutton" style="color:#fff;background: orange">
