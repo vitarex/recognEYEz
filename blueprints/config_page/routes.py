@@ -46,7 +46,7 @@ def config_view():
 @config_page.route('/face_recognition_settings', methods=['POST'])
 @login_required
 def update_face_recognition_settings():
-    app.sh.update_face_recognition_settings(app.sh.transform_form_to_dict(request.form))
+    app.sh.save_face_rec_configuration(app.sh.transform_form_to_dict(request.form))
     with app.ch.cam_lock:
         if app.ch.cam_is_running:
             app.ch.stop_cam()

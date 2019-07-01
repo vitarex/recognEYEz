@@ -20,7 +20,7 @@
 					Rotate 180°: <br>
 					&nbsp;&nbsp;&nbsp; <label for="flip-cam{{curid}}" class="switch">
 						<input type="checkbox" id="flip-cam{{curid}}-surrogate" name="flip-cam" value="off" {% if not frec['flip-cam' + curid|string] == True %} checked {% endif %} hidden>
-						<input type="checkbox" class="has-surrogate" id="flip-cam{{curid}}" name="flip-cam" {% if frec['flip_cam' + curid|string] == True %} checked {% endif %}>
+						<input type="checkbox" class="has-surrogate" id="flip-cam{{curid}}" name="flip-cam" {% if frec['flip-cam' + curid|string] == True %} checked {% endif %}>
 						<span class="slider round"></span>
 					</label><br>
 				</fieldset>
@@ -28,7 +28,7 @@
 
 			<input type="radio" class="camera-select" name="camera" id="ipcamera" value="ipcamera" > IP Webcam<br>
 			<fieldset class="camera-fieldset" id="ipcamera-fieldset" hidden disabled>
-			<label>URL:</label> <input type="url" id="url" name="URL"><br>
+			<label>URL:</label> <input type="url" id="url" name="URL" required><br>
 				Rotate 180°: <br>
 				 <label for="flip-ipcamera" class="switch">
 					<input type="checkbox" id="flip-ipcamera-surrogate" name="flip-ipcamera" value="off" {% if not frec['flip-ipcamera'] == "on" %} checked {% endif %} hidden>
@@ -42,7 +42,7 @@
 			<fieldset class="camera-fieldset" id="picamera-fieldset" hidden disabled>
 			Rotate 180°: <br>
 				 <label for="flip-picamera" class="switch">
-					<input type="checkbox" id="flip-picamera-surrogate" name="flip-picamera" value="off" {% if not frec['flip-picamera'] == "on" %} checked {% endif %} hidden>
+					<input type="checkbox" id="flip-picamera-surrogate" name="flip-picamera" value="off" {% if  not frec['flip-picamera'] == "on" %} checked {% endif %} hidden>
 					<input type="checkbox" class="has-surrogate" id="flip-picamera" name="flip-picamera" {% if frec['flip-picamera'] == "on" %} checked {% endif %}>
 					<span class="slider round"></span>
 				</label><br>
@@ -52,17 +52,17 @@
 
 			Face recognition tolerance (lower is more strict) (0.4 - 0.8, recommended: 0.6):<br>
 			&nbsp;&nbsp;&nbsp;
-			<input type="number" name="dnn-tresh-float-static" min="0.4" max="0.8" step="0.05" value="{{frec['dnn_tresh'] }}"><br>
+			<input type="number" name="dnn-tresh-float-static" min="0.4" max="0.8" step="0.05" value="{{frec['dnn-tresh-float-static'] }}" required><br>
 
 			Number of fast scans between slow scans with Neural Network (1-10 000):<br>
 			&nbsp;&nbsp;&nbsp; 
-			<input type="number" name="dnn-scan-freq-int-static" min="1" max="10000" value="{{frec['dnn_scan_freq'] }}" ><br>
+			<input type="number" name="dnn-scan-freq-int-static" min="1" max="10000" step="1" value="{{frec['dnn-scan-freq-int-static'] }}" required><br>
 
 			Force DNN scan on faces just appeared: <br>
 			&nbsp;&nbsp;&nbsp;
 			<label for="force-dnn" class="switch">
-				<input type="checkbox" id="force-dnn-surrogate" name="force_dnn_on_new" value="off" {% if not frec['force_dnn_on_new'] == "on" %} checked {% endif %} hidden>
-				<input type="checkbox" class="has-surrogate" id="force-dnn" name="force_dnn_on_new" {% if frec['force_dnn_on_new'] == "on" %} checked {% endif %}>
+				<input type="checkbox" id="force-dnn-surrogate" name="force-dnn-on-new-static" value="off" {% if not frec['force-dnn-on-new-static'] == "on" %} checked {% endif %} hidden>
+				<input type="checkbox" class="has-surrogate" id="force-dnn" name="force-dnn-on-new-static" {% if frec['force-dnn-on-new-static'] == "on" %} checked {% endif %}>
 				<span class="slider round"></span>
 			</label><br>
 
@@ -72,8 +72,8 @@
 
 			Cache unknown faces: <br>
 			&nbsp;&nbsp;&nbsp; <label for="cache-unknown" class="switch">
-			<input type="checkbox" id="cache-unknown-surrogate" name="cache-unknown-static" value="off" {% if not frec['cache_unknown'] == "on" %} checked {% endif %} hidden>
-			<input type="checkbox" class="has-surrogate" id="cache-unknown" name="cache-unknown-static"  {% if frec['cache_unknown'] == "on" %} checked {% endif %}>
+			<input type="checkbox" id="cache-unknown-surrogate" name="cache-unknown-static" value="off" {% if not frec['cache-unknown-static'] == "on" %} checked {% endif %} hidden>
+			<input type="checkbox" class="has-surrogate" id="cache-unknown" name="cache-unknown-static"  {% if frec['cache-unknown-static'] == "on" %} checked {% endif %}>
 			<span class="slider round"></span>
 			</label>
 
