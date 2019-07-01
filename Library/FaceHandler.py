@@ -1,6 +1,6 @@
 from __future__ import division
 import cv2
-import datetime
+from datetime import datetime
 from pathlib import Path
 import time
 from datetime import datetime
