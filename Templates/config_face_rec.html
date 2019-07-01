@@ -5,56 +5,65 @@
 		<h1 class="w3-text-teal">Face recognition settings</h1>
 
 		<form id="face-recognition-settings" action="/face_recognition_settings" method="post" style="margin-bottom: 15px; line-height: 2;">
-			Prefered camera ID (if you have multiple cameras): <br>
-			&nbsp;&nbsp;&nbsp;
-			<select type="select" name="cam_id" >
-				<option value="0" {% if frec['cam_id'] == "0" %} selected {% endif %}>Webcam 1</option>
-				<option value="1" {% if frec['cam_id'] == "1" %} selected {% endif %}>Webcam 2</option>
-				<option value="2" {% if frec['cam_id'] == "2" %} selected {% endif %}>Webcam 3</option>
-				<option value="3" {% if frec['cam_id'] == "3" %} selected {% endif %}>Webcam 4</option>
-			</select> <br>
+			{%for webcam in cam_dict["webcams"]%}
+				{% set curid = webcam["id"] %}
+				{% set curname = 'Webcam' + curid|string %}
+				<input type="radio" class="camera-select" name="camera" id="webcam{{curid}}" value="Webcam{{curid}}" > Webcam {{curid}}<br>
+				<fieldset class="camera-fieldset" id="webcam{{curid}}-fieldset" hidden disabled>
+						Resolution: <br>&nbsp;&nbsp;&nbsp;
+					<select type="select" name="resolution">
+						<option value="qvga" {% if frec|get_setting(curname, 'resolution') == "qvga" %} selected {% endif  %}>qvga - 320x240 (recommended)</option>
+						<option value="fhd"  {% if frec|get_setting(curname, 'resolution') == "fhd" %} selected {% endif   %}>fhd - 1920x1080</option>
+						<option value="hd"   {% if frec|get_setting(curname, 'resolution') == "hd" %} selected {% endif    %}>hd - 1280x720</option>
+						<option value="vga"  {% if frec|get_setting(curname, 'resolution') == "vga" %} selected {% endif   %}>vga - 640x480</option>
+						<option value="qqvga"{% if frec|get_setting(curname, 'resolution') == "qqvga" %} selected {% endif %}>qqvga - 160x120</option>
+					</select><br>
+					Rotate 180°: <br>
+					&nbsp;&nbsp;&nbsp; <label for="flip-cam{{curid}}" class="switch">
+						<input type="checkbox" id="flip-cam{{curid}}-surrogate" name="flip-cam" value="off" {% if not frec|get_setting(curname, 'flip-cam') == True %} checked {% endif %} hidden>
+						<input type="checkbox" class="has-surrogate" id="flip-cam{{curid}}" name="flip-cam" {% if frec|get_setting(curname,'flip-cam') == True %} checked {% endif %}>
+						<span class="slider round"></span>
+					</label><br>
+				</fieldset>
+			{%endfor%}
 
-
-			<input type="radio" class="camera-select" name="camera" id="Webcam1" value="Webcam1" > Webcam 1<br>
-			<input type="radio" class="camera-select" name="camera" id="Webcam2" value="Webcam2" >  Webcam 2<br>
-			<input type="radio" class="camera-select" name="camera" id="Webcam3" value="Webcam3" > Webcam 3<br>
-			<input type="radio" class="camera-select" name="camera" id="Webcam4" value="Webcam4" > Webcam 4<br>
-			<input type="radio" class="camera-select" name="camera" id="IpWebcam" value="IpWebcam" > IP Webcam<br>
-			<fieldset class="camera-fieldset" id="IpWebcam-fieldset">
-			<label>URL:</label> <input type="url" id="url" name="URL">
+			<input type="radio" class="camera-select" name="camera" id="ipcamera" value="ipcamera" > IP Webcam<br>
+			<fieldset class="camera-fieldset" id="ipcamera-fieldset" hidden disabled>
+			<label>URL:</label> <input type="url" id="url" name="URL" required value = {{frec|get_setting("ipcamera", "URL")}}><br>
+				Rotate 180°: <br>
+				 <label for="flip-ipcamera" class="switch">
+					<input type="checkbox" id="flip-ipcamera-surrogate" name="flip-cam" value="off" {% if not frec|get_setting("ipcamera", 'flip-cam') == True %} checked {% endif %} hidden>
+					<input type="checkbox" class="has-surrogate" id="flip-ipcamera" name="flip-cam" {% if frec|get_setting("ipcamera", 'flip-cam') == True %} checked {% endif %}>
+					<span class="slider round"></span>
+				</label><br>
 			</fieldset>
-			<input type="radio" class="camera-select" name="camera" id="PiCam" value="PiCam"> Pi Camera<br>
 
-
-
-			Resolution: <br>
-			&nbsp;&nbsp;&nbsp;
-			<select type="select" name="resolution">
-				<option value="qvga" {% if frec['resolution'] == "qvga" %} selected {% endif  %}>qvga - 320x240 (recommended)</option>
-				<option value="fhd"  {% if frec['resolution'] == "fhd" %} selected {% endif   %}>fhd - 1920x1080</option>
-				<option value="hd"   {% if frec['resolution'] == "hd" %} selected {% endif    %}>hd - 1280x720</option>
-				<option value="vga"  {% if frec['resolution'] == "vga" %} selected {% endif   %}>vga - 640x480</option>
-				<option value="qqvga"{% if frec['resolution'] == "qqvga" %} selected {% endif %}>qqvga - 160x120</option>
-			</select><br>
-
+			{% if cam_dict["pi_camera"] %}
+			<input type="radio" class="camera-select" name="camera" id="picamera" value="picamera"> Pi Camera<br>
+			<fieldset class="camera-fieldset" id="picamera-fieldset" hidden disabled>
 			Rotate 180°: <br>
-			&nbsp;&nbsp;&nbsp; <label for="flip-cam" class="switch">
-				<input type="checkbox"  id="flip-cam" name="flip_cam" {% if frec['flip_cam'] == "on" %} checked {% endif %}>
-				<span class="slider round"></span>
-			</label><br>
+				 <label for="flip-picamera" class="switch">
+					<input type="checkbox" id="flip-picamera-surrogate" name="flip-picamera" value="off" {% if  not frec|get_setting("picamera", 'flip-cam') == True %} checked {% endif %} hidden>
+					<input type="checkbox" class="has-surrogate" id="flip-picamera" name="flip-picamera" {% if frec|get_setting("picamera", 'flip-cam') == True %} checked {% endif %}>
+					<span class="slider round"></span>
+				</label><br>
+			</fieldset>
+			{%endif%}
+
 
 			Face recognition tolerance (lower is more strict) (0.4 - 0.8, recommended: 0.6):<br>
 			&nbsp;&nbsp;&nbsp;
-			<input type="number" name="dnn_tresh" min="0.4" max="0.8" step="0.05" value="{{frec['dnn_tresh'] }}"><br>
+			<input type="number" name="dnn-tresh-float-static" min="0.4" max="0.8" step="0.05" value="{{frec['dnn-tresh-float-static'] }}" required><br>
 
 			Number of fast scans between slow scans with Neural Network (1-10 000):<br>
 			&nbsp;&nbsp;&nbsp; 
-			<input type="number" name="dnn_scan_freq" min="1" max="10000" value="{{frec['dnn_scan_freq'] }}"><br>
+			<input type="number" name="dnn-scan-freq-int-static" min="1" max="10000" step="1" value="{{frec['dnn-scan-freq-int-static'] }}" required><br>
 
 			Force DNN scan on faces just appeared: <br>
 			&nbsp;&nbsp;&nbsp;
 			<label for="force-dnn" class="switch">
-				<input type="checkbox"  id="force-dnn" name="force_dnn_on_new" {% if frec['force_dnn_on_new'] == "on" %} checked {% endif %}>
+				<input type="checkbox" id="force-dnn-surrogate" name="force-dnn-on-new-static" value="off" {% if not frec['force-dnn-on-new-static'] == True %} checked {% endif %} hidden>
+				<input type="checkbox" class="has-surrogate" id="force-dnn" name="force-dnn-on-new-static" {% if frec['force-dnn-on-new-static'] == True %} checked {% endif %}>
 				<span class="slider round"></span>
 			</label><br>
 
@@ -64,7 +73,8 @@
 
 			Cache unknown faces: <br>
 			&nbsp;&nbsp;&nbsp; <label for="cache-unknown" class="switch">
-			<input type="checkbox"  id="cache-unknown" name="cache_unknown"  {% if frec['cache_unknown'] == "on" %} checked {% endif %}>
+			<input type="checkbox" id="cache-unknown-surrogate" name="cache-unknown-static" value="off" {% if not frec['cache-unknown-static'] == True %} checked {% endif %} hidden>
+			<input type="checkbox" class="has-surrogate" id="cache-unknown" name="cache-unknown-static"  {% if frec['cache-unknown-static'] == True %} checked {% endif %}>
 			<span class="slider round"></span>
 			</label>
 

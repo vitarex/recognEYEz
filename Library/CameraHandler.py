@@ -5,12 +5,15 @@ import datetime
 import cv2
 import numpy as np
 import urllib.request
+from typing import Dict
+import platform
 import imutils
 from Library.Handler import Handler
 
 
 class Camera:
     """Base camera class"""
+
     def read(self):
         return np.empty((0, 0))
 
@@ -42,8 +45,8 @@ class WebcamCamera(Camera):
 
 
 class IPWebcam(Camera):
-    def __init__(self, cam_id: int, url: str, width: int = 400):
-        self.stream = urllib.request.urlopen("url")
+    def __init__(self, url: str, width: int = 400):
+        self.stream = urllib.request.urlopen(url)
         self.bytes = b''
         self.width = width
         self.cam_is_running = True
@@ -108,7 +111,7 @@ class CameraHandler(Handler):
         error_count = 0
         try:
             while self.cam_is_running:
-                if ticker > int(self.app.sh.get_face_recognition_settings()["dnn_scan_freq"])\
+                if ticker > int(self.app.sh.get_face_recognition_settings()["dnn-scan-freq-int-static"])\
                         or self.app.force_rescan:
                     _, frame, _ = self.app.fh.process_next_frame(
                         True, save_new_faces=True)
@@ -138,10 +141,16 @@ class CameraHandler(Handler):
             if self.cam_is_running:
                 return
 
-            if int(self.app.sh.get_face_recognition_settings()["cam_id"]) == 0:
-                self.cam = WebcamCamera(
-                    int(self.app.sh.get_face_recognition_settings()["cam_id"]),
-                    self.app.sh.get_face_recognition_settings()["resolution"])
+            face_rec_dict = self.app.sh.get_face_recognition_settings()
+            if face_rec_dict["selected_camera"].startswith("Webcam"):
+                if int(face_rec_dict["selected_camera"][-1]) == 0:
+                    self.cam = WebcamCamera(
+                        int(self.app.sh.get_face_recognition_settings()["selected_camera"][-1]),
+                        self.app.sh.get_face_recognition_settings(face_rec_dict["selected_camera"])["resolution"])
+                    self.cam_is_running = self.cam.cam_is_running
+            if face_rec_dict["selected_camera"] == "ipcamera":
+                self.cam = IPWebcam(
+                    self.app.sh.get_face_recognition_settings(face_rec_dict["selected_camera"])["URL"])
                 self.cam_is_running = self.cam.cam_is_running
 
     def stop_cam(self):
@@ -150,3 +159,28 @@ class CameraHandler(Handler):
                 if not self.cam.release():
                     raise Exception("Couldn't release camera object")
                 self.cam_is_running = False
+
+    def available_cameras(self) -> Dict:
+        cameras = dict()
+        cameras['webcams'] = list()
+        i = 0
+
+        cam = cv2.VideoCapture(i)
+        while cam.isOpened():
+            if cam.read()[1] is not None:
+                cameras['webcams'].append({'id': i})
+            cam.release()
+            i += 1
+            cam = cv2.VideoCapture(i)
+        cam.release()
+
+        if platform.system == 'Linux' and platform.machine.startswith('arm'):
+            import subprocess
+            c = subprocess.check_output(["vcgencmd", "get_camera"])
+            if int(c.strip()[-1]):
+                cameras['pi_camera'] = True
+            else:
+                cameras['pi_camera'] = False
+        else:
+            cameras['pi_camera'] = False
+        return cameras
