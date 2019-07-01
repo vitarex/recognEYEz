@@ -2,15 +2,22 @@
 
     <div id="dialog-title">Remove picture</div>
 
-    <div style="padding-bottom: 20px">Are you sure? <br>This action cannot be undone.</div>
-    Removing: <div id="removing-pic-name" style="font-size:14px;margin-bottom:10px;">asdasd</div>
-        <button id="remove-pic-btn" class="my-button" style="color:#fff;background: #f33">
-                Remove
-            </button>
-            <button id="cancel-small" class="cancel-pic-delete my-button" style="">
-                Cancel
-            </button> <button id="cancel-bg" class="cancel-pic-delete">
-            </button>
+    <div style="padding-bottom: 20px">
+        Are you sure?
+        <br>
+        This action cannot be undone.
+    </div>
+    Removing:
+    <div id="removing-pic-name" style="font-size:14px;margin-bottom:10px;">
+        asdasd
+    </div>
+    <button id="remove-pic-btn" class="my-button" style="color:#fff;background: #f33">
+        Remove
+    </button>
+    <button id="cancel-small" class="cancel-pic-delete my-button" style="">
+        Cancel
+    </button> 
+    <button id="cancel-bg" class="cancel-pic-delete"></button>
 </div>
 
 <div id="choose-new-owner">
@@ -18,10 +25,10 @@
     <div id="moving-pic-name" style="display: none"></div>
     Choose who is on the picture: <br>
     <select id="possible-persons" style="width: 100px; height: 25px;">
-        {% for n in names %}
-        {% if n != name and n != "Unknown" %}
-        <option value="{{n}}">{{ n }}</option>
-        {% endif %}
+        {% for known_person in known_persons %}
+            {% if known_person.name != person.name %}
+            <option value="{{known_person.name}}">{{ known_person.name }}</option>
+            {% endif %}
         {% endfor %}
     </select>
     <button id="change-person-btn" class="my-button" style="color:#fff;background: #393">
@@ -35,19 +42,19 @@
 </div>
 
 <style>
-
     #dialog-title {
         background: #f33;
         font: 20px;
-        padding:5px;
+        padding: 5px;
         border-radius: 8px;
-        width:496px;
+        width: 496px;
         position: relative;
-        top:-30px;
-        left:-30px;
+        top: -30px;
+        left: -30px;
     }
 
-    #choose-new-owner, #confirmation {
+    #choose-new-owner,
+    #confirmation {
 
         border: 2px solid #fff;
         display: none;
@@ -69,7 +76,8 @@
         z-index: 1001;
     }
 
-    #cancel-person-change-bg, #cancel-bg {
+    #cancel-person-change-bg,
+    #cancel-bg {
         z-index: -1;
         position: fixed;
         background: #000;
@@ -130,6 +138,4 @@
 
         transition: .5s ease;
     }
-
-
 </style>

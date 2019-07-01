@@ -31,20 +31,18 @@ def change_pic_owner():
 @login_required
 def edit_known_person():
     """ Webpage for editing a specific person (name, pref, pictures) """
-    # FIXME
     name = request.args.get("name")
-    logging.info("The name is: {0} ".format(name))
-    logging.info("thumb {0} ".format(app.fh.persons[name].thumbnail))
+    if name is None:
+        return redirect('/person_db')
+    person = app.dh.get_person_by_name(name)
+    logging.info("The name is: {0} ".format(person.name))
+    logging.info("Thumbnail {0} ".format(person.thumbnail.name))
     return render_template(
         "person_edit.html",
-        name=name,
-        folder_location=app.config["PICTURE_FOLDER"],
+        person=person,
         # check if thmb is set (eg in case of manual folder addition
-        # thumbnail= app.fh.persons[name].thumbnail if app.fh.persons[name].thumbnail else "not set",
-        thumbnail=app.fh.persons[name].thumbnail or "not set",
-        img_names=app.fh.file.get_all_dnn_pic_name_for_person_name(name),
-        extra=app.fh.persons[name].pref,
-        names=app.fh.persons.keys()
+        thumbnail=person.thumbnail or "not set",
+        known_persons=app.dh.get_known_persons()
     )
 
 
@@ -52,12 +50,10 @@ def edit_known_person():
 @login_required
 def change_thumbnail_for_person():
     """ Changes the thumbnail file name for the person int the database """
-    # FIXME
     name = request.form['n']
     pic = request.form['p']
-    logging.info("Changing thumbnail for {0} ({1})".format(name, pic))
-    app.dh.change_thumbnail(name, pic)
-    app.fh.persons[name].thumbnail = pic
+    logging.info("Setting the thumbnail on the person {} to the image {}".format(name, pic))
+    app.dh.get_person_by_name(name).set_thumbnail(app.dh.get_image_by_name(pic))
     return json.dumps({'status': 'OK', 'n': name, 'p': pic})
 
 
@@ -82,9 +78,8 @@ def modify_person():
 @login_required
 def remove_pic_for_person():
     """ Removes the selected picture in the background """
-    # FIXME
     name = request.form['n']
     pic = request.form['p']
-    app.fh.file.remove_picture(name, pic)
-    logging.info("person pic removed: " + name + " - " + pic)
+    app.dh.get_person_by_name(name).remove_picture(pic)
+    logging.info("Removed the image {} from the person {}".format(pic, name))
     return json.dumps({'status': 'OK', 'n': name, 'p': pic})

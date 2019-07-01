@@ -86,6 +86,11 @@ class Person(DBModel):
             self.delete_instance()
         self._invalidate_handler()
 
+    def remove_picture(self, image_name: str):
+        with self._meta.database.atomic():
+            next(i for i in self.images if i.name == image_name).delete_instance()
+        self._invalidate_handler()
+
     def add_image(self, image_name: str, set_as_thumbnail: bool = False):
         """Add new image for this person, optionally setting it as the thumbnail
 
@@ -243,6 +248,9 @@ class DatabaseHandler(Handler):
 
     def get_user_by_name(self, name: str) -> User:
         return User.get(User.name == name)
+
+    def get_image_by_name(self, name: str) -> Image:
+        return Image.get(Image.name == name)
 
     def get_all_events(self) -> List:
         return UserEvent.select()
