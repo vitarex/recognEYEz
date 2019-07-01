@@ -57,6 +57,16 @@ class Person(DBModel):
         with self._meta.database.atomic():
             self.save()
 
+    def change_pref(self, new_pref: str):
+        """Change person's preferences
+
+        Arguments:
+            new_pref {str} -- The new preferences of the person
+        """
+        self.pref = new_pref
+        with self._meta.database.atomic():
+            self.save()
+
     def merge_with(self, other: 'Person'):
         """Merge with other person
 
@@ -166,6 +176,13 @@ class Image(DBModel):
         """Set as the thumbnail for the person of this image
         """
         self.person.set_thumbnail(self)
+
+    def change_person(self, to_person: Person):
+        """Change the person of the image
+
+        Arguments:
+            to_person {Person} -- The new owner of the image
+        """
 
 
 class User(DBModel):
