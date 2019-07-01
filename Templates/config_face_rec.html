@@ -19,7 +19,7 @@
 					</select><br>
 					Rotate 180°: <br>
 					&nbsp;&nbsp;&nbsp; <label for="flip-cam{{curid}}" class="switch">
-						<input type="checkbox" id="flip-cam{{curid}}-surrogate" name="flip-cam" value="off" {% if frec['flip-cam' + curid|string] == False %} checked {% endif %} hidden>
+						<input type="checkbox" id="flip-cam{{curid}}-surrogate" name="flip-cam" value="off" {% if not frec['flip-cam' + curid|string] == True %} checked {% endif %} hidden>
 						<input type="checkbox" class="has-surrogate" id="flip-cam{{curid}}" name="flip-cam" {% if frec['flip_cam' + curid|string] == True %} checked {% endif %}>
 						<span class="slider round"></span>
 					</label><br>
@@ -31,7 +31,7 @@
 			<label>URL:</label> <input type="url" id="url" name="URL"><br>
 				Rotate 180°: <br>
 				 <label for="flip-ipcamera" class="switch">
-					<input type="checkbox" id="flip-ipcamera-surrogate" name="flip-ipcamera" value="off" {% if frec['flip-ipcamera'] == "on" %} checked {% endif %} hidden>
+					<input type="checkbox" id="flip-ipcamera-surrogate" name="flip-ipcamera" value="off" {% if not frec['flip-ipcamera'] == "on" %} checked {% endif %} hidden>
 					<input type="checkbox" class="has-surrogate" id="flip-ipcamera" name="flip-ipcamera" {% if frec['flip-ipcamera'] == "on" %} checked {% endif %}>
 					<span class="slider round"></span>
 				</label><br>
@@ -42,7 +42,7 @@
 			<fieldset class="camera-fieldset" id="picamera-fieldset" hidden disabled>
 			Rotate 180°: <br>
 				 <label for="flip-picamera" class="switch">
-					<input type="checkbox" id="flip-picamera-surrogate" name="flip-picamera" value="off" {% if frec['flip-picamera'] == "on" %} checked {% endif %} hidden>
+					<input type="checkbox" id="flip-picamera-surrogate" name="flip-picamera" value="off" {% if not frec['flip-picamera'] == "on" %} checked {% endif %} hidden>
 					<input type="checkbox" class="has-surrogate" id="flip-picamera" name="flip-picamera" {% if frec['flip-picamera'] == "on" %} checked {% endif %}>
 					<span class="slider round"></span>
 				</label><br>
@@ -61,8 +61,8 @@
 			Force DNN scan on faces just appeared: <br>
 			&nbsp;&nbsp;&nbsp;
 			<label for="force-dnn" class="switch">
-				<input type="checkbox" id="force-dnn-surrogate" name="force_dnn_on_new" value="off"  hidden>
-				<input type="checkbox" class="has-surrogate" id="force-dnn" name="force_dnn_on_new" checked>
+				<input type="checkbox" id="force-dnn-surrogate" name="force_dnn_on_new" value="off" {% if not frec['force_dnn_on_new'] == "on" %} checked {% endif %} hidden>
+				<input type="checkbox" class="has-surrogate" id="force-dnn" name="force_dnn_on_new" {% if frec['force_dnn_on_new'] == "on" %} checked {% endif %}>
 				<span class="slider round"></span>
 			</label><br>
 
@@ -72,7 +72,7 @@
 
 			Cache unknown faces: <br>
 			&nbsp;&nbsp;&nbsp; <label for="cache-unknown" class="switch">
-			<input type="checkbox" id="cache-unknown-surrogate" name="cache-unknown-static" value="off" {% if frec['cache_unknown'] == "on" %} checked {% endif %} hidden>
+			<input type="checkbox" id="cache-unknown-surrogate" name="cache-unknown-static" value="off" {% if not frec['cache_unknown'] == "on" %} checked {% endif %} hidden>
 			<input type="checkbox" class="has-surrogate" id="cache-unknown" name="cache-unknown-static"  {% if frec['cache_unknown'] == "on" %} checked {% endif %}>
 			<span class="slider round"></span>
 			</label>
