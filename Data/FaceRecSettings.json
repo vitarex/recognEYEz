@@ -7,7 +7,7 @@
       },
       {
          "camera": "ipcamera",
-         "URL": "http://152.66.171.64:8080/video",
+         "URL": "http://www.google.com",
          "flip-ipcamera": false,
          "flip-cam": false
       },
