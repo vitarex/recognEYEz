@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect
 from flask import current_app as app
 from flask_simplelogin import login_required
+import jinja2
 
 import webapp
 
@@ -41,6 +42,16 @@ def config_view():
         cam_dict = camera_dict
         #app.ch.available_cameras()
     )
+
+@jinja2.contextfilter
+@config_page.app_template_filter()
+def get_setting(_, frec, camera_name, setting_name):
+    for setting in frec["camera_settings"]:
+        if setting["camera"] == camera_name:
+            try:
+                return setting[setting_name]
+            except KeyError:
+                return None
 
 
 @config_page.route('/face_recognition_settings', methods=['POST'])

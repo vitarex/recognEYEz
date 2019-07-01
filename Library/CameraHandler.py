@@ -45,8 +45,8 @@ class WebcamCamera(Camera):
 
 
 class IPWebcam(Camera):
-    def __init__(self, cam_id: int, url: str, width: int = 400):
-        self.stream = urllib.request.urlopen("url")
+    def __init__(self, url: str, width: int = 400):
+        self.stream = urllib.request.urlopen(url)
         self.bytes = b''
         self.width = width
         self.cam_is_running = True
@@ -141,10 +141,16 @@ class CameraHandler(Handler):
             if self.cam_is_running:
                 return
 
-            if int(self.app.sh.get_face_recognition_settings()["selected_camera"][-1]) == 0:
-                self.cam = WebcamCamera(
-                    int(self.app.sh.get_face_recognition_settings()["selected_camera"][-1]),
-                    self.app.sh.get_face_recognition_settings(self.app.sh.get_face_recognition_settings()["selected_camera"])["resolution"])
+            face_rec_dict = self.app.sh.get_face_recognition_settings()
+            if face_rec_dict["selected_camera"].startswith("Webcam"):
+                if int(face_rec_dict["selected_camera"][-1]) == 0:
+                    self.cam = WebcamCamera(
+                        int(self.app.sh.get_face_recognition_settings()["selected_camera"][-1]),
+                        self.app.sh.get_face_recognition_settings(face_rec_dict["selected_camera"])["resolution"])
+                    self.cam_is_running = self.cam.cam_is_running
+            if face_rec_dict["selected_camera"] == "ipcamera":
+                self.cam = IPWebcam(
+                    self.app.sh.get_face_recognition_settings(face_rec_dict["selected_camera"])["URL"])
                 self.cam_is_running = self.cam.cam_is_running
 
     def stop_cam(self):
