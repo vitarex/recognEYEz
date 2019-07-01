@@ -1,11 +1,23 @@
 {
-   "cam_id": 0,
-   "resolution": "qqvga",
-   "URL": "",
-   "dnn_tresh": "0.6",
-   "dnn_scan_freq": "50",
-   "force_dnn_on_new": "on",
-   "cache_unknown": "on",
-   "flip_cam": "off",
-   "camera": "Webcam0"
+   "camera_settings": [
+      {
+         "camera": "Webcam0",
+         "resolution": "fhd",
+         "flip-cam": false
+      },
+      {
+         "camera": "ipcamera",
+         "URL": "http://www.google.com"
+      },
+      {
+         "camera": "Webcam1",
+         "resolution": "fhd",
+         "flip-cam": true
+      }
+   ],
+   "selected_camera": "Webcam0",
+   "dnn-tresh-float-static": 0.4,
+   "dnn-scan-freq-int-static": 1,
+   "force-dnn-on-new-static": false,
+   "cache-unknown-static": false
 }
