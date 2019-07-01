@@ -38,7 +38,9 @@ class SettingsHandler(Handler):
         if camera_name is None:
             return self.__face_recognition_settings
         else:
-            return self.__face_recognition_settings["camera_settings"][self.get_current_settings_index(self.__face_recognition_settings, camera_name)]
+            return self.__face_recognition_settings["camera_settings"][self.get_current_settings_index(
+                self.__face_recognition_settings,
+                camera_name)]
 
     def load_face_recognition_settings(self) -> Dict:
         with open("Data/FaceRecSettings.json") as ffp:
@@ -61,8 +63,8 @@ class SettingsHandler(Handler):
                 tr_form[key] = value
         return tr_form
 
-    def save_face_rec_configuration(self, transformed_form_data) ->Dict:
-        current_settings_dict=self.get_face_recognition_settings()
+    def save_face_rec_configuration(self, transformed_form_data) -> Dict:
+        current_settings_dict = self.get_face_recognition_settings()
         settings_index = self.get_current_settings_index(current_settings_dict, transformed_form_data["camera"])
         current_settings_dict["selected_camera"] = transformed_form_data["camera"]
         for key, value in transformed_form_data.items():
@@ -81,4 +83,3 @@ class SettingsHandler(Handler):
                 return i
         current_settings_dict["camera_settings"].append({})
         return len(current_settings_dict["camera_settings"])-1
-

@@ -17,20 +17,6 @@ def change_password():
     app.dh.get_user_by_name(request.form['username']).change_password(request.form["old_password"], request.form["new_password"])
     return redirect("/config")
 
-camera_dict = {
-        "pi_camera": True,
-        "webcams":[
-            {
-                "id": 0,
-                "name": "webcam0"
-            },
-            {
-                "id": 1,
-                "name": "webcam1"
-            }
-        ]
-    }
-
 
 @config_page.route('/config')
 @login_required
@@ -39,8 +25,7 @@ def config_view():
         "config.html",
         frec=app.sh.get_face_recognition_settings(),
         notif=app.sh.get_notification_settings(),
-        cam_dict = camera_dict
-        #app.ch.available_cameras()
+        cam_dict=app.ch.available_cameras()
     )
 
 @jinja2.contextfilter
