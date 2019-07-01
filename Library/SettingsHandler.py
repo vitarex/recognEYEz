@@ -32,22 +32,17 @@ class SettingsHandler(Handler):
             json.dump(sett, nfp, indent=3)
         self.__notification_settings = sett
 
-    def get_face_recognition_settings(self) -> Dict:
+    def get_face_recognition_settings(self, camera_name: str = None) -> Dict:
         if not self.__face_recognition_settings:
             self.__face_recognition_settings = self.load_face_recognition_settings()
-        return self.__face_recognition_settings
+        if camera_name is None:
+            return self.__face_recognition_settings
+        else:
+            return self.__face_recognition_settings["camera_settings"][self.get_current_settings_index(self.__face_recognition_settings, camera_name)]
 
     def load_face_recognition_settings(self) -> Dict:
         with open("Data/FaceRecSettings.json") as ffp:
             return json.load(ffp)
-
-    def update_face_recognition_settings(self, form_dict):
-        sett = self.load_face_recognition_settings()
-        for key, value in form_dict.items():
-            sett[key] = value
-        with open(Path("Data/FaceRecSettings.json"), 'w') as ffp:
-            json.dump(sett, ffp, indent=3)
-        self.__face_recognition_settings = sett
 
     def transform_form_to_dict(self, form) -> Dict:
         tr_form = {}
@@ -56,22 +51,34 @@ class SettingsHandler(Handler):
                 tr_form[key] = True
             elif value == "off":
                 tr_form[key] = False
-            elif key.endswith("-float"):
-                tr_form[key] = float(value)
-            elif key.endswith("-int"):
-                tr_form[key] = int(value)
+            elif "-float-" in key:
+                if not value == "":
+                    tr_form[key] = float(value)
+            elif "-int-" in key:
+                if not value == "":
+                    tr_form[key] = int(value)
             else:
                 tr_form[key] = value
         return tr_form
 
-    def save_face_rec_configuration(self, dict) ->Dict:
-        multidict={}
-        #copy statics
-        for key, value in dict.items():
+    def save_face_rec_configuration(self, transformed_form_data) ->Dict:
+        current_settings_dict=self.get_face_recognition_settings()
+        settings_index = self.get_current_settings_index(current_settings_dict, transformed_form_data["camera"])
+        current_settings_dict["selected_camera"] = transformed_form_data["camera"]
+        for key, value in transformed_form_data.items():
             if key.endswith("-static"):
-                multidict[key] = value
-            #elif value.startwith("Webcam"):
-               # multidict["camera"]=
-        return multidict
+                current_settings_dict[key] = value
+            else:
+                current_settings_dict["camera_settings"][settings_index][key] = value
 
-    #def camera_t(self, dict):
+        with open(Path("Data/FaceRecSettings.json"), 'w') as ffp:
+            json.dump(current_settings_dict, ffp, indent=3)
+        self.__face_recognition_settings = current_settings_dict
+
+    def get_current_settings_index(self, current_settings_dict, camera_name) -> int:
+        for i, settings in enumerate(current_settings_dict["camera_settings"]):
+            if settings["camera"] == camera_name:
+                return i
+        current_settings_dict["camera_settings"].append({})
+        return len(current_settings_dict["camera_settings"])-1
+

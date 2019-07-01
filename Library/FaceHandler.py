@@ -193,7 +193,7 @@ class FaceHandler(Handler):
             matches = face_recognition.compare_faces(
                 list(map(lambda encoding: np.frombuffer(encoding.encoding), known_encodings)),
                 e,
-                tolerance=float(self.app.sh.get_face_recognition_settings()["dnn_tresh"])
+                tolerance=float(self.app.sh.get_face_recognition_settings()["dnn-tresh-float-static"])
             )
             # if there was a match in the known persons
             if True in matches:
@@ -215,7 +215,7 @@ class FaceHandler(Handler):
                 unknown_encodings = self.get_unknown_encodings()
                 matches = face_recognition.compare_faces(
                     list(map(lambda encoding: np.frombuffer(encoding.encoding), unknown_encodings)), e, tolerance=float(
-                        self.app.sh.get_face_recognition_settings()["dnn_tresh"])
+                        self.app.sh.get_face_recognition_settings()["dnn-tresh-float-static"])
                 )
                 if True in matches:
                     found_encodings = list(

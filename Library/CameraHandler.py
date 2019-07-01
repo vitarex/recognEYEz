@@ -111,7 +111,7 @@ class CameraHandler(Handler):
         error_count = 0
         try:
             while self.cam_is_running:
-                if ticker > int(self.app.sh.get_face_recognition_settings()["dnn_scan_freq"])\
+                if ticker > int(self.app.sh.get_face_recognition_settings()["dnn-scan-freq-int-static"])\
                         or self.app.force_rescan:
                     _, frame, _ = self.app.fh.process_next_frame(
                         True, save_new_faces=True)
@@ -141,10 +141,10 @@ class CameraHandler(Handler):
             if self.cam_is_running:
                 return
 
-            if int(self.app.sh.get_face_recognition_settings()["cam_id"]) == 0:
+            if int(self.app.sh.get_face_recognition_settings()["selected_camera"][-1]) == 0:
                 self.cam = WebcamCamera(
-                    int(self.app.sh.get_face_recognition_settings()["cam_id"]),
-                    self.app.sh.get_face_recognition_settings()["resolution"])
+                    int(self.app.sh.get_face_recognition_settings()["selected_camera"][-1]),
+                    self.app.sh.get_face_recognition_settings(self.app.sh.get_face_recognition_settings()["selected_camera"])["resolution"])
                 self.cam_is_running = self.cam.cam_is_running
 
     def stop_cam(self):
