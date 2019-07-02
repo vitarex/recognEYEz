@@ -8,8 +8,8 @@
       {
          "camera": "ipcamera",
          "URL": "http://152.66.173.197:8080/video",
-         "flip-ipcamera": false,
-         "flip-cam": false
+         "flip-cam": false,
+         "resolution": "qvga"
       },
       {
          "camera": "Webcam1",

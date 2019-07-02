@@ -29,7 +29,16 @@
 
 			<input type="radio" class="camera-select" name="camera" id="ipcamera" value="ipcamera" > IP Webcam<br>
 			<fieldset class="camera-fieldset" id="ipcamera-fieldset" hidden disabled>
-			<label>URL:</label> <input type="url" id="url" name="URL" required value = {{frec|get_setting("ipcamera", "URL")}}><br>
+			<label>URL:</label> <br>&nbsp;&nbsp;&nbsp;
+				<input type="url" id="url" name="URL" size="30" required value = {{frec|get_setting("ipcamera", "URL")}}><br>
+				Resolution: <br>&nbsp;&nbsp;&nbsp;
+					<select type="select" name="resolution">
+						<option value="qvga" {% if frec|get_setting(curname, 'resolution') == "qvga" %} selected {% endif  %}>qvga - 320x240 (recommended)</option>
+						<option value="fhd"  {% if frec|get_setting(curname, 'resolution') == "fhd" %} selected {% endif   %}>fhd - 1920x1080</option>
+						<option value="hd"   {% if frec|get_setting(curname, 'resolution') == "hd" %} selected {% endif    %}>hd - 1280x720</option>
+						<option value="vga"  {% if frec|get_setting(curname, 'resolution') == "vga" %} selected {% endif   %}>vga - 640x480</option>
+						<option value="qqvga"{% if frec|get_setting(curname, 'resolution') == "qqvga" %} selected {% endif %}>qqvga - 160x120</option>
+					</select><br>
 				Rotate 180°: <br>
 				 <label for="flip-ipcamera" class="switch">
 					<input type="checkbox" id="flip-camera-surrogate" name="flip-cam" value="off" {% if not frec|get_setting("ipcamera", 'flip-cam') == True %} checked {% endif %} hidden>

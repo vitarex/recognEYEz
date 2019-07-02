@@ -45,10 +45,14 @@ class WebcamCamera(Camera):
 
 
 class IPWebcam(Camera):
-    def __init__(self, url:str):
+    resolutions = {"vga": [640, 480], "qvga": [320, 240], "qqvga": [
+        160, 120], "hd": [1280, 720], "fhd": [1920, 1080]}
+
+    def __init__(self, url:str, res: str):
+        res = self.resolutions[res]
         self.cam = cv2.VideoCapture(url)
-        self.cam.set(3, 320)  # set video width
-        self.cam.set(4, 240)  # set video height
+        self.cam.set(3, res[0])  # set video width
+        self.cam.set(4, res[1])  # set video height
         self.cam_is_running = True
 
     def read(self):
@@ -142,7 +146,8 @@ class CameraHandler(Handler):
                     self.cam_is_running = self.cam.cam_is_running
             if face_rec_dict["selected_camera"] == "ipcamera":
                 self.cam = IPWebcam(
-                    self.app.sh.get_face_recognition_settings(face_rec_dict["selected_camera"])["URL"])
+                    self.app.sh.get_face_recognition_settings(face_rec_dict["selected_camera"])["URL"],
+                    self.app.sh.get_face_recognition_settings(face_rec_dict["selected_camera"])["resolution"])
                 self.cam_is_running = self.cam.cam_is_running
 
     def stop_cam(self):
