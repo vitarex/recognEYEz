@@ -45,25 +45,17 @@ class WebcamCamera(Camera):
 
 
 class IPWebcam(Camera):
-    def __init__(self, url: str, width: int = 400):
-        self.stream = urllib.request.urlopen(url)
-        self.bytes = b''
-        self.width = width
+    def __init__(self, url:str):
+        self.cam = cv2.VideoCapture(url)
+        self.cam.set(3, 320)  # set video width
+        self.cam.set(4, 240)  # set video height
         self.cam_is_running = True
 
     def read(self):
-        while True:
-            self.bytes += self.stream.read(1024)
-            start = self.bytes.find(b'\xff\xd8')
-            end = self.bytes.find(b'\xff\xd9')
-            if start != -1 and end != -1:
-                jpg = self.bytes[start:end + 2]
-                self.bytes = self.bytes[end + 2:]
-                frame = cv2.imdecode(np.fromstring(
-                    jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
-                frame = imutils.resize(frame, width=self.width)
-                break
-        return frame
+        return self.cam.read()
+
+
+
 
 
 class CameraHandler(Handler):

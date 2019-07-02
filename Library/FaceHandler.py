@@ -87,9 +87,10 @@ class FaceHandler(Handler):
         start_t = time.time()
         with self.app.ch.cam_lock:
             ret, frame = self.app.ch.cam.read()
+        face_rec_dict = self.app.sh.get_face_recognition_settings()
         if not ret and frame is None:
             raise AssertionError("The camera didn't return a frame object. Maybe it failed to start properly.")
-        if self.app.sh.get_face_recognition_settings()["flip_cam"] == "on":
+        if self.app.sh.get_face_recognition_settings(face_rec_dict["selected_camera"])["flip-cam"] == True:
             frame = cv2.flip(frame, -1)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -101,7 +102,7 @@ class FaceHandler(Handler):
         rect_to_person = dict()
         # executing DNN face recognition on found faces
         if use_dnn or ((len(face_rects) != len(self.visible_persons))
-                       and self.app.sh.get_face_recognition_settings()["force_dnn_on_new"]):
+                       and self.app.sh.get_face_recognition_settings()["force-dnn-on-new-static"]):
             # the returned object is a dictionary of rectangles to persons
             # only the rectangles that have a person associated with them are returned here
             rect_to_person = self.recognize_faces(

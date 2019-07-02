@@ -32,7 +32,7 @@
 			<label>URL:</label> <input type="url" id="url" name="URL" required value = {{frec|get_setting("ipcamera", "URL")}}><br>
 				Rotate 180°: <br>
 				 <label for="flip-ipcamera" class="switch">
-					<input type="checkbox" id="flip-ipcamera-surrogate" name="flip-cam" value="off" {% if not frec|get_setting("ipcamera", 'flip-cam') == True %} checked {% endif %} hidden>
+					<input type="checkbox" id="flip-camera-surrogate" name="flip-cam" value="off" {% if not frec|get_setting("ipcamera", 'flip-cam') == True %} checked {% endif %} hidden>
 					<input type="checkbox" class="has-surrogate" id="flip-ipcamera" name="flip-cam" {% if frec|get_setting("ipcamera", 'flip-cam') == True %} checked {% endif %}>
 					<span class="slider round"></span>
 				</label><br>
@@ -43,8 +43,8 @@
 			<fieldset class="camera-fieldset" id="picamera-fieldset" hidden disabled>
 			Rotate 180°: <br>
 				 <label for="flip-picamera" class="switch">
-					<input type="checkbox" id="flip-picamera-surrogate" name="flip-picamera" value="off" {% if  not frec|get_setting("picamera", 'flip-cam') == True %} checked {% endif %} hidden>
-					<input type="checkbox" class="has-surrogate" id="flip-picamera" name="flip-picamera" {% if frec|get_setting("picamera", 'flip-cam') == True %} checked {% endif %}>
+					<input type="checkbox" id="flip-picamera-surrogate" name="flip-cam" value="off" {% if  not frec|get_setting("picamera", 'flip-cam') == True %} checked {% endif %} hidden>
+					<input type="checkbox" class="has-surrogate" id="flip-picamera" name="flip-cam" {% if frec|get_setting("picamera", 'flip-cam') == True %} checked {% endif %}>
 					<span class="slider round"></span>
 				</label><br>
 			</fieldset>
