@@ -11,12 +11,12 @@
                     <img src="{{url_for('static', filename='Images/' + img.name)}}" style="width: 165px; ">
 
                     <div id="inner-face-{{ loop.index0 }}" class="inner-face">
-                        <span id="img-name-{{ loop.index0 }}" class="{{img.name}}" style="display: none">{{ img.name }}</span>
-                        <button type="button" class="pic-btn make-thumb " style="background: #393; white-space: normal;">
+                        <input class="img-name-value" type="hidden" value="{{img.name}}">
+                        <button type="button" class="pic-btn make-thumb" style="background: #393; white-space: normal;">
                             Make Thumbnail</button>
                         <button type="button" class="pic-btn change-pers" style="background: #339; white-space: normal;">
                             Change Person</button>
-                        <button type="button" class="pic-btn remove-pic " style="background: #f33; white-space: normal;">
+                        <button type="button" class="pic-btn remove-pic" style="background: #f33; white-space: normal;">
                             Remove</button>
                     </div>
                 </div>

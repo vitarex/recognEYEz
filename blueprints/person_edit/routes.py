@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, json
+from flask import Blueprint, render_template, request, redirect
 from flask import current_app as app
 from flask_simplelogin import login_required
 from pathlib import Path
@@ -8,8 +8,7 @@ from Library.helpers import parse, parse_list, OKResponse
 
 if False:
     import webapp
-
-app: webapp.FHApp
+    app: webapp.FHApp
 
 stat_folder = Path('../../Static')
 person_edit = Blueprint("person_edit", __name__, static_folder=stat_folder, static_url_path='/Static')
@@ -19,7 +18,7 @@ person_edit = Blueprint("person_edit", __name__, static_folder=stat_folder, stat
 @login_required
 def change_pic_owner():
     """Places the selected pic to the selected persons folder"""
-    old_name, new_name, pic = parse_list(request, ['oname', 'nname', 'pic'], raise_if_none=True)
+    old_name, new_name, pic = parse_list(request, ['oname', 'nname', 'image'], raise_if_none=True)
     logging.info("Moving picture {} from {} to {}".format(pic, old_name, new_name))
     app.dh.get_image_by_name(pic).change_person(app.dh.get_person_by_name(new_name))
     return OKResponse()
@@ -49,10 +48,10 @@ def edit_known_person():
 @login_required
 def change_thumbnail_for_person():
     """ Changes the thumbnail file name for the person int the database """
-    name, pic = parse_list(request, ['n', 'p'], raise_if_none=True)
+    name, pic = parse_list(request, ['name', 'image'], raise_if_none=True)
     logging.info("Setting the thumbnail on the person {} to the image {}".format(name, pic))
     app.dh.get_person_by_name(name).set_thumbnail(app.dh.get_image_by_name(pic))
-    return json.dumps({'status': 'OK', 'n': name, 'p': pic})
+    return OKResponse()
 
 
 @person_edit.route('/modify_person', methods=['POST'])
@@ -71,11 +70,11 @@ def modify_person():
     return OKResponse()
 
 
-@person_edit.route('/delete_pic_of_person', methods=['POST'])
+@person_edit.route('/delete_image_of_person', methods=['POST'])
 @login_required
 def remove_pic_for_person():
     """ Removes the selected picture in the background """
-    name, pic = parse_list(request, ['n', 'p'], raise_if_none=True)
-    app.dh.get_person_by_name(name).remove_picture(pic)
-    logging.info("Removed the image {} from the person {}".format(pic, name))
+    name, image = parse_list(request, ['name', 'image'], raise_if_none=True)
+    app.dh.get_person_by_name(name).remove_picture(image)
+    logging.info("Removed the image {} from the person {}".format(image, name))
     return OKResponse()

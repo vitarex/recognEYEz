@@ -45,8 +45,7 @@ class OKResponse(Response):
                  content_type=None,
                  direct_passthrough=False,
                  ):
-        return super().__init__(self,
-                                response,
+        return super().__init__(response,
                                 status,
                                 headers,
                                 mimetype,
