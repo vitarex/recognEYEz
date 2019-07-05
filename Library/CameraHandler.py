@@ -4,10 +4,8 @@ import threading
 import datetime
 import cv2
 import numpy as np
-import urllib.request
 from typing import Dict
 import platform
-import imutils
 from Library.Handler import Handler
 
 
@@ -48,7 +46,7 @@ class IPWebcam(Camera):
     resolutions = {"vga": [640, 480], "qvga": [320, 240], "qqvga": [
         160, 120], "hd": [1280, 720], "fhd": [1920, 1080]}
 
-    def __init__(self, url:str, res: str):
+    def __init__(self, url: str, res: str):
         res = self.resolutions[res]
         self.cam = cv2.VideoCapture(url)
         self.cam.set(3, res[0])  # set video width
@@ -57,10 +55,6 @@ class IPWebcam(Camera):
 
     def read(self):
         return self.cam.read()
-
-
-
-
 
 class CameraHandler(Handler):
     cam: Camera = None
