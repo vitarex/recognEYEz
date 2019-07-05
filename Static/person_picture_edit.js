@@ -5,7 +5,7 @@ $(document).ready(function() {
   $(".pic-btn.make-thumb").click(function() {
     image = $(this).siblings(".img-name-value").val();
     name = $("#person-name").text();
-    pic_to_thumbnail(name, image, function() { $("#thumbnail-pic").attr("src", "/Images/" + image); })
+    pic_to_thumbnail(name, image, function() { $("#thumbnail-pic").attr("src", "/Images/" + image); });
   });
 
   // add remove functionality for every pic
@@ -13,7 +13,7 @@ $(document).ready(function() {
     if (confirm("Are you sure? This action cannot be undone!")) {
       image = $(this).siblings(".img-name-value").val();
       name = $("#person-name").text();
-      delete_image(name, image, function() { $(this).parent().parent().remove(); }.bind(this))
+      delete_image(name, image, function() { $(this).parent().parent().remove(); }.bind(this));
     }
   });
 
@@ -53,8 +53,8 @@ function change_pic_owner(old_name, new_name, image, success_func) {
     },
     type: "POST",
     success: success_func,
-    error: error => {
-      alert(JSON.parse(error)["message"]);
+    error: function(error) {
+      alert(JSON.parse(error).message);
     }
   });
 }
@@ -65,8 +65,8 @@ function pic_to_thumbnail(name, image, success_func) {
     data: { name: name, image: image },
     type: "POST",
     success: success_func,
-    error: error => {
-      alert(JSON.parse(error)["message"]);
+    error: function(error) {
+      alert(JSON.parse(error).message);
     }
   });
 }
@@ -77,8 +77,8 @@ function delete_image(name, image, success_func) {
     data: { name: name, image: image },
     type: "POST",
     success: success_func,
-    error: error => {
-      alert(JSON.parse(error)["message"]);
+    error: function(error) {
+      alert(JSON.parse(error).message);
     }
   });
 }
