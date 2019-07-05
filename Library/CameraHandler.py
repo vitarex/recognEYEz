@@ -4,13 +4,14 @@ import threading
 import datetime
 import cv2
 import numpy as np
-import urllib.request
-import imutils
+from typing import Dict
+import platform
 from Library.Handler import Handler
 
 
 class Camera:
     """Base camera class"""
+
     def read(self):
         return np.empty((0, 0))
 
@@ -42,26 +43,18 @@ class WebcamCamera(Camera):
 
 
 class IPWebcam(Camera):
-    def __init__(self, cam_id: int, url: str, width: int = 400):
-        self.stream = urllib.request.urlopen("url")
-        self.bytes = b''
-        self.width = width
+    resolutions = {"vga": [640, 480], "qvga": [320, 240], "qqvga": [
+        160, 120], "hd": [1280, 720], "fhd": [1920, 1080]}
+
+    def __init__(self, url: str, res: str):
+        res = self.resolutions[res]
+        self.cam = cv2.VideoCapture(url)
+        self.cam.set(3, res[0])  # set video width
+        self.cam.set(4, res[1])  # set video height
         self.cam_is_running = True
 
     def read(self):
-        while True:
-            self.bytes += self.stream.read(1024)
-            start = self.bytes.find(b'\xff\xd8')
-            end = self.bytes.find(b'\xff\xd9')
-            if start != -1 and end != -1:
-                jpg = self.bytes[start:end + 2]
-                self.bytes = self.bytes[end + 2:]
-                frame = cv2.imdecode(np.fromstring(
-                    jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
-                frame = imutils.resize(frame, width=self.width)
-                break
-        return frame
-
+        return self.cam.read()
 
 class CameraHandler(Handler):
     cam: Camera = None
@@ -108,7 +101,7 @@ class CameraHandler(Handler):
         error_count = 0
         try:
             while self.cam_is_running:
-                if ticker > int(self.app.sh.get_face_recognition_settings()["dnn_scan_freq"])\
+                if ticker > int(self.app.sh.get_face_recognition_settings()["dnn-scan-freq-int-static"])\
                         or self.app.force_rescan:
                     _, frame, _ = self.app.fh.process_next_frame(
                         True, save_new_faces=True)
@@ -138,10 +131,17 @@ class CameraHandler(Handler):
             if self.cam_is_running:
                 return
 
-            if int(self.app.sh.get_face_recognition_settings()["cam_id"]) == 0:
-                self.cam = WebcamCamera(
-                    int(self.app.sh.get_face_recognition_settings()["cam_id"]),
-                    self.app.sh.get_face_recognition_settings()["resolution"])
+            face_rec_dict = self.app.sh.get_face_recognition_settings()
+            if face_rec_dict["selected_camera"].startswith("Webcam"):
+                if int(face_rec_dict["selected_camera"][-1]) == 0:
+                    self.cam = WebcamCamera(
+                        int(self.app.sh.get_face_recognition_settings()["selected_camera"][-1]),
+                        self.app.sh.get_face_recognition_settings(face_rec_dict["selected_camera"])["resolution"])
+                    self.cam_is_running = self.cam.cam_is_running
+            if face_rec_dict["selected_camera"] == "ipcamera":
+                self.cam = IPWebcam(
+                    self.app.sh.get_face_recognition_settings(face_rec_dict["selected_camera"])["URL"],
+                    self.app.sh.get_face_recognition_settings(face_rec_dict["selected_camera"])["resolution"])
                 self.cam_is_running = self.cam.cam_is_running
 
     def stop_cam(self):
@@ -150,3 +150,28 @@ class CameraHandler(Handler):
                 if not self.cam.release():
                     raise Exception("Couldn't release camera object")
                 self.cam_is_running = False
+
+    def available_cameras(self) -> Dict:
+        cameras = dict()
+        cameras['webcams'] = list()
+        i = 0
+
+        cam = cv2.VideoCapture(i)
+        while cam.isOpened():
+            if cam.read()[1] is not None:
+                cameras['webcams'].append({'id': i})
+            cam.release()
+            i += 1
+            cam = cv2.VideoCapture(i)
+        cam.release()
+
+        if platform.system == 'Linux' and platform.machine.startswith('arm'):
+            import subprocess
+            c = subprocess.check_output(["vcgencmd", "get_camera"])
+            if int(c.strip()[-1]):
+                cameras['pi_camera'] = True
+            else:
+                cameras['pi_camera'] = False
+        else:
+            cameras['pi_camera'] = False
+        return cameras
