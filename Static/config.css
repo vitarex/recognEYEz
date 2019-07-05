@@ -1,0 +1,18 @@
+input {height:30px;}
+
+.w3-container > form {
+    margin-bottom: 15px;
+    line-height: 2;
+}
+
+#submit-password-change {
+    display: none
+}
+
+.w3-container > form > table {
+    width: 100%;
+}
+#face-recognition-settings {
+    margin-bottom: 15px;
+    line-height: 2;
+}

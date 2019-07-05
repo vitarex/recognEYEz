@@ -12,9 +12,9 @@
 
 {%block content%}
 
-<div class="w3-main loginbox boxshad" style="margin-left:50px; margin-top: 100px;">
-    <form action="{{ url_for('simplelogin.login') }}" method="post" style="align:center;">
-        <div class="form-group" style="color:white;">
+<div class="w3-main loginbox boxshad" >
+    <form action="{{ url_for('simplelogin.login') }}" method="post" >
+        <div class="form-group" >
             {{ form.csrf_token }}
             {{form.username.label}}<div class="form-control"> {{ form.username }}</div><br>
             {{form.password.label}}<div class="form-control"> {{ form.password }}</div><br>

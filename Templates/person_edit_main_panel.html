@@ -1,26 +1,25 @@
 <div class="w3-row my-panel">
-    <span id="person-name" style="display: none" hint="Name">{{ person.name }}</span>
+    <span id="person-name" hint="Name">{{ person.name }}</span>
     <div class=" w3-container">
         <h1 class="w3-text-teal">Basic info</h1>
         <form action="{{ url_for('person_edit.modify_person') }}" method="post" id="basic-info-form">
-            <div style="margin-bottom: 15px; line-height: 3;">
-                <div style="float:right;width:30%">
+            <div>
+                <div>
 
                     <img id="thumbnail-pic" src="{{ url_for('static', filename='Images/' + person.thumbnail.name) }}"
-                        style="max-width: 100%; max-height: 300px;padding-bottom:25px;"
                         onerror="if (this.src != 'empty_pic.png') this.src = '{{ url_for('static', filename='empty_pic.png') }}';"
                     >
                     <br>
-                    <input type="submit" class="my-button my-save-button" value="Save" style="padding-bottom: 70px;float: right;margin-right:50px;">
+                    <input type="submit" class="my-button my-save-button" value="Save">
                 </div>
 
 
                 Name:<br>
-                <input id="owner-name" type="text" name="new_name" value="{{ person.name }}" style="font-size: 20px;height: 35px; padding: 5px;">
+                <input id="owner-name" type="text" name="new_name" value="{{ person.name }}">
                 <br>
                 Extra:<br>
-                <textarea form="basic-info-form" name="extra" style=" line-height: 1; overflow-y: scroll; height:auto;min-height: 150px; max-height: 500px;width:65%;">{{person.pref}}</textarea>
-                <input type="hidden" name="old_name" value="{{ person.name }}" style="height: 30px;">
+                <textarea form="basic-info-form" name="extra">{{person.pref}}</textarea>
+                <input type="hidden" name="old_name" value="{{ person.name }}">
 
 
             </form>

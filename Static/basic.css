@@ -312,3 +312,59 @@ div > footer {
 .main-block {
     margin-bottom: 60px;
 }
+.w3-main.loginbox.boxshad > form {
+    align-self: center;
+}
+
+.w3-main.loginbox.boxshad {
+    margin-left: 50px;
+    margin-top: 100px;
+}
+
+.form-group {
+    color: white;
+}
+.preview-img-div {
+    max-width: 400px;
+    float: right;
+    margin-right: 0px;
+    padding: 10px 0
+}
+
+.log-div {
+    margin-right: 25px;
+    padding-bottom: 20px;
+}
+
+.log-div > p {
+    max-height:600px;
+    background: #222;
+    overflow-y: scroll;
+    word-wrap: break-word;
+    width: 90%;
+}
+
+#preview_img {
+    max-width: 100%
+}
+
+.w3-container.w3-theme-l2.w3-padding-16 > span {
+    float: right;
+}
+
+.w3-bar-item.w3-theme-l4 {
+    padding-right: 133px;
+}
+
+.w3-bar-item.w3-button.w3-hide-small.w3-hover-white {
+    float: right;
+}
+
+.w3-main {
+    margin-left: 250px;
+    padding-top: 50px;
+}
+
+.w3-container.w3-theme-l2.w3-padding-16 {
+    display: block;
+}

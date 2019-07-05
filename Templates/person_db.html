@@ -1,5 +1,8 @@
 {% extends "basic.html" %}
 
+{% block extra_styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='person_db.css') }}">
+{% endblock extra_styles %}
 
 {% block script %}
     <script type=text/javascript src="remove_person.js"></script>

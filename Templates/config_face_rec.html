@@ -4,7 +4,7 @@
 	<div class=" w3-container">
 		<h1 class="w3-text-teal">Face recognition settings</h1>
 
-		<form id="face-recognition-settings" action="/face_recognition_settings" method="post" style="margin-bottom: 15px; line-height: 2;">
+		<form id="face-recognition-settings" action="/face_recognition_settings" method="post" >
 			{%for webcam in cam_dict["webcams"]%}
 				{% set curid = webcam["id"] %}
 				{% set curname = 'Webcam' + curid|string %}

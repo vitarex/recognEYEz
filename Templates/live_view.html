@@ -21,8 +21,8 @@
 <!-- RECENT -->
   <div class="w3-row my-panel">
     <div class=" w3-container">
-	  <div style="max-width: 400px; float:right; margin-right: 0px;padding: 10px 0">
-		<img id="preview_img" src="/preview" style="max-width: 100%";}>
+	  <div class="preview-img-div">
+		<img id="preview_img" src="/preview" ;}>
 	  </div>
       <h1 class="w3-text-teal">Live View</h1>
 
@@ -35,8 +35,8 @@
   <div class="w3-row my-panel">
     <div class=" w3-container">
       <h1 class="w3-text-teal">Log</h1>
-		<div style="margin-right: 25px;padding-bottom: 20px;">
-			<p style=" max-height:600px; background: #222; overflow-y: scroll; word-wrap: break-word; width: 90%;">
+		<div class="log-div" >
+			<p>
 			{% for l in log %}
 			{{l.datetime}}: {{l.event}}<br>
 			{% endfor %}
