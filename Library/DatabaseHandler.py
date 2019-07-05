@@ -57,6 +57,16 @@ class Person(DBModel):
         with self._meta.database.atomic():
             self.save()
 
+    def change_pref(self, new_pref: str):
+        """Change person's preferences
+
+        Arguments:
+            new_pref {str} -- The new preferences of the person
+        """
+        self.pref = new_pref
+        with self._meta.database.atomic():
+            self.save()
+
     def merge_with(self, other: 'Person'):
         """Merge with other person
 
@@ -84,6 +94,11 @@ class Person(DBModel):
         """
         with self._meta.database.atomic():
             self.delete_instance()
+        self._invalidate_handler()
+
+    def remove_picture(self, image_name: str):
+        with self._meta.database.atomic():
+            next(i for i in self.images if i.name == image_name).delete_instance()
         self._invalidate_handler()
 
     def add_image(self, image_name: str, set_as_thumbnail: bool = False):
@@ -161,6 +176,13 @@ class Image(DBModel):
         """Set as the thumbnail for the person of this image
         """
         self.person.set_thumbnail(self)
+
+    def change_person(self, to_person: Person):
+        """Change the person of the image
+
+        Arguments:
+            to_person {Person} -- The new owner of the image
+        """
 
 
 class User(DBModel):
@@ -243,6 +265,9 @@ class DatabaseHandler(Handler):
 
     def get_user_by_name(self, name: str) -> User:
         return User.get(User.name == name)
+
+    def get_image_by_name(self, name: str) -> Image:
+        return Image.get(Image.name == name)
 
     def get_all_events(self) -> List:
         return UserEvent.select()
