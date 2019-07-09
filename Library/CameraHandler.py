@@ -56,6 +56,19 @@ class IPWebcam(Camera):
     def read(self):
         return self.cam.read()
 
+
+class PiCamera(Camera):
+    #resolutions = {"vga": [640, 480], "qvga": [320, 240], "qqvga": [
+        #160, 120], "hd": [1280, 720], "fhd": [1920, 1080]}
+
+    def __init__(self):
+        #res = self.resolutions[res]
+        self.cam = cv2.VideoCapture()
+        self.cam.set(3, 320)  # set video width
+        self.cam.set(4, 240)  # set video height
+        self.cam_is_running = True
+
+
 class CameraHandler(Handler):
     cam: Camera = None
     cam_lock: threading.RLock = threading.RLock()
@@ -143,6 +156,10 @@ class CameraHandler(Handler):
                     self.app.sh.get_face_recognition_settings(face_rec_dict["selected_camera"])["URL"],
                     self.app.sh.get_face_recognition_settings(face_rec_dict["selected_camera"])["resolution"])
                 self.cam_is_running = self.cam.cam_is_running
+            if face_rec_dict["selected_camera"] == "picamera":
+                self.cam = PiCamera()
+                    #self.app.sh.get_face_recognition_settings(face_rec_dict["selected_camera"])["resolution"])
+                self.cam_is_running = self.cam.cam_is_running
 
     def stop_cam(self):
         with self.cam_lock:
@@ -165,7 +182,7 @@ class CameraHandler(Handler):
             cam = cv2.VideoCapture(i)
         cam.release()
 
-        if platform.system == 'Linux' and platform.machine.startswith('arm'):
+        if platform.system() == 'Linux' and platform.machine().startswith('arm'):
             import subprocess
             c = subprocess.check_output(["vcgencmd", "get_camera"])
             if int(c.strip()[-1]):
