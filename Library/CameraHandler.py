@@ -68,6 +68,8 @@ class CameraHandler(Handler):
 
     def camera_start_processing(self):
         with self.cam_lock:
+            if not self.cam_is_running:
+                self.start_cam()
             logging.info("The camera handler object: {}".format(self))
             if self.app.fh\
                     and self.cam_is_running\
@@ -84,6 +86,7 @@ class CameraHandler(Handler):
     def camera_stop_processing(self):
         with self.cam_lock:
             if self.app.fh and self.cam_is_running and self.cam_is_processing:
+                self.stop_cam()
                 self.cam_is_processing = False
                 self.app.preview_image = cv2.imread(
                     str(Path("Static", "empty_pic.png")))
@@ -137,18 +140,23 @@ class CameraHandler(Handler):
                     active_camera_setting["URL"],
                     active_camera_setting["resolution"])
                 self.cam_is_running = self.cam.cam_is_running
+                logging.info("IP camera started")
             else:
                 self.cam = WebcamCamera(
                     active_camera_setting["preferred-id"],
                     active_camera_setting["resolution"])
                 self.cam_is_running = self.cam.cam_is_running
+                logging.info("Web camera started")
+            logging.info("Camera object: {}".format(self.cam))
 
     def stop_cam(self):
         with self.cam_lock:
             if self.cam_is_running:
+                self.cam_is_running = False
+                self.app.camera_thread.join()
+                self.app.camera_thread = None
                 if not self.cam.release():
                     raise Exception("Couldn't release camera object")
-                self.cam_is_running = False
 
     def available_cameras(self) -> int:
         """Discover the number of currently available cameras
