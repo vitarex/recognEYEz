@@ -142,18 +142,6 @@ class CameraHandler(Handler):
                     active_camera_setting["preferred-id"],
                     active_camera_setting["resolution"])
                 self.cam_is_running = self.cam.cam_is_running
-            """ face_rec_dict = self.app.sh.get_face_recognition_settings()
-            if face_rec_dict["selected_camera"].startswith("Webcam"):
-                if int(face_rec_dict["selected_camera"][-1]) == 0:
-                    self.cam = WebcamCamera(
-                        int(self.app.sh.get_face_recognition_settings()["selected_camera"][-1]),
-                        self.app.sh.get_face_recognition_settings(face_rec_dict["selected_camera"])["resolution"])
-                    self.cam_is_running = self.cam.cam_is_running
-            if face_rec_dict["selected_camera"] == "ipcamera":
-                self.cam = IPWebcam(
-                    self.app.sh.get_face_recognition_settings(face_rec_dict["selected_camera"])["URL"],
-                    self.app.sh.get_face_recognition_settings(face_rec_dict["selected_camera"])["resolution"])
-                self.cam_is_running = self.cam.cam_is_running """
 
     def stop_cam(self):
         with self.cam_lock:
