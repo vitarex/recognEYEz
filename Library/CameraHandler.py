@@ -99,7 +99,7 @@ class CameraHandler(Handler):
         error_count = 0
         try:
             while self.cam_is_running:
-                if ticker > int(self.app.sh.get_face_recognition_settings()["dnn-scan-freq-int-static"])\
+                if ticker > int(self.app.sh.get_face_recognition_settings()["dnn-scan-freq"])\
                         or self.app.force_rescan:
                     _, frame, _ = self.app.fh.process_next_frame(
                         True, save_new_faces=True)
