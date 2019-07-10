@@ -23,16 +23,17 @@ def change_password():
 def config_view():
     return render_template(
         "config.html",
-        frec=app.sh.get_face_recognition_settings(),
-        notif=app.sh.get_notification_settings(),
-        cam_dict=app.ch.available_cameras()
+        frec=app.sh.load_face_recognition_settings(),
+        camera_settings=app.sh.get_face_recognition_settings()["camera-settings"],
+        available_cameras=app.ch.available_cameras(),
+        notif=app.sh.get_notification_settings()
     )
 
 @jinja2.contextfilter
 @config_page.app_template_filter()
 def get_setting(_, frec, camera_name, setting_name):
-    for setting in frec["camera_settings"]:
-        if setting["camera"] == camera_name:
+    for setting in frec["camera-settings"]:
+        if setting["setting-name"] == camera_name:
             try:
                 return setting[setting_name]
             except KeyError:

@@ -4,8 +4,6 @@ import threading
 import datetime
 import cv2
 import numpy as np
-from typing import Dict
-import platform
 from Library.Handler import Handler
 
 
@@ -131,7 +129,20 @@ class CameraHandler(Handler):
             if self.cam_is_running:
                 return
 
-            face_rec_dict = self.app.sh.get_face_recognition_settings()
+            active_camera_setting = self.app.sh.get_camera_setting_by_name(
+                self.app.sh.get_face_recognition_settings()["selected-setting"])
+
+            if active_camera_setting["preferred-id"] == -1:
+                self.cam = IPWebcam(
+                    active_camera_setting["URL"],
+                    active_camera_setting["resolution"])
+                self.cam_is_running = self.cam.cam_is_running
+            else:
+                self.cam = WebcamCamera(
+                    active_camera_setting["preferred-id"],
+                    active_camera_setting["resolution"])
+                self.cam_is_running = self.cam.cam_is_running
+            """ face_rec_dict = self.app.sh.get_face_recognition_settings()
             if face_rec_dict["selected_camera"].startswith("Webcam"):
                 if int(face_rec_dict["selected_camera"][-1]) == 0:
                     self.cam = WebcamCamera(
@@ -142,7 +153,7 @@ class CameraHandler(Handler):
                 self.cam = IPWebcam(
                     self.app.sh.get_face_recognition_settings(face_rec_dict["selected_camera"])["URL"],
                     self.app.sh.get_face_recognition_settings(face_rec_dict["selected_camera"])["resolution"])
-                self.cam_is_running = self.cam.cam_is_running
+                self.cam_is_running = self.cam.cam_is_running """
 
     def stop_cam(self):
         with self.cam_lock:
@@ -151,27 +162,26 @@ class CameraHandler(Handler):
                     raise Exception("Couldn't release camera object")
                 self.cam_is_running = False
 
-    def available_cameras(self) -> Dict:
-        cameras = dict()
-        cameras['webcams'] = list()
+    def available_cameras(self) -> int:
+        """Discover the number of currently available cameras
+        This includes all hardware cameras, such as webcams and the RPi cam
+
+        Returns:
+            int -- Number of available hardware cameras
+        """
         i = 0
-
         cam = cv2.VideoCapture(i)
-        while cam.isOpened():
-            if cam.read()[1] is not None:
-                cameras['webcams'].append({'id': i})
+        try:
+            while cam.isOpened():
+                if cam.read()[1] is None:
+                    break
+                cam.release()
+                i += 1
+                cam = cv2.VideoCapture(i)
             cam.release()
-            i += 1
-            cam = cv2.VideoCapture(i)
-        cam.release()
-
-        if platform.system == 'Linux' and platform.machine.startswith('arm'):
-            import subprocess
-            c = subprocess.check_output(["vcgencmd", "get_camera"])
-            if int(c.strip()[-1]):
-                cameras['pi_camera'] = True
-            else:
-                cameras['pi_camera'] = False
-        else:
-            cameras['pi_camera'] = False
-        return cameras
+        except Exception as e:
+            logging.error(e)
+        finally:
+            if cam.isOpened():
+                cam.release()
+        return i

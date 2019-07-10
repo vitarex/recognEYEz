@@ -1,25 +1,23 @@
 {
-   "camera_settings": [
+   "camera-settings": [
       {
-         "camera": "Webcam0",
-         "resolution": "qvga",
-         "flip-cam": false
-      },
-      {
-         "camera": "ipcamera",
+         "setting-name": "defaultz",
+         "preferred-id": 0,
          "URL": "http://152.66.173.197:8080/video",
-         "flip-cam": false,
-         "resolution": "qvga"
+         "flip-cam": true,
+         "resolution": "vga"
       },
       {
-         "camera": "Webcam1",
-         "resolution": "fhd",
-         "flip-cam": false
+         "setting-name": "defaulwe",
+         "preferred-id": 0,
+         "URL": "http://152.66.173.197:8080/video",
+         "flip-cam": true,
+         "resolution": "fhd"
       }
    ],
-   "selected_camera": "Webcam0",
-   "dnn-tresh-float-static": 0.5,
-   "dnn-scan-freq-int-static": 1,
-   "force-dnn-on-new-static": true,
-   "cache-unknown-static": true
+   "selected-setting": "defaulwe",
+   "dnn-tresh": 0.5,
+   "dnn-scan-freq": 1,
+   "force-dnn-on-new": true,
+   "cache-unknown": true
 }
