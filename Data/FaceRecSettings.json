@@ -20,9 +20,14 @@
          "camera": "Webcam2",
          "resolution": "qvga",
          "flip-cam": false
+      },
+      {
+         "camera": "Webcam3",
+         "resolution": "qvga",
+         "flip-cam": false
       }
    ],
-   "selected_camera": "ipcamera",
+   "selected_camera": "Webcam0",
    "dnn-tresh-float-static": 0.5,
    "dnn-scan-freq-int-static": 1,
    "force-dnn-on-new-static": true,

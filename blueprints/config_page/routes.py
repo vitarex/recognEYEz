@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect
 from flask import current_app as app
 from flask_simplelogin import login_required
 import jinja2
-
+from Library.helpers import parse, parse_list, OKResponse
 import webapp
 
 config_page = Blueprint("config_page", __name__)
@@ -53,5 +53,6 @@ def update_face_recognition_settings():
 @config_page.route('/notification_settings', methods=['POST'])
 @login_required
 def update_notification_settings():
+    email, broker_url, port, topic, m_notif_spec, m_notif_kno, m_notif_unk, e_notif_spec, e_notif_kno, e_notif_unk = parse_list(request, ["email", "broker_url", "port", "topic", "m_notif_spec", "m_notif_kno", "m_notif_unk", "e_notif_spec", "e_notif_kno", "e_notif_unk"])
     app.sh.update_notification_settings(app.sh.transform_form_to_dict(request.form))
     return redirect("/config")
