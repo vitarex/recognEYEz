@@ -90,7 +90,7 @@ class FaceHandler(Handler):
         face_rec_dict = self.app.sh.get_face_recognition_settings()
         if not ret and frame is None:
             raise AssertionError("The camera didn't return a frame object. Maybe it failed to start properly.")
-        if self.app.sh.get_face_recognition_settings(face_rec_dict["selected_camera"])["flip-cam"] == True:
+        if self.app.sh.get_camera_setting_by_name(face_rec_dict["selected-setting"])["flip-cam"] is True:
             frame = cv2.flip(frame, -1)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -102,7 +102,7 @@ class FaceHandler(Handler):
         rect_to_person = dict()
         # executing DNN face recognition on found faces
         if use_dnn or ((len(face_rects) != len(self.visible_persons))
-                       and self.app.sh.get_face_recognition_settings()["force-dnn-on-new-static"]):
+                       and self.app.sh.get_face_recognition_settings()["force-dnn-on-new"]):
             # the returned object is a dictionary of rectangles to persons
             # only the rectangles that have a person associated with them are returned here
             rect_to_person = self.recognize_faces(
@@ -193,7 +193,7 @@ class FaceHandler(Handler):
             matches = face_recognition.compare_faces(
                 list(map(lambda encoding: np.frombuffer(encoding.encoding), known_encodings)),
                 e,
-                tolerance=float(self.app.sh.get_face_recognition_settings()["dnn-tresh-float-static"])
+                tolerance=float(self.app.sh.get_face_recognition_settings()["dnn-tresh"])
             )
             # if there was a match in the known persons
             if True in matches:
@@ -215,7 +215,7 @@ class FaceHandler(Handler):
                 unknown_encodings = self.get_unknown_encodings()
                 matches = face_recognition.compare_faces(
                     list(map(lambda encoding: np.frombuffer(encoding.encoding), unknown_encodings)), e, tolerance=float(
-                        self.app.sh.get_face_recognition_settings()["dnn-tresh-float-static"])
+                        self.app.sh.get_face_recognition_settings()["dnn-tresh"])
                 )
                 if True in matches:
                     found_encodings = list(
