@@ -13,7 +13,7 @@
 				</br>
 				
 				<label for="preferred-id-{{loop.index}}">Preferred camera</label>
-				<select name="preferred-id-int" id="preferred-id-{{loop.index}}">
+				<select name="preferred-id-int" class="preferred-id-select" id="preferred-id-{{loop.index}}">
 					{% if setting["preferred-id"] > available_cameras %}
 					{% set loop_length = setting["preferred-id"] + 1 %}
 					{% else %}
@@ -22,7 +22,7 @@
 					{% for i in range(loop_length) %}
 					<option value="{{i}}" {% if setting["preferred-id"] == i %} selected {% endif %}>Camera {{i}}</option>
 					{% endfor %}
-					<option value="-1" class="ipcam" {% if setting["preferred-id"] == -1 %} selected {% endif %}>IP Camera</option>
+					<option value="-1" id="ipcam-{{loop.index}}" class="ipcam" {% if setting["preferred-id"] == -1 %} selected {% endif %}>IP Camera</option>
 				</select>
 				</br>
 	
@@ -45,8 +45,8 @@
 				</select>
 				</br>
 	
-				<label for="url-{{loop.index}}">URL:</label>
-				<input type="url" class="url" id="url-{{loop.index}}" name="URL" size="30" value={{setting["URL"]}} disabled>
+				<label for="url-ipcam-{{loop.index}}">URL:</label>
+				<input type="url" class="url" id="url-ipcam-{{loop.index}}" name="URL" size="30" value={{setting["URL"]}} disabled>
 				</br>
 			<input type="submit" class="my-button my-delete-button" value="Delete">
 			</fieldset>

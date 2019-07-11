@@ -16,3 +16,8 @@ input {height:30px;}
     margin-bottom: 15px;
     line-height: 2;
 }
+
+.notification-table {
+    width: 100%;
+    table-layout: fixed;
+}

@@ -12,8 +12,8 @@ $(document).ready(function() {
     $("#" + e.target.id + "-surrogate").prop("checked", !e.target.checked);
   });
 
-  $(".ipcam").click(function)(e) {
-    $(".url").prop("disabled", true);
-    $("#url-" + e.target.id).prop("disabled", false);
-  }
+  $(".preferred-id-select").change(function(e) {
+    if (e.target.value == -1) $("#url-" + e.target.options[e.target.options.length-1].id).prop("disabled", false);
+    else $("#url-" + e.target.options[e.target.options.length-1].id).prop("disabled", true);
+  });
 });
