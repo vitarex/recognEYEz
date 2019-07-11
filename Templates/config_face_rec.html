@@ -14,6 +14,7 @@
 				
 				<label for="preferred-id-{{loop.index}}">Preferred camera</label>
 				<select name="preferred-id-int" id="preferred-id-{{loop.index}}">
+					{% if setting["preferred-id"] > available_cameras %}
 					{% set loop_length = setting["preferred-id"] + 1 %}
 					{% else %}
 					{% set loop_length = available_cameras %}
