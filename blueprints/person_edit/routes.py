@@ -62,10 +62,11 @@ def modify_person():
     logging.info("Modifying person {}".format(old_name))
     if old_name is None:
         return redirect('/person_db')
-    if new_name is not None:
-        app.dh.get_person_by_name(old_name).change_name(new_name)
     if extra is not None:
         app.dh.get_person_by_name(old_name).change_pref(extra)
+    if new_name is not None:
+        app.dh.get_person_by_name(old_name).change_name(new_name)
+        return redirect("/person_db")
 
     return OKResponse()
 

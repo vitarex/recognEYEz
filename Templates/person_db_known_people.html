@@ -16,8 +16,8 @@
                         <td><img src="Static/Images/{{ person.thumbnail.name }}"
                                     onerror="if (this.src != 'empty_pic.png') this.src = 'empty_pic.png';">
                         </td>
-                        <td class="font-size-20" id="name_{{ loop.index0 }}">{{ person.name }}</td>
-                        <td><pre class="word-wrap">{{ person.preference }}</pre></td>
+                        <td class="font-size-20" id="name_{{ loop.index0 }}"><pre class="word-wrap">{{ person.name }}</pre></td>
+                        <td class="font-size-20" ><pre class="word-wrap">{{ person.preference }}</pre></td>
                         <td>
                             <input type="button" class="text-center my-button my-edit-button" id="edit_{{ loop.index0 }}"
                                     onclick="location.href='{{ url_for('person_edit.edit_known_person') }}?name={{ person.name }}' "

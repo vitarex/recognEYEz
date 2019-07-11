@@ -13,7 +13,7 @@
   white-space: -o-pre-wrap;
   word-wrap: break-word;
   white-space: pre-wrap;
-  width: 300px;
+  width: 25%;
 }
 
 .remove-arg {
@@ -21,7 +21,7 @@
 }
 
 .person-table-header {
-  width: 160px;
+  width: 25%;
 }
 
 .text-center {
@@ -101,6 +101,10 @@
 }
 .person-name > td {
     text-align: center;
+}
+
+td {
+    max-width: 25%;
 }
 
 .tooltiptext > img {
