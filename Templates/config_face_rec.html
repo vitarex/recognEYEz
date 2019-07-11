@@ -22,7 +22,7 @@
 					{% for i in range(loop_length) %}
 					<option value="{{i}}" {% if setting["preferred-id"] == i %} selected {% endif %}>Camera {{i}}</option>
 					{% endfor %}
-					<option value="-1" {% if setting["preferred-id"] == -1 %} selected {% endif %}>IP Camera</option>
+					<option value="-1" class="ipcam" {% if setting["preferred-id"] == -1 %} selected {% endif %}>IP Camera</option>
 				</select>
 				</br>
 	
@@ -46,8 +46,9 @@
 				</br>
 	
 				<label for="url-{{loop.index}}">URL:</label>
-				<input type="url" id="url-{{loop.index}}" name="URL" size="30" value={{setting["URL"]}}>
+				<input type="url" class="url" id="url-{{loop.index}}" name="URL" size="30" value={{setting["URL"]}} disabled>
 				</br>
+			<input type="submit" class="my-button my-delete-button" value="Delete">
 			</fieldset>
 			{% endfor %}
 

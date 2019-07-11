@@ -175,6 +175,9 @@ th {
     background: orange; color: white; border:none; width: 150px; height: 50px;font-size: 24px; margin-bottom: 15px;
 }
 
+.my-delete-button {
+    background: red; color: white; border:none; width: 100px; height: 30px; margin-bottom: 15px; text-align: center;
+}
 
 .ui-dialog {width: 500px !important; background: #000; color: #fff; border-radius: 8px; z-index: 1000;
     /* box-shadow: 0 4px 100px 3000px rgba(0, 0, 0, 0.5), 0 6px 100px 3000px rgba(0, 0, 0, 0.5); */

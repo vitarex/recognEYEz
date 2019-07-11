@@ -11,4 +11,9 @@ $(document).ready(function() {
   $(".has-surrogate").click(function(e) {
     $("#" + e.target.id + "-surrogate").prop("checked", !e.target.checked);
   });
+
+  $(".ipcam").click(function)(e) {
+    $(".url").prop("disabled", true);
+    $("#url-" + e.target.id).prop("disabled", false);
+  }
 });
