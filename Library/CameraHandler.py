@@ -27,7 +27,7 @@ class OpencvCamera:
 
     def set_resolution(self, res: str):
         res = self.resolutions[res]
-        return self.cam.set(4, res[1]) and self.cam.set(3, res[0]) and False
+        return self.cam.set(4, res[1]) and self.cam.set(3, res[0])
 
     def read(self):
         return self.cam.read()
@@ -62,7 +62,7 @@ class CameraHandler(Handler):
                     and self.cam_is_running\
                     and not self.cam_is_processing:
                 self.app.fh.running_since = datetime.datetime.now()
-                if self.app.camera_thread is None:
+                if self.app.camera_thread is None or not self.camera_thread.isAlive():
                     self.app.camera_thread = threading.Thread(
                         target=self.camera_process, daemon=True)
                     self.app.camera_thread.start()
@@ -148,8 +148,8 @@ class CameraHandler(Handler):
         with self.cam_lock:
             if self.cam_is_running:
                 self.cam_is_running = False
-                self.app.camera_thread.join()
-                self.app.camera_thread = None
+                if self.app.camera_thread is not None:
+                    self.app.camera_thread.join()
                 if not self.cam.release():
                     raise Exception("Couldn't release camera object")
 

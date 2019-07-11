@@ -9,7 +9,7 @@
       },
       {
          "setting-name": "defaulwe",
-         "preferred-id": 0,
+         "preferred-id": 1,
          "URL": "http://152.66.173.197:8080/video",
          "flip-cam": false,
          "resolution": "qqvga"
