@@ -18,6 +18,7 @@ from Library.Mailer import Mailer
 from Library.FileHandler import FileHandler
 from Library.DatabaseHandler import Encoding, Person
 from Library.Handler import Handler
+from Library.CameraHandler import OpencvCamera
 
 
 class FaceHandler(Handler):
@@ -68,6 +69,14 @@ class FaceHandler(Handler):
     def get_unknown_encodings(self) -> List[Encoding]:
         return [encoding for person in self.app.dh.get_unknown_persons() for encoding in person.encodings]
 
+    def resize_if_needed(self, frame, face_rec_dict):
+        resolution = self.app.sh.get_camera_setting_by_name(face_rec_dict["selected-setting"])["resolution"]
+        if frame.shape[:2] != OpencvCamera.resolutions[resolution]:
+            if frame.shape[0] > OpencvCamera.resolutions[resolution][0]\
+                    and frame.shape[1] > OpencvCamera.resolutions[resolution][1]:
+                return cv2.resize(frame, OpencvCamera.resolutions[resolution])
+        return frame
+
     def process_next_frame(self, use_dnn=False, show_preview=False, save_new_faces=False):
         """
         If use_dnn is set, checks faces with a Neural Network, if not, then only detects the faces and tries to guess
@@ -88,6 +97,7 @@ class FaceHandler(Handler):
         with self.app.ch.cam_lock:
             ret, frame = self.app.ch.cam.read()
         face_rec_dict = self.app.sh.get_face_recognition_settings()
+        frame = self.resize_if_needed(frame, face_rec_dict)
         if not ret and frame is None:
             raise AssertionError("The camera didn't return a frame object. Maybe it failed to start properly.")
         if self.app.sh.get_camera_setting_by_name(face_rec_dict["selected-setting"])["flip-cam"] is True:
