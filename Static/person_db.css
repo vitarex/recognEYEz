@@ -1,7 +1,25 @@
 #known_persons {
   width: 100%;
   padding-bottom: 25px;
-  padding-right: 10px;
+  table-layout: fixed;
+}
+
+.known-td {
+  width: 25%;
+}
+
+.known-td > img {
+  width: 100%;
+}
+
+.known-td > span {
+  width: 100%;
+}
+
+.tooltip-inner-span {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  display: block;
 }
 
 .font-size-20 {
@@ -13,7 +31,6 @@
   white-space: -o-pre-wrap;
   word-wrap: break-word;
   white-space: pre-wrap;
-  width: 300px;
 }
 
 .remove-arg {
@@ -21,7 +38,7 @@
 }
 
 .person-table-header {
-  width: 160px;
+  width: 25%;
 }
 
 .text-center {
@@ -101,6 +118,10 @@
 }
 .person-name > td {
     text-align: center;
+}
+
+td {
+    max-width: 25%;
 }
 
 .tooltiptext > img {

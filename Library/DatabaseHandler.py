@@ -56,6 +56,7 @@ class Person(DBModel):
         self.name = new_name
         with self._meta.database.atomic():
             self.save()
+        self._invalidate_handler()
 
     def change_pref(self, new_pref: str):
         """Change person's preferences

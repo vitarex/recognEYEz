@@ -13,12 +13,22 @@
                 </tr>
                 {% for person in persons %}
                     <tr class="w3-hover-black">
-                        <td><img src="Static/Images/{{ person.thumbnail.name }}"
+                        <td class="known-td"><img src="Static/Images/{{ person.thumbnail.name }}"
                                     onerror="if (this.src != 'empty_pic.png') this.src = 'empty_pic.png';">
                         </td>
-                        <td class="font-size-20" id="name_{{ loop.index0 }}">{{ person.name }}</td>
-                        <td><pre class="word-wrap">{{ person.preference }}</pre></td>
+                        <td class="known-td font-size-20" id="name_{{ loop.index0 }}">
+                            <span class="tooltip">
+                                <span class="tooltiptext">{{ person.name }}</span>
+                                <span class="tooltip-inner-span">{{ person.name }}</span>
+                            </span>
+                        </td class="known-td">
                         <td>
+                            <span class="tooltip">
+                                <span class="tooltiptext">{{ person.preference }}</span>
+                                <span class="tooltip-inner-span">{{ person.preference }}</span>
+                            </span>
+                        </td>
+                        <td class="known-td">
                             <input type="button" class="text-center my-button my-edit-button" id="edit_{{ loop.index0 }}"
                                     onclick="location.href='{{ url_for('person_edit.edit_known_person') }}?name={{ person.name }}' "
                                     value="Edit" /><br>
