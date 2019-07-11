@@ -2,8 +2,9 @@ from flask import Blueprint, render_template, request, redirect
 from flask import current_app as app
 from flask_simplelogin import login_required
 import jinja2
-
+from Library.helpers import parse, parse_list, OKResponse
 import webapp
+import logging
 
 config_page = Blueprint("config_page", __name__)
 
@@ -56,3 +57,12 @@ def update_face_recognition_settings():
 def update_notification_settings():
     app.sh.update_notification_settings(app.sh.transform_form_to_dict(request.form))
     return redirect("/config")
+
+
+@config_page.route('/delete_camera_config', methods=['POST'])
+@login_required
+def remove_camera_settings():
+    camera_setting= parse(request, 'camera-settings', raise_if_none=True)
+    app.sh.remove_camera_settings(camera_setting)
+    logging.info("Removed camera setting {}".format(camera_setting))
+    return OKResponse()

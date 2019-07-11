@@ -2,6 +2,7 @@ from typing import Dict
 from pathlib import Path
 import json
 from Library.Handler import Handler
+from Library.helpers import InvalidUsage
 
 class SettingsHandler(Handler):
     __face_recognition_settings = dict()
@@ -126,3 +127,17 @@ class SettingsHandler(Handler):
                 return i
         current_settings_dict["camera-settings"].append({})
         return len(current_settings_dict["camera-settings"])-1
+
+    def remove_camera_settings(self, camera_setting: str):
+        new_dict = self.load_face_recognition_settings()
+        if len(new_dict["camera-settings"]) <= 1:
+            raise InvalidUsage("Cannot delete last camera setting")
+        index = self.get_current_settings_index(new_dict, camera_setting)
+        new_dict["camera-settings"].pop(index)
+        if new_dict["selected-setting"] == camera_setting:
+            new_dict["selected-setting"] = new_dict["camera-settings"][0]["setting-name"]
+        with open(Path("Data/FaceRecSettings.json"), 'w') as ffp:
+            json.dump(new_dict, ffp, indent=3)
+        self.__face_recognition_settings = new_dict
+
+
