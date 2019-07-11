@@ -11,16 +11,17 @@
 				<label for="setting-name-{{loop.index}}"></label>
 				<input type="text" name="setting-name" id="setting-name-{{loop.index}}" required value="{{setting["setting-name"]}}">
 				</br>
-
+				
 				<label for="preferred-id-{{loop.index}}">Preferred camera</label>
 				<select name="preferred-id-int" id="preferred-id-{{loop.index}}">
-					{% if setting["preferred-id"] > available_cameras %}
-					{% set available_cameras = setting["preferred-id"] %}
+					{% set loop_length = setting["preferred-id"] + 1 %}
+					{% else %}
+					{% set loop_length = available_cameras %}
 					{% endif %}
-					{% for i in range(available_cameras) %}
-					<option value="{{i}}">Camera {{i}}</option>
+					{% for i in range(loop_length) %}
+					<option value="{{i}}" {% if setting["preferred-id"] == i %} selected {% endif %}>Camera {{i}}</option>
 					{% endfor %}
-					<option value="-1">IP Camera</option>
+					<option value="-1" {% if setting["preferred-id"] == -1 %} selected {% endif %}>IP Camera</option>
 				</select>
 				</br>
 	
