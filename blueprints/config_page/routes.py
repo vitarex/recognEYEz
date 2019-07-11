@@ -61,8 +61,8 @@ def update_notification_settings():
 
 @config_page.route('/delete_camera_config', methods=['POST'])
 @login_required
-def remove_pic_for_person():
+def remove_camera_settings():
     name, image = parse(request, ['camera-settings'])
-    app.sh.get_person_by_name(name).remove_picture(image)
-    logging.info("Removed the image {} from the person {}".format(image, name))
+    app.sh.remove_camera_settings(image)
+    logging.info("Removed camera setting")
     return OKResponse()

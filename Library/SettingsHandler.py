@@ -127,7 +127,7 @@ class SettingsHandler(Handler):
         current_settings_dict["camera-settings"].append({})
         return len(current_settings_dict["camera-settings"])-1
 
-    def camera_settings(self, camera_settings):
+    def remove_camera_settings(self, camera_settings):
         new_dict = self.load_face_recognition_settings()
         for key, value, in new_dict:
             if key == camera_settings :
