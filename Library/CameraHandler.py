@@ -3,30 +3,31 @@ import logging
 import threading
 import datetime
 import cv2
-import numpy as np
 from Library.Handler import Handler
 
 
-class Camera:
-    """Base camera class"""
+class OpencvCamera:
+    resolutions = {"vga": (640, 480), "qvga": (320, 240), "qqvga": (
+        160, 120), "hd": (1280, 720), "fhd": (1920, 1080)}
 
-    def read(self):
-        return np.empty((0, 0))
-
-    def release(self) -> bool:
-        return True
-
-
-class WebcamCamera(Camera):
-    resolutions = {"vga": [640, 480], "qvga": [320, 240], "qqvga": [
-        160, 120], "hd": [1280, 720], "fhd": [1920, 1080]}
-
-    def __init__(self, cam_id: int, res: str):
-        res = self.resolutions[res]
-        self.cam = cv2.VideoCapture(cam_id)
-        self.cam.set(3, res[0])  # set video width
-        self.cam.set(4, res[1])  # set video height
+    def __init__(self, cam_id: int, url: str = None):
+        if url is not None:
+            self.cam = cv2.VideoCapture(url)
+        else:
+            self.cam = cv2.VideoCapture(cam_id)
         self.cam_is_running = True
+
+    @classmethod
+    def from_url(cls, url: str):
+        return cls(0, url)
+
+    @classmethod
+    def from_id(cls, id: int):
+        return cls(id)
+
+    def set_resolution(self, res: str):
+        res = self.resolutions[res]
+        return self.cam.set(4, res[1]) and self.cam.set(3, res[0]) and False
 
     def read(self):
         return self.cam.read()
@@ -40,22 +41,8 @@ class WebcamCamera(Camera):
             return False
 
 
-class IPWebcam(Camera):
-    resolutions = {"vga": [640, 480], "qvga": [320, 240], "qqvga": [
-        160, 120], "hd": [1280, 720], "fhd": [1920, 1080]}
-
-    def __init__(self, url: str, res: str):
-        res = self.resolutions[res]
-        self.cam = cv2.VideoCapture(url)
-        self.cam.set(3, res[0])  # set video width
-        self.cam.set(4, res[1])  # set video height
-        self.cam_is_running = True
-
-    def read(self):
-        return self.cam.read()
-
 class CameraHandler(Handler):
-    cam: Camera = None
+    cam: OpencvCamera = None
     cam_lock: threading.RLock = threading.RLock()
 
     def __init__(self, app):
@@ -135,18 +122,26 @@ class CameraHandler(Handler):
             active_camera_setting = self.app.sh.get_camera_setting_by_name(
                 self.app.sh.get_face_recognition_settings()["selected-setting"])
 
-            if active_camera_setting["preferred-id"] == -1:
-                self.cam = IPWebcam(
-                    active_camera_setting["URL"],
-                    active_camera_setting["resolution"])
-                self.cam_is_running = self.cam.cam_is_running
-                logging.info("IP camera started")
-            else:
-                self.cam = WebcamCamera(
-                    active_camera_setting["preferred-id"],
-                    active_camera_setting["resolution"])
-                self.cam_is_running = self.cam.cam_is_running
-                logging.info("Web camera started")
+            def create_camera():
+                if active_camera_setting["preferred-id"] == -1:
+                    self.cam = OpencvCamera.from_url(
+                        active_camera_setting["URL"])
+                    self.cam_is_running = self.cam.cam_is_running
+                    logging.info("IP camera started")
+                else:
+                    self.cam = OpencvCamera.from_id(
+                        active_camera_setting["preferred-id"])
+                    self.cam_is_running = self.cam.cam_is_running
+                    logging.info("Web camera started")
+
+            create_camera()
+            self.cam.set_resolution(active_camera_setting["resolution"])
+
+            if not self.cam.read()[0]:
+                logging.error("Could not set resolution. The camera might not support changing the resolution. Retrying...")
+                self.cam.release()
+                create_camera()
+
             logging.info("Camera object: {}".format(self.cam))
 
     def stop_cam(self):
