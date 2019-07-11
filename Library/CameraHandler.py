@@ -50,7 +50,6 @@ class CameraHandler(Handler):
         # loads video with OpenCV
         self.cam_is_running = False
         self.cam_is_processing = False
-        self.start_cam()
         logging.info("Camera opened")
 
     def camera_start_processing(self):
@@ -62,7 +61,7 @@ class CameraHandler(Handler):
                     and self.cam_is_running\
                     and not self.cam_is_processing:
                 self.app.fh.running_since = datetime.datetime.now()
-                if self.app.camera_thread is None or not self.camera_thread.isAlive():
+                if self.app.camera_thread is None or not self.app.camera_thread.isAlive():
                     self.app.camera_thread = threading.Thread(
                         target=self.camera_process, daemon=True)
                     self.app.camera_thread.start()
