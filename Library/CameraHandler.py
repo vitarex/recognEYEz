@@ -135,8 +135,9 @@ class CameraHandler(Handler):
                     logging.info("Web camera started")
 
             create_camera()
+            self.cam.set_resolution(active_camera_setting["resolution"])
 
-            if not self.cam.set_resolution(active_camera_setting["resolution"]):
+            if not self.cam.read()[0]:
                 logging.error("Could not set resolution. The camera might not support changing the resolution. Retrying...")
                 self.cam.release()
                 create_camera()
