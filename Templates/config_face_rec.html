@@ -48,7 +48,7 @@
 				<label for="url-ipcam-{{loop.index}}">URL:</label>
 				<input type="url" class="url" id="url-ipcam-{{loop.index}}" name="URL" size="30" value={{setting["URL"]}} disabled>
 				</br>
-			<input type="submit" class="my-button my-delete-button" value="Delete">
+				<button class="delete-setting" id="delete-setting-{{setting["setting-name"]}}">Delete</button>
 			</fieldset>
 			{% endfor %}
 
