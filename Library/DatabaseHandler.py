@@ -213,6 +213,8 @@ class User(DBModel):
         """
         if self.verify(old_password):
             self.password_hash = pwhash.str(new_password.encode())
+            with self._meta.database.atomic():
+                self.save()
             return True
         return False
 

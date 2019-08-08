@@ -74,7 +74,7 @@ function pic_to_thumbnail(name, image, success_func) {
 function delete_image(name, image, success_func) {
   $.ajax({
     url: $SCRIPT_ROOT + "/delete_image_of_person",
-    data: { name: name, image: image },
+    data: {name: name, image: image },
     type: "POST",
     success: success_func,
     error: function(error) {

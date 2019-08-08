@@ -1,8 +1,9 @@
-from flask import Blueprint, render_template, request, redirect
+from flask import Blueprint, render_template, request, redirect, session, Response, jsonify
 from flask import current_app as app
 from flask_simplelogin import login_required
 import jinja2
 from Library.helpers import parse, parse_list, OKResponse
+from nacl.exceptions import InvalidkeyError
 import webapp
 import logging
 
@@ -15,8 +16,12 @@ app: webapp.FHApp
 @config_page.route('/change_password', methods=['POST'])
 @login_required
 def change_password():
-    app.dh.get_user_by_name(request.form['username']).change_password(request.form["old_password"], request.form["new_password"])
-    return redirect("/config")
+    try:
+        username, old_password, new_password = parse_list(request, ['username', 'old_password', 'new_password'], True)
+        app.dh.get_user_by_name(username).change_password(old_password, new_password)
+    except InvalidkeyError as e:
+        return str(e), 401
+    return OKResponse()
 
 
 @config_page.route('/config')
@@ -27,7 +32,8 @@ def config_view():
         frec=app.sh.load_face_recognition_settings(),
         camera_settings=app.sh.get_face_recognition_settings()["camera-settings"],
         available_cameras=app.ch.available_cameras(),
-        notif=app.sh.load_notification_settings()
+        notif=app.sh.load_notification_settings(),
+        username=session['simple_username']
     )
 
 @jinja2.contextfilter
@@ -62,7 +68,7 @@ def update_notification_settings():
 @config_page.route('/delete_camera_config', methods=['POST'])
 @login_required
 def remove_camera_settings():
-    camera_setting = parse(request, 'camera-settings', raise_if_none=True)
+    camera_setting= parse(request, 'camera-settings', raise_if_none=True)
     app.sh.remove_camera_settings(camera_setting)
     logging.info("Removed camera setting {}".format(camera_setting))
     return OKResponse()
