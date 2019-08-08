@@ -18,7 +18,7 @@
 							Notify about unknown faces:  <br>
 							&nbsp;&nbsp;&nbsp;
 							<label for="e-notif-unk" class="switch">
-								<input type="checkbox" id="e-notif-unk-surrogate" name="e-notif-unk" value="off" {% if notgit b notif['e-notif-unk'] == True %} checked {% endif %} hidden>
+								<input type="checkbox" id="e-notif-unk-surrogate" name="e-notif-unk" value="off" {% if not notif['e-notif-unk'] == True %} checked {% endif %} hidden>
 								<input type="checkbox" class="has-surrogate" id="e-notif-unk" name="e-notif-unk" {% if notif['e-notif-unk'] == True %} checked {% endif %}>
 								<span class="slider round"></span>
 							</label><br>

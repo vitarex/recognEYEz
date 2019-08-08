@@ -4,8 +4,8 @@
    "port": "1883",
    "topic": "recogneyez",
    "m-notif-unk": false,
-   "m-notif-spec": false,
-   "m-notif-kno": false,
+   "m-notif-spec": true,
+   "m-notif-kno": true,
    "e-notif-spec": true,
    "e-notif-kno": true,
    "e-notif-unk": false
