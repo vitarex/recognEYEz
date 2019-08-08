@@ -157,7 +157,8 @@ class FaceHandler(Handler):
             cv2.imshow('camera', frame)
             cv2.waitKey(25) & 0xff
         if use_dnn:
-            logging.info("DNN FPS: {:.4f}".format(1/(time.time() - start_t)))
+            if time.time() - start_t != 0:
+                logging.info("DNN FPS: {:.4f}".format(1/(time.time() - start_t)))
         return self.visible_persons, frame, face_rects  # unknown_rects
 
     def detect_faces(self, gray):

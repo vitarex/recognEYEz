@@ -27,7 +27,7 @@ def config_view():
         frec=app.sh.load_face_recognition_settings(),
         camera_settings=app.sh.get_face_recognition_settings()["camera-settings"],
         available_cameras=app.ch.available_cameras(),
-        notif=app.sh.get_notification_settings()
+        notif=app.sh.load_notification_settings()
     )
 
 @jinja2.contextfilter
@@ -55,14 +55,14 @@ def update_face_recognition_settings():
 @config_page.route('/notification_settings', methods=['POST'])
 @login_required
 def update_notification_settings():
-    app.sh.update_notification_settings(app.sh.transform_form_to_dict(request.form))
+    app.sh.save_notification_configuration(app.sh.transform_form_to_dict(request.form))
     return redirect("/config")
 
 
 @config_page.route('/delete_camera_config', methods=['POST'])
 @login_required
 def remove_camera_settings():
-    camera_setting= parse(request, 'camera-settings', raise_if_none=True)
+    camera_setting = parse(request, 'camera-settings', raise_if_none=True)
     app.sh.remove_camera_settings(camera_setting)
     logging.info("Removed camera setting {}".format(camera_setting))
     return OKResponse()
