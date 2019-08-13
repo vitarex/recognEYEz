@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, session, Response, jsonify
+from flask import Blueprint, render_template, request, redirect, session
 from flask import current_app as app
 from flask_simplelogin import login_required
 import jinja2

@@ -19,7 +19,7 @@ $(document).ready(function() {
     let og = $(this).siblings(".setting-collapse")[0];
     toOpen = $(og);
     $(".setting-collapse").each(function() {
-      if (og != this) $(this).collapse('hide')
+      if (og != this) $(this).collapse('hide');
     });
   });
 

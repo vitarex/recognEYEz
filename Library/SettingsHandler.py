@@ -136,5 +136,3 @@ class SettingsHandler(Handler):
         with open(Path("Data/FaceRecSettings.json"), 'w') as ffp:
             json.dump(new_dict, ffp, indent=3)
         self.__face_recognition_settings = new_dict
-
-
