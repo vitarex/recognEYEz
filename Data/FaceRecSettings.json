@@ -4,18 +4,25 @@
          "setting-name": "defaultz",
          "preferred-id": 0,
          "URL": "http://152.66.173.197:8080/video",
-         "flip-cam": true,
-         "resolution": "vga"
+         "flip-cam": false,
+         "resolution": "qvga"
       },
       {
          "setting-name": "defaulwe",
+         "preferred-id": 1,
+         "URL": "http://asdadqwqwqw",
+         "flip-cam": true,
+         "resolution": "qvga"
+      },
+      {
+         "setting-name": "dadad",
          "preferred-id": 1,
          "URL": "http://asdad",
          "flip-cam": true,
          "resolution": "qvga"
       }
    ],
-   "selected-setting": "defaulwe",
+   "selected-setting": "defaultz",
    "dnn-tresh": 0.5,
    "dnn-scan-freq": 1.0,
    "force-dnn-on-new": true,
