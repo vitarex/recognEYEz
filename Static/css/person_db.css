@@ -1,0 +1,64 @@
+.tooltip-trigger{
+  z-index: 1095;
+}
+.tooltip-image{
+  padding: 0.25rem 0.5rem 0.25rem 0.5rem;
+  z-index: 1120;
+}
+
+.tooltip-image-wrapper{
+  width:40vw;
+  background-color: rgba(22, 22, 22, 0.9);
+  z-index: 1110;
+}
+
+.person-btn{
+  max-width: 15rem;
+  max-height: 3rem;
+  margin: 0.5rem 1rem 0.5rem 1rem;
+}
+
+.table-separated > .row{
+  border-radius: 5px;
+  overflow: hidden;
+  background-color: #5a6268;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.table-separated > .row > span{
+  padding: 0.5rem;
+}
+
+.table-separated > .row > span:first-child {
+  background-clip: padding-box;
+}
+
+.table-separated > .row > span:last-child{
+  background-color: #6e7880;
+  background-clip: padding-box;
+}
+
+.word-wrap {
+  white-space: -moz-pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.text-center {
+  text-align: center;
+}
+
+#remove-confirmation {
+  display: none;
+}
+
+.ui-icon.ui-icon-alert {
+  float: left;
+  margin: 12px 12px 20px 0;
+}
+
+.person-name > td {
+    text-align: center;
+}

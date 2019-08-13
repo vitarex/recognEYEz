@@ -1,28 +1,35 @@
-<div class="w3-row my-panel">
-    <span id="person-name" hint="Name">{{ person.name }}</span>
-    <div class=" w3-container">
-        <h1 class="w3-text-teal">Basic info</h1>
-        <form action="{{ url_for('person_edit.modify_person') }}" method="post" id="basic-info-form">
-            <div>
-                <div>
-
-                    <img id="thumbnail-pic" src="{{ url_for('static', filename='Images/' + person.thumbnail.name) }}"
-                        onerror="if (this.src != 'empty_pic.png') this.src = '{{ url_for('static', filename='empty_pic.png') }}';"
-                    >
+<div class="card content-card bg-dark text-light">
+    <div class="card-body">
+        <span class="d-none" id="person-name" hint="Name">{{ person.name }}</span>
+        <h1 class="card-title">Basic info</h1>
+        <div class="row">
+            
+            <div class="col-12 col-md-6 col-lg-4">
+                
+                <img id="thumbnail-pic" class="rounded w-100 mx-auto" src="{{ url_for('static', filename='Images/' + person.thumbnail.name) }}"
+                onerror="if (this.src != 'empty_pic.png') this.src = '{{ url_for('static', filename='empty_pic.png') }}';"
+                >
+            </div>
+            
+            <div class="col-12 col-md-6">
+                <form action="{{ url_for('person_edit.modify_person') }}" method="post" id="basic-info-form">
+                    <span class="font-size-14">Name:</span>
                     <br>
-                    <input type="submit" class="my-button my-save-button" value="Save">
-                </div>
-
-
-                Name:<br>
-                <input id="owner-name" type="text" name="new_name" value="{{ person.name }}">
-                <br>
-                Extra:<br>
-                <textarea form="basic-info-form" name="extra">{{person.pref}}</textarea>
-                <input type="hidden" name="old_name" value="{{ person.name }}">
-
-
-            </form>
+                    <input id="owner-name" class="font-size-14 form-control" type="text" name="new_name" value="{{ person.name }}">
+                    <br>
+                    <span class="font-size-14">Preference:</span>
+                    <br>
+                    <textarea class="form-control" form="basic-info-form" name="extra">
+                        {% if person.preference %}
+                        {{person.preference}}
+                        {% endif %}
+                    </textarea>
+                    <input type="hidden" name="old_name" value="{{ person.name }}"> 
+                    <br>
+                    <input type="submit" class="btn btn-secondary btn-block font-size-14" value="Save">
+                </form>
+            </div>
+                
         </div>
 
     </div>

@@ -1,38 +1,50 @@
- <div id="remove-confirmation"  title="Remove person">
-    <div>
-        <span class="ui-icon ui-icon-alert" ></span>
-        The person (<b><span id="remove-dialog-text"></span> </b>) and the associated data will be permanently deleted. Are you sure?
+<div id="add-or-merge-dialog" class="dialog-overlay row justify-content-center align-items-center">
+    <div class="card dialog-card col-10 col-md-8 col-lg-6 bg-dark text-light">
+        
+        <span id="selected-add-or-merge-name" class="d-none"></span>
+        <span id="selected-add-or-merge-folder" class="d-none"></span>
+        <div class="card-body">
+            <h1 class="card-title">
+                Add or merge unknown
+            </h1>
+
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-10 row justify-content-center border-bottom border-secondary">
+                    <button id="add-btn" class="col-8 btn btn-block btn-success m-3 font-size-14" >
+                        Add as new person
+                    </button>
+                </div>
+
+                {% if (persons|length + unk_persons|length) > 1 %}
+                <div class="col-12 col-md-10 pt-4 justify-content-center row border-bottom border-secondary">
+                    <div id="current-owner" class="d-none"></div>
+                    <div id="moving-pic-name" class="d-none"></div>
+                    
+                    <span class="pr-2 font-size-14">Choose a person to merge with:</span>
+                    <select id="merge-options-copy" class="d-none form-control col-12 col-md-8 col-lg-4 font-size-14" >
+                        {% for person in persons %}
+                            <option value="{{ person.name }}">{{ person.name }}</option>
+                        {% endfor %}
+                        {% for person in unk_persons %}
+                            <option value="{{ person.name }}">{{ person.name }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <button id="merge-btn" class="col-8 btn btn-block btn-warning m-3 font-size-14">
+                        Merge
+                    </button>
+                </div>
+                {% endif %}
+                
+                <div class="col-12 col-md-10 row justify-content-center">
+                    <button id="cancel-add-small" class="col-8 btn btn-block btn-secondary m-3 font-size-14" >
+                        Cancel
+                    </button>
+                </div>
+        
+                <button id="cancel-add-bg" class="cancel-add-or-merge d-none" >
+                </button>
+            </div>
+        </div>
     </div>
-</div>
-
-
-<div id="add-or-merge-dialog" >
-    <span id="selected-add-or-merge-name" ></span>
-    <span id="selected-add-or-merge-folder" ></span>
-    <span id="add-or-merge-inside">
-        <div id="current-owner" ></div>
-        <div id="moving-pic-name" ></div>
-        Choose a person to merge with: <br>
-        <select id="merge-options" >
-            {% for person in persons %}
-                <option value="{{ person.name }}">{{ person.name }}</option>
-            {% endfor %}
-            {% for person in unk_persons %}
-                <option value="{{ person.name }}">{{ person.name }}</option>
-            {% endfor %}
-        </select>
-        <button id="merge-btn" class="tbutton" >
-            Merge
-        </button>
-        <br/>
-        <br/>
-        <button id="add-btn" class="my-button" >
-            Add as new person
-        </button>
-        <button id="cancel-add-small" class="cancel-add-or-merge my-button" >
-            Cancel
-        </button>
-    </span>
-    <button id="cancel-add-bg" class="cancel-add-or-merge" >
-    </button>
 </div>

@@ -1,23 +1,35 @@
-<div class="w3-row my-panel">
-    <div class=" w3-container">
-        <h1 class="w3-text-teal">Pictures</h1>
-        <div>
-            IMPORTANT: <br>Adding or removing a picture will not take effect on the face-recognition instantly. Please consider the "Retrain" option on the left side to update the algorithm. It can take several minutes, during that time the services will not work.
+<div class="card content-card bg-dark text-light">
+    <div class="card-body">
+        <h1 class="card-title">Pictures</h1>
+        <div class="warning-color-muted rounded p-2">
+            IMPORTANT: <br>Adding or removing a picture will not take effect on the face-recognition instantly. Please consider the Retrain quick action to update the algorithm. It can take several minutes, during that time the services will not work.
         </div>
-        <div>
+        <div class="row d-flex m-0">
             {% for img in person.images %}
-                <div class="outer-face" id="outer-face-{{ loop.index0 }}">
+                <div class="outer-face flex-wrap col-4 col-lg-3 p-2 pt-3" id="outer-face-{{ loop.index0 }}">
 
-                    <img src="{{url_for('static', filename='Images/' + img.name)}}">
+                    <img class="w-100 rounded" src="{{url_for('static', filename='Images/' + img.name)}}">
 
-                    <div id="inner-face-{{ loop.index0 }}" class="inner-face">
+                    <div id="inner-face-{{ loop.index0 }}" class="inner-face d-flex">
                         <input class="img-name-value" type="hidden" value="{{img.name}}">
-                        <button type="button" class="pic-btn make-thumb">
-                            Make Thumbnail</button>
-                        <button type="button" class="pic-btn change-pers">
-                            Change Person</button>
-                        <button type="button" class="pic-btn remove-pic">
-                            Remove</button>
+                        <div class="overlay-inner-face d-none d-md-flex flex-column h-60 my-auto w-100 align-items-center justify-content-around">
+                            <button type="button" class="pic-btn make-thumb">
+                                Make Thumbnail</button>
+                            <button type="button" class="pic-btn change-pers">
+                                Change Person</button>
+                            <button type="button" class="pic-btn remove-pic">
+                                Remove</button>
+                        </div>
+                        <div class="full-screen grow-inner-face d-flex d-md-none flex-column align-items-center justify-content-around">
+                            <div class="d-flex flex-column align-items-center justify-content-around h-50">
+                                <button type="button" class="pic-btn make-thumb font-size-14 p-4">
+                                    Make Thumbnail</button>
+                                <button type="button" class="pic-btn change-pers font-size-14 p-4">
+                                    Change Person</button>
+                                <button type="button" class="pic-btn remove-pic font-size-14 p-4">
+                                    Remove</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             {% endfor %}

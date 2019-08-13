@@ -1,28 +1,70 @@
-{% extends "basic_plain.html" %}
-{%block topbar%}
-<span class="w3-bar-item w3-button w3-theme-l1">Login</span>
-{%endblock topbar%}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block script %}
+<head>
+    <title>recognEYEz</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-black.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/basic.css') }}">
+    {% block extra_styles %}
+    {% endblock extra_styles %}
+    <!--<link rel="stylesheet" href="basic.css">-->
+</head>
 
-<script type=text/javascript src="login.js">
-</script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"
+    integrity="sha256-0YPKAwZP7Mp3ALMRVB2i8GXeEndvCq3eSl/WsAl1Ryk=" crossorigin="anonymous"></script>
+<script type=text/javascript src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
+<script type=text/javascript> $SCRIPT_ROOT={{ request.script_root|tojson|safe }}; </script>
+<script type=text/javascript src="{{ url_for('static', filename='js/login.js') }}"></script>
 
-{%endblock script%}
+<body class="bg-secondary full-height">
+    {% block script %}
+    {% endblock script %}
 
-{%block content%}
+    <nav class="fixed-top navbar navbar-dark bg-dark align-items-start">
+        <a class="navbar-brand font-size-14" href="#">RecognEYEz</a>
+    </nav>
+    <div class="container-fluid full-height">
+        <div class="row">
+            <div class="col-lg bg-secondary center-block full-height">
+                <div class="d-flex h-100 align-items-center full-height">
+                    <div class="card content-card text-white bg-dark boxshad col-lg-5 align-items-center">
+                        <div class="card-body text-center col-lg-12 d-flex flex-column">
+                            <div class="card-title text-center">
+                                <h2>
+                                    Login
+                                </h2>
+                            </div>
+                            <hr class="bg-light col-8 col-lg-6 mx-auto">
+                            </br>
+                            <form action="{{ url_for('simplelogin.login') }}" method="post">
+                                <div class="form-group d-flex flex-column align-items-center col-lg-10 mx-auto">
+                                    {{ form.csrf_token }}
+                                    {{ form.username(class="form-control", placeholder="Username") }}
+                                    <br>
+                                    {{ form.password(class="form-control", placeholder="Password") }}
+                                    <br>
+                                    {% if next %}<input type="hidden" name="next" value="{{next}}">{% endif %}
+                                </div>
+                                <input class="btn btn-light btn-lg btn-block col-lg-6 mx-auto" type="submit" value="Login" autofocus>
+                            </form>
+                        </div>
+                        <!-- END MAIN -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer class="fixed-bottom p-3 bg-dark text-white pl-5">
+            <span>&copy; 2018 - RecognEYEz: open source face recognition for the smart home environment</span>
+            <span>by <a target="_blank" href="https://github.com/vitarex/recognEYEz">Vitarex Studio Ltd</a></span>
+        </footer>
+    </div>
+</body>
 
-<div class="w3-main loginbox boxshad" >
-    <form action="{{ url_for('simplelogin.login') }}" method="post" >
-        <div class="form-group" >
-            {{ form.csrf_token }}
-            {{form.username.label}}<div class="form-control"> {{ form.username }}</div><br>
-            {{form.password.label}}<div class="form-control"> {{ form.password }}</div><br>
-            {% if next %}<input type="hidden" name="next" value="{{next}}">{% endif %}
-        
-    </form>
-    <input class="myloginbutton" type="submit" value="Login" autofocus>
-    </form>
-    <!-- END MAIN -->
-</div>
-{%endblock content%}
+</html>

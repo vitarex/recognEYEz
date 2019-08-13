@@ -1,93 +1,92 @@
-{% extends "basic_plain.html" %}
-{%block topbar%}
-<span class="w3-bar-item  w3-theme-l4" >RecognEYEz</span>
+<!DOCTYPE html>
+<html lang="en">
 
-  <a href="/" id="tab-live-view" class="w3-bar-item w3-button">Live View</a>
+<head>
+	<title>recognEYEz</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+	<link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-black.css">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/basic.css') }}">
+	{% block extra_styles %}
+	{% endblock extra_styles %}
+	<!--<link rel="stylesheet" href="basic.css">-->
+</head>
 
-  <a href="/config" id="tab-config" class="w3-bar-item w3-button">Configuration</a>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"
+	integrity="sha256-0YPKAwZP7Mp3ALMRVB2i8GXeEndvCq3eSl/WsAl1Ryk=" crossorigin="anonymous"></script>
+<script type=text/javascript src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
+<script type=text/javascript> $SCRIPT_ROOT={{ request.script_root|tojson|safe }}; </script>
+<body class="bg-dark full-height">
+	{% block script %}
+	{% endblock script %}
+	
+	<div class="container-fluid full-height">
+		<div class="row full-height">
+			{% block navbar %}
+			<div class="col-lg-2 bg-dark">
+				<nav class="navbar navbar-dark bg-dark navbar-expand-lg flex-lg-column h-100 align-items-start">
+					<a class="navbar-brand font-size-14" href="#">RecognEYEz</a>
+					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+						<span class="navbar-toggler-icon"></span>
+					</button>
+					<div class="collapse navbar-collapse align-items-start" id="navbarNavDropdown">
+						<ul class="navbar-nav mr-auto flex-lg-column">
+							<hr class="nav-divider" />
+							<li class="nav-item {%block nav_liveview_active%}{%endblock nav_liveview_active%}">
+								<a class="nav-link font-size-12" href="/">Live view</a>
+							</li>
+							<li class="nav-item {%block nav_config_active%}{%endblock nav_config_active%}">
+								<a class="nav-link font-size-12" href="/config">Configuration</a>
+							</li>
+							<li class="nav-item {%block nav_database_active%}{%endblock nav_database_active%}">
+								<a class="nav-link font-size-12" href="/person_db">Database</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link font-size-12" href="/logout">Logout</a>
+							</li>
+							<hr class="nav-divider" />
+							<li class="nav-item mb-2">
+								<span class="text-light font-size-12">Quick actions</span>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link pl-3" href="/start_camera">Start camera</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link pl-3" href="/stop_camera">Stop camera</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link pl-3" href="/force_rescan">Force rescan</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link pl-3" href="/retrain">Retrain</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link pl-3" href="/hard_reset">Hard reset</a>
+							</li>
+						</ul>
+					</div>
+				</nav>
+			</div>
+			{% endblock navbar %}
+			<div class="col-lg bg-secondary full-height scrollable center-block">
+					{%block content%}
+					{%endblock content%}
+				<footer class="responsive-footer bg-dark d-block d-lg-none text-light p-3  pl-5">
+					<span>&copy; 2018 - RecognEYEz: open source face recognition for the smart home environment</span>
+					<span >by <a target="_blank" href="https://github.com/vitarex/recognEYEz">Vitarex Studio Ltd</a></span>
+				</footer>
+			</div>
+		</div>
+		<footer class="fixed-bottom p-3 bg-dark d-none d-lg-block text-light pl-5">
+			<span>&copy; 2018 - RecognEYEz: open source face recognition for the smart home environment</span>
+			<span >by <a target="_blank" href="https://github.com/vitarex/recognEYEz">Vitarex Studio Ltd</a></span>
+		</footer>
+	</div>
+</body>
 
-  <a href="/person_db" id="tab-person-db" class="w3-bar-item w3-button">People DB</a>
-
-  <a href="/logout" class="w3-bar-item w3-button w3-hide-small w3-hover-white" >Logout</a>
-
-<script>
-var pathname = window.location.pathname;
-
-var e = document.getElementById("tab-live-view");
-if (pathname == "/")
-{
-  e.classList.add("w3-theme-l1");
-}
-else
-{
-  e.classList.add("w3-hide-small", "w3-hover-white");
-}
-
-e = document.getElementById("tab-config");
-if (pathname == "/config")
-{
-  e.classList.add("w3-theme-l1");
-}
-else
-{
-  e.classList.add("w3-hide-small", "w3-hover-white");
-}
-
-e = document.getElementById("tab-person-db");
-if (pathname == "/person_db")
-{
-  e.classList.add("w3-theme-l1");
-}
-else
-{
-  e.classList.add("w3-hide-small", "w3-hover-white");
-}
-</script>
-
-
-
-
-{%endblock topbar%}
-
-
-
-{% block script %} 
-
-{% endblock script %} 
-
-
-
-{%block content%}
-
-<!-- Sidebar -->
-<nav class="w3-sidebar w3-bar-block w3-collapse w3-large w3-animate-left" id="my-sidebar">
-  <a href="javascript:void(0)" onclick="w3_close()" class="w3-right w3-xlarge w3-padding-large w3-hover-black w3-hide-large"
-    title="Close Menu">
-    <i class="fa fa-remove"></i>
-  </a>
-  <h4 class="w3-bar-item"><b>Actions</b></h4>
-  <a class="w3-bar-item w3-button w3-hover-black" href="/start_camera">Start Camera</a>
-  <a class="w3-bar-item w3-button w3-hover-black" href="/stop_camera">Stop Camera</a>
-  <a class="w3-bar-item w3-button w3-hover-black" href="/force_rescan">Force Rescan</a>
-  <a class="w3-bar-item w3-button w3-hover-black" href="/retrain">Retrain</a>
-  <a class="w3-bar-item w3-button w3-hover-black" href="/hard_reset">Hard Reset</a>
-</nav>
-
-<div class="w3-main" >
-  <div class="main-block">
-    {%block main_content%}
-    {%endblock main_content%}
-  </div>
-
-  <!-- END MAIN -->
-
-
-  <footer id="myFooter">
-    <div class="w3-container w3-theme-l2 w3-padding-16" >
-      <span>&copy; 2018 - RecognEYEz: open source face recognition for the smart home environment</span>
-      <span >by <a target="_blank" href="https://github.com/vitarex/recognEYEz">Vitarex Studio Ltd</a></span>
-    </div>
-  </footer>
-</div>
-
-{%endblock content%}
+</html>

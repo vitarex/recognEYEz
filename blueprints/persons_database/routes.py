@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect
 from flask import current_app as app
 from flask_simplelogin import login_required
 import logging
+from Library.helpers import parse, OKResponse
 
 persons_database = Blueprint("persons_database", __name__)
 
@@ -33,28 +34,16 @@ def person_db_view():
         folder_location=app.config["PICTURE_FOLDER"]
     )
 
-@persons_database.route('/_remove_person')
+@persons_database.route('/remove_person', methods=['POST'])
 @login_required
 def remove_person():
     """When remove is clicked on person db page"""
-    name = request.args.get('p', "missing argument", type=str)
+    name = parse(request, "name", True)
     logging.info("Removing: " + name)
     app.dh.get_person_by_name(name).remove()
     logging.info("Removed: " + name)
     app.dh.invalidate()
-    return redirect("/person_db")
-
-
-@persons_database.route('/_remove_unknown_person')
-@login_required
-def remove_unknown_person():
-    """When remove is clicked on person db page"""
-    name = request.args.get('p', "missing argument", type=str)
-    logging.info("Removing: " + name)
-    app.dh.get_person_by_name(name).remove()
-    logging.info("{} removed successfully from the database".format(name))
-    app.dh.invalidate()
-    return redirect("/person_db")
+    return OKResponse()
 
 
 @persons_database.route('/_merge_with')

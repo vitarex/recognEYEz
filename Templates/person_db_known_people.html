@@ -1,44 +1,52 @@
-<div class="w3-row my-panel">
+<div class="card content-card bg-dark text-light">
 
-    <div class=" w3-container">
+    <div class="card-body">
 
-        <h1 class="w3-text-teal">Known people</h1>
+        <h1 class="card-title">Known people</h1>
 
-            <table id="known_persons">
-                <tr>
-                    <th class="person-table-header">Picture</th>
-                    <th>Name</th>
-                    <th class="person-table-header">Information</th>
-                    <th class="person-table-header">Actions</th>
-                </tr>
-                {% for person in persons %}
-                    <tr class="w3-hover-black">
-                        <td class="known-td"><img src="Static/Images/{{ person.thumbnail.name }}"
-                                    onerror="if (this.src != 'empty_pic.png') this.src = 'empty_pic.png';">
-                        </td>
-                        <td class="known-td font-size-20" id="name_{{ loop.index0 }}">
-                            <span class="tooltip">
-                                <span class="tooltiptext">{{ person.name }}</span>
-                                <span class="tooltip-inner-span">{{ person.name }}</span>
+        {% for person in persons %}
+        <div class="known-person-wrapper row bg-dark text-light border border-secondary m-2 rounded justify-content-center ">
+            <div class="col-11 col-md-10 col-lg-8">
+                <div class="row justify-content-center align-items-center">
+                    <div class="col-10 col-md-4 p-3">
+                        <img class="w-100 rounded" src="Static/Images/{{ person.thumbnail.name }}"
+                            onerror="if (this.src != 'empty_pic.png') this.src = 'empty_pic.png';">
+                    </div>
+                    <div class="table-separated col-12 col-md-8 text-light">
+                        <div class="row">
+                            <span class="d-inline col">
+                                Name
                             </span>
-                        </td class="known-td">
-                        <td>
-                            <span class="tooltip">
-                                <span class="tooltiptext">{{ person.preference }}</span>
-                                <span class="tooltip-inner-span">{{ person.preference }}</span>
+                            <span class="d-inline col">
+                                {{person.name}}
                             </span>
-                        </td>
-                        <td class="known-td">
-                            <input type="button" class="text-center my-button my-edit-button" id="edit_{{ loop.index0 }}"
-                                    onclick="location.href='{{ url_for('person_edit.edit_known_person') }}?name={{ person.name }}' "
-                                    value="Edit" /><br>
-                            <button class="my-button my-remove-button remove-person-btn" id="remove_{{ loop.index0 }}">
-                                Remove
-                                <span class="remove-arg">{{ person.name }}</span>
-                            </button>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </table>
+                        </div>
+                        <div class="row">
+                            <span class="d-inline col">
+                                Preference
+                            </span>
+                            <span class="d-inline col">
+                                {{person.preference}}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-4 d-flex flex-column">
+                <div class="row my-auto justify-content-center align-items-center">
+                    <button class="col col-lg-8 person-btn btn btn-secondary"
+                        id="edit_{{ loop.index0 }}"
+                        onclick="location.href='{{ url_for('person_edit.edit_known_person') }}?name={{ person.name }}' ">
+                        Edit
+                    </button>
+                    <button class="col col-lg-8 person-btn btn btn-danger remove-person-button"
+                        id="remove_{{ loop.index0 }}">
+                        Remove
+                        <span class="remove-arg d-none">{{ person.name }}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
     </div>
 </div>

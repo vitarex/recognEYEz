@@ -1,42 +1,28 @@
-<div id="confirmation">
-
-    <div id="dialog-title">Remove picture</div>
-
-    <div>
-        Are you sure?
-        <br>
-        This action cannot be undone.
+<div class="dialog-overlay row justify-content-center align-items-center" id="choose-new-owner">
+    <div class="card dialog-card col-10 col-md-8 col-lg-6 bg-dark text-light">
+        <div class="card-body">
+            <div id="current-owner" class="d-none"></div>
+            <div id="moving-pic-name" class="d-none"></div>
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-10 pt-4 justify-content-center row border-bottom border-secondary">
+                    <span class="pr-2 font-size-14">Choose who is on the picture:</span>
+                    <select id="possible-persons" class="form-control col-12 col-md-8 col-lg-4 font-size-14">
+                        {% for known_person in known_persons %}
+                            {% if known_person.name != person.name %}
+                            <option value="{{known_person.name}}">{{ known_person.name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <button id="change-person-btn" class="col-8 btn btn-block btn-success m-3 font-size-14">
+                        Change
+                    </button>
+                </div>
+                <div class="col-12 col-md-10 row justify-content-center">
+                    <button id="cancel-person-change-small" class="col-8 btn btn-block btn-secondary m-3 font-size-14">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
-    Removing:
-    <div id="removing-pic-name">
-        asdasd
-    </div>
-    <button id="remove-pic-btn" class="my-button">
-        Remove
-    </button>
-    <button id="cancel-small" class="cancel-pic-delete my-button">
-        Cancel
-    </button> 
-    <button id="cancel-bg" class="cancel-pic-delete"></button>
-</div>
-
-<div id="choose-new-owner">
-    <div id="current-owner"></div>
-    <div id="moving-pic-name"></div>
-    Choose who is on the picture: <br>
-    <select id="possible-persons">
-        {% for known_person in known_persons %}
-            {% if known_person.name != person.name %}
-            <option value="{{known_person.name}}">{{ known_person.name }}</option>
-            {% endif %}
-        {% endfor %}
-    </select>
-    <button id="change-person-btn" class="my-button">
-        Change
-    </button>
-    <button id="cancel-person-change-small" class="cancel-person-change my-button">
-        Cancel
-    </button>
-    <button id="cancel-person-change-bg" class="cancel-person-change">
-    </button>
 </div>

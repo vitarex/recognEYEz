@@ -1,10 +1,11 @@
 {% extends "basic.html" %}
 
 {% block extra_styles %}
-	<link rel="stylesheet" href="{{ url_for('static', filename='config.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/config.css') }}">
 {% endblock extra_styles %}
 
-{%block main_content%}
+{%block nav_config_active%}active{%endblock nav_config_active%}
+{%block content%}
 
 	{% include 'config_face_rec.html' %}
 
@@ -12,5 +13,5 @@
 
 	{% include 'config_password.html' %}
 
-{%endblock main_content%}
+{%endblock content%}
 

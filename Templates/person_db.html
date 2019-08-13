@@ -1,16 +1,16 @@
 {% extends "basic.html" %}
 
 {% block extra_styles %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='person_db.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/person_db.css') }}">
 {% endblock extra_styles %}
 
 {% block script %}
-    <script type=text/javascript src="remove_person.js"></script>
-    <script type=text/javascript src="add_or_merge_unknown.js"></script>
+    <script type=text/javascript src="js/remove_person.js"></script>
+    <script type=text/javascript src="js/add_or_merge_unknown.js"></script>
 {% endblock script %}
 
-
-{%block main_content%}
+{%block nav_database_active%}active{%endblock nav_database_active%}
+{%block content%}
 
     {% include 'person_db_known_people.html' %}
 
@@ -18,5 +18,5 @@
 
     {% include 'person_db_dialogs.html' %}
 
-{%endblock main_content%}
+{%endblock content%}
 

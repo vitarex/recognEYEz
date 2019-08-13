@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect
+from flask import Blueprint, render_template, request, redirect, jsonify
 from flask import current_app as app
 from flask_simplelogin import login_required
 from pathlib import Path
@@ -18,10 +18,17 @@ person_edit = Blueprint("person_edit", __name__, static_folder=stat_folder, stat
 @login_required
 def change_pic_owner():
     """Places the selected pic to the selected persons folder"""
-    old_name, new_name, pic = parse_list(request, ['oname', 'nname', 'image'], raise_if_none=True)
-    logging.info("Moving picture {} from {} to {}".format(pic, old_name, new_name))
-    app.dh.get_image_by_name(pic).change_person(app.dh.get_person_by_name(new_name))
-    return OKResponse()
+    old_name, new_name, image = parse_list(request, ['oname', 'nname', 'image'], raise_if_none=True)
+    logging.info("Moving picture {} from {} to {}".format(image, old_name, new_name))
+    old_person = app.dh.get_person_by_name(old_name)
+    if old_person.thumbnail != app.dh.get_image_by_name(image):
+        app.dh.get_image_by_name(image).change_person(app.dh.get_person_by_name(new_name))
+        logging.info("Moved the image {} from the person {} to the person {}".format(image, old_name, new_name))
+        return OKResponse()
+    else:
+        response = jsonify(message="Can't move thumbnail image.")
+        response.status_code = 400
+        return response
 
 
 @person_edit.route('/edit_known_person/', methods=['GET', 'POST'])
@@ -76,6 +83,12 @@ def modify_person():
 def remove_pic_for_person():
     """ Removes the selected picture in the background """
     name, image = parse_list(request, ['name', 'image'], raise_if_none=True)
-    app.dh.get_person_by_name(name).remove_picture(image)
-    logging.info("Removed the image {} from the person {}".format(image, name))
-    return OKResponse()
+    person = app.dh.get_person_by_name(name)
+    if person.thumbnail != app.dh.get_image_by_name(image):
+        person.remove_image(image)
+        logging.info("Removed the image {} from the person {}".format(image, name))
+        return OKResponse()
+    else:
+        response = jsonify(message="Can't delete thumbnail image.")
+        response.status_code = 400
+        return response

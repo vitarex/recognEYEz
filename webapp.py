@@ -82,10 +82,6 @@ def init_app(app: FHApp, db_loc="recogneyez.db"):
         app.fh.on_known_face_enters = on_known_enters
         app.fh.on_known_face_leaves = on_known_leaves
 
-def login():
-    """ needed for simple login to render the proper template """
-    return render_template("login.html")
-
 # parameter is the config Class from config.py
 def create_app(config_class=Config):
     global app

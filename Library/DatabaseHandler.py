@@ -62,11 +62,12 @@ class Person(DBModel):
         """Change person's preferences
 
         Arguments:
-            new_pref {str} -- The new preferences of the person
+        new_pref {str} -- The new preferences of the person
         """
-        self.pref = new_pref
+        self.preference = new_pref
         with self._meta.database.atomic():
             self.save()
+        self._invalidate_handler()
 
     def merge_with(self, other: 'Person'):
         """Merge with other person
@@ -97,7 +98,7 @@ class Person(DBModel):
             self.delete_instance()
         self._invalidate_handler()
 
-    def remove_picture(self, image_name: str):
+    def remove_image(self, image_name: str):
         with self._meta.database.atomic():
             next(i for i in self.images if i.name == image_name).delete_instance()
         self._invalidate_handler()
@@ -184,6 +185,9 @@ class Image(DBModel):
         Arguments:
             to_person {Person} -- The new owner of the image
         """
+        self.person = to_person
+        with self._meta.database.atomic():
+            self.save()
 
 
 class User(DBModel):
@@ -231,7 +235,7 @@ class DatabaseHandler(Handler):
         super().__init__(app)
 
         DBModel._handler = self
-        self.database = SqliteDatabase(db_location)
+        self.database = SqliteDatabase(db_location, pragmas=(('foreign_keys', 'on'),))
         self.database.connect()
         self.init_tables([UserEvent, Encoding, Person, Image, User])
         # db.close()
