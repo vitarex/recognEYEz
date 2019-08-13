@@ -1,8 +1,8 @@
-var toOpen = null
+var toOpen = null;
 
 $(document).ready(function() {
   $('.setting-collapse').on('hidden.bs.collapse', function () {
-    toOpen.collapse('show')
+    toOpen.collapse('show');
   });
   $('.setting-collapse').on('hide.bs.collapse', function () {
     $(this).children(".card-body").children("fieldset").prop("disabled", true);

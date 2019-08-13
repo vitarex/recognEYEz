@@ -38,7 +38,7 @@ $(function() {
       merge_to = $("#merge-options").val();
       send_to_merge(name, merge_to);
       setTimeout(() => {
-        document.location.reload()
+        document.location.reload();
       }, 1000);
       return false;
     });
@@ -52,7 +52,7 @@ $(function() {
       name = $("#selected-add-or-merge-name").text();
       new_from_unk(name);
       setTimeout(() => {
-        document.location.reload()
+        document.location.reload();
       }, 1000);
       return false;
     });

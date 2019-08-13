@@ -3,6 +3,7 @@ flake8:
   config_file: .flake8
 
 jshint:
+  ignore_file: bootstrap.bundle.min.js
   esversion: 6
 
 fail_on_violations: true
