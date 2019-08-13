@@ -19,11 +19,7 @@
                     <br>
                     <span class="font-size-14">Preference:</span>
                     <br>
-                    <textarea class="form-control" form="basic-info-form" name="extra">
-                        {% if person.preference %}
-                        {{person.preference}}
-                        {% endif %}
-                    </textarea>
+                    <textarea class="form-control" form="basic-info-form" name="extra">{% if person.preference %}{{person.preference}}{% endif %}</textarea>
                     <input type="hidden" name="old_name" value="{{ person.name }}"> 
                     <br>
                     <input type="submit" class="btn btn-secondary btn-block font-size-14" value="Save">

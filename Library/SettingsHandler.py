@@ -4,6 +4,7 @@ import json
 from Library.Handler import Handler
 from Library.helpers import InvalidUsage
 
+
 class SettingsHandler(Handler):
     __face_recognition_settings = dict()
     __notification_settings = dict()
@@ -20,18 +21,14 @@ class SettingsHandler(Handler):
         with open("Data/NotificationSettings.json") as nfp:
             return json.load(nfp)
 
-    def update_notification_settings(self, form):
-        sett = {}
-        for key, value in form.items():
-            sett[key] = value
-        checkbox_names = ["m_notif_spec", "m_notif_kno",
-                          "m_notif_unk", "e_notif_spec", "e_notif_kno", "e_notif_unk"]
-        for box in checkbox_names:
-            if box not in list(form.keys()):
-                sett[box] = "off"
+    def save_notification_configuration(self, transformed_form_data):
+        current_settings_dictionary = self.get_notification_settings()
+        for key, value in transformed_form_data.items():
+            current_settings_dictionary[key] = value
+
         with open(Path("Data/NotificationSettings.json"), 'w') as nfp:
-            json.dump(sett, nfp, indent=3)
-        self.__notification_settings = sett
+            json.dump(current_settings_dictionary, nfp, indent=3)
+        self.__notification_settings = current_settings_dictionary
 
     def get_camera_setting_by_name(self, setting_name: str) -> Dict:
         """Get a specific camera setting by its name
