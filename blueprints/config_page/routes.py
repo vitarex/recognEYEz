@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, session, Response, jsonify
+from flask import Blueprint, render_template, request, redirect, session
 from flask import current_app as app
 from flask_simplelogin import login_required
 import jinja2
@@ -68,7 +68,7 @@ def update_notification_settings():
 @config_page.route('/delete_camera_config', methods=['POST'])
 @login_required
 def remove_camera_settings():
-    camera_setting= parse(request, 'camera-settings', raise_if_none=True)
-    app.sh.remove_camera_settings(camera_setting)
+    camera_setting = parse(request, 'setting_name', raise_if_none=True)
+    # app.sh.remove_camera_settings(camera_setting)
     logging.info("Removed camera setting {}".format(camera_setting))
     return OKResponse()

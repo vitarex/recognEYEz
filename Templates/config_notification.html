@@ -1,88 +1,151 @@
-<script type=text/javascript src="config.js">
-</script>
-<div class="w3-row my-panel">
-	<div class=" w3-container">
-		<h1 class="w3-text-teal">Notification settings</h1>
-		<form action="/notification_settings" method="post" style="margin-bottom: 15px; line-height: 2;">
-
-			<table >
-				<tr><th><h2>Email</h2></th><th><h2>MQTT</h2></th></tr>
-				<tr>
-					<td>
-
-						<span style="position: relative; top: -55px;">
-
-							Notification email address: <br>&nbsp;&nbsp;&nbsp;
-							<input type="text" name="email" value="{{ notif['email'] }}"><br>
-
-							Notify about unknown faces:  <br>
-							&nbsp;&nbsp;&nbsp;
-							<label for="e-notif-unk" class="switch">
-								<input type="checkbox" id="e-notif-unk-surrogate" name="e-notif-unk" value="off" {% if not notif['e-notif-unk'] == True %} checked {% endif %} hidden>
-								<input type="checkbox" class="has-surrogate" id="e-notif-unk" name="e-notif-unk" {% if notif['e-notif-unk'] == True %} checked {% endif %}>
-								<span class="slider round"></span>
-							</label><br>
-
-							Notify about known faces:  <br>
-							&nbsp;&nbsp;&nbsp;
-							<label for="e-notif-kno" class="switch">
-								<input type="checkbox" id="e-notif-kno-surrogate" name="e-notif-kno" value="off" {% if not notif['e-notif-kno'] == True %} checked {% endif %} hidden>
-								<input type="checkbox" class="has-surrogate" id="e-notif-kno" name="e-notif-kno" {% if notif['e-notif-kno'] == True %} checked {% endif %}>
-								<span class="slider round"></span>
-							</label><br>
-
-							Notify about special faces: <br>
-							&nbsp;&nbsp;&nbsp;
-							<label for="e-notif-spec" class="switch">
-								<input type="checkbox" id="e-notif-spec-surrogate" name="e-notif-spec" value="off" {% if not notif['e-notif-spec'] == True %} checked {% endif %} hidden>
-								<input type="checkbox" class="has-surrogate" id="e-notif-spec" name="e-notif-spec" {% if notif['e-notif-spec'] == True %} checked {% endif %}>
-								<span class="slider round"></span>
-							</label>
-						</span>
-					</td>
-					<td>
-
-						Broker URL:<br>&nbsp;&nbsp;&nbsp;
-						<input type="text" name="broker_url" value="{{ notif['broker_url'] }}"><br>
-
-						Port: <br>&nbsp;&nbsp;&nbsp;
-						<input type="text" name="port" value="{{ notif['port'] }}"><br>
-
-						Topic: <br>&nbsp;&nbsp;&nbsp;
-						<input type="text" name="topic" value="{{ notif['topic'] }}"><br>
-
-						Notify about unknown faces:  <br>
-						&nbsp;&nbsp;&nbsp;
-						<label for="m-notif-unk" class="switch">
-							<input type="checkbox" id="m-notif-unk-surrogate" name="m-notif-unk" value="off" {% if not notif['m-notif-unk'] == True %} checked {% endif %} hidden>
-							<input type="checkbox" class="has-surrogate" id="m-notif-unk" name="m-notif-unk" {% if notif['m-notif-unk'] == True %} checked {% endif %}>
-							<span class="slider round"></span>
-						</label><br>
-
-						Notify about known faces:  <br>
-						&nbsp;&nbsp;&nbsp;
-						<label for="m-notif-kno" class="switch">
-							<input type="checkbox" id="m-notif-kno-surrogate" name="m-notif-kno" value="off" {% if not notif['m-notif-kno'] == True %} checked {% endif %} hidden>
-							<input type="checkbox" class="has-surrogate" id="m-notif-kno" name="m-notif-kno" {% if notif['m-notif-kno'] == True %} checked {% endif %}>
-							<span class="slider round"></span>
-						</label><br>
-
-						Notify about special faces: <br>
-						&nbsp;&nbsp;&nbsp;
-						<label for="m-notif-spec" class="switch">
-							<input type="checkbox" id="m-notif-spec-surrogate" name="m-notif-spec" value="off" {% if not notif['m-notif-spec'] == True %} checked {% endif %} hidden>
-							<input type="checkbox" class="has-surrogate" id="m-notif-spec" name="m-notif-spec" {% if notif['m-notif-spec'] == True %} checked {% endif %}>
-							<span class="slider round"></span>
-						</label>
-					</td>
-				</tr>
-			</table>
-			<br>
-		<input type="submit" class="my-button my-save-button"  value="Save">
-
-
+<div class="card content-card bg-dark text-light">
+	<div class="card-body">
+		<h1 class="card-title">Notification settings</h1>
+		<form action="/notification_settings" method="post">
+			<div class="row">
+				<div id="email-settings" class="col-12 col-lg-6">
+					<div class="form-group row">
+						<label class="col-form-label col-form-label-lg col-lg-6" for="email">Email address</label>
+						<div class="col-lg-6">
+							<input id="email" class="form-control form-control-lg" type="email" name="email"
+								value="{{ notif['email'] }}">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-form-label col-form-label-lg col-lg-6">Notify about unknown faces</label>
+						<div class="col-lg-6">
+							<div class="btn-group btn-group-lg btn-group-toggle" data-toggle="buttons">
+								<label class="btn btn-secondary {% if notif['e-notif-unk'] == False %} active {% endif %}">
+									<input type="radio" name="e-notif-unk" autocomplete="off" value="off"
+										{% if notif['e-notif-unk'] == True %} checked {% endif %}>
+									Off
+								</label>
+								<label class="btn btn-secondary {% if notif['e-notif-unk'] == True %} active {% endif %}">
+									<input type="radio" name="e-notif-unk" autocomplete="off"
+										{% if notif['e-notif-unk'] == True %} checked {% endif %}>
+									On
+								</label>
+							</div>
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-form-label col-form-label-lg col-lg-6">Notify about known faces</label>
+						<div class="col-lg-6">
+							<div class="btn-group btn-group-lg btn-group-toggle" data-toggle="buttons">
+								<label class="btn btn-secondary {% if notif['e-notif-kno'] == False %} active {% endif %}">
+									<input type="radio" name="e-notif-kno" autocomplete="off" value="off"
+										{% if notif['e-notif-kno'] == True %} checked {% endif %}>
+									Off
+								</label>
+								<label class="btn btn-secondary {% if notif['e-notif-kno'] == True %} active {% endif %}">
+									<input type="radio" name="e-notif-kno" autocomplete="off"
+										{% if notif['e-notif-kno'] == True %} checked {% endif %}>
+									On
+								</label>
+							</div>
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-form-label col-form-label-lg col-lg-6">Notify about special faces</label>
+						<div class="col-lg-6">
+							<div class="btn-group btn-group-lg btn-group-toggle" data-toggle="buttons">
+								<label class="btn btn-secondary {% if notif['e-notif-spec'] == False %} active {% endif %}">
+									<input type="radio" name="e-notif-spec" autocomplete="off" value="off"
+										{% if notif['e-notif-spec'] == True %} checked {% endif %}>
+									Off
+								</label>
+								<label class="btn btn-secondary {% if notif['e-notif-spec'] == True %} active {% endif %}">
+									<input type="radio" name="e-notif-spec" autocomplete="off"
+										{% if notif['e-notif-spec'] == True %} checked {% endif %}>
+									On
+								</label>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="mqtt-settings" class="col-12 col-lg-6">
+					<div class="form-group row">
+						<label class="col-form-label col-form-label-lg col-lg-6" for="broker-url">Broker URL</label>
+						<div class="col-lg-6">
+							<input id="broker-url" class="form-control form-control-lg" type="text" name="borker_url"
+								value="{{ notif['broker_url'] }}">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-form-label col-form-label-lg col-lg-6" for="borker-port">Port</label>
+						<div class="col-lg-6">
+							<input id="broker-port" class="form-control form-control-lg" type="number" name="port"
+								value="{{ notif['port'] }}">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-form-label col-form-label-lg col-lg-6" for="broker-topic">Topic</label>
+						<div class="col-lg-6">
+							<input id="broker-topic" class="form-control form-control-lg" type="text" name="topic"
+								value="{{ notif['topic'] }}">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-form-label col-form-label-lg col-lg-6">Notify about unknown faces</label>
+						<div class="col-lg-6">
+							<div class="btn-group btn-group-lg btn-group-toggle" data-toggle="buttons">
+								<label class="btn btn-secondary {% if notif['m-notif-unk'] == False %} active {% endif %}">
+									<input type="radio" name="m-notif-unk" autocomplete="off" value="off"
+										{% if notif['m-notif-unk'] == True %} checked {% endif %}>
+									Off
+								</label>
+								<label class="btn btn-secondary {% if notif['m-notif-unk'] == True %} active {% endif %}">
+									<input type="radio" name="m-notif-unk" autocomplete="off"
+										{% if notif['m-notif-unk'] == True %} checked {% endif %}>
+									On
+								</label>
+							</div>
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-form-label col-form-label-lg col-lg-6">Notify about known faces</label>
+						<div class="col-lg-6">
+							<div class="btn-group btn-group-lg btn-group-toggle" data-toggle="buttons">
+								<label class="btn btn-secondary {% if notif['m-notif-kno'] == False %} active {% endif %}">
+									<input type="radio" name="m-notif-kno" autocomplete="off" value="off"
+										{% if notif['m-notif-kno'] == True %} checked {% endif %}>
+									Off
+								</label>
+								<label class="btn btn-secondary {% if notif['m-notif-kno'] == True %} active {% endif %}">
+									<input type="radio" name="m-notif-kno" autocomplete="off"
+										{% if notif['m-notif-kno'] == True %} checked {% endif %}>
+									On
+								</label>
+							</div>
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-form-label col-form-label-lg col-lg-6">Notify about special faces</label>
+						<div class="col-lg-6">
+							<div class="btn-group btn-group-lg btn-group-toggle" data-toggle="buttons">
+								<label class="btn btn-secondary {% if notif['m-notif-spec'] == False %} active {% endif %}">
+									<input type="radio" name="m-notif-spec" autocomplete="off" value="off"
+										{% if notif['m-notif-spec'] == True %} checked {% endif %}>
+									Off
+								</label>
+								<label class="btn btn-secondary {% if notif['m-notif-spec'] == True %} active {% endif %}">
+									<input type="radio" name="m-notif-spec" autocomplete="off"
+										{% if notif['m-notif-spec'] == True %} checked {% endif %}>
+									On
+								</label>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			</br>
+			<div class="form-group row">
+				<div class="col-12 col-lg-3">
+					<button class="btn btn-lg btn-block btn-secondary">
+						Save
+					</button>
+				</div>
+			</div>
 		</form>
-
-		
 	</div>
 </div>

@@ -1,46 +1,40 @@
 {% extends "basic.html" %}
 
-{%block main_content%}
+{%block nav_liveview_active%}active{%endblock nav_liveview_active%}
 
-<!-- STATUS -->
-  <div class="w3-row my-panel">
-    <div class="w3-twothird w3-container">
-      <h1 class="w3-text-teal">Current State</h1>
-      <p>Camera is:<br>
-	  {% if running %}
-		<b style='color:lightgreen; font-size:24px;'>Running</b>
-	  {% else %}
-		<b style='color:red; font-size:24px;'>Not running</b>
-	  {% endif %}
-	  </p>
-	  <p>Last start time:<br>{{runsince}}</p>
-    </div>
-  </div>
+{%block content%}
 
 
 <!-- RECENT -->
-  <div class="w3-row my-panel">
-    <div class=" w3-container">
-	  <div class="preview-img-div">
-		<img id="preview_img" src="/preview" ;}>
-	  </div>
-      <h1 class="w3-text-teal">Live View</h1>
-
-	  <p>Recently recognized person/people:<br>{{names}}</p>
+  <div class="card content-card text-light bg-dark">
+	  {% if running %}
+		<img class="card-img-top" src="/preview">
+	  {% endif %}
+    <div class="card-body">
+		<h1 class="card-title">Current state</h1>
+		<p>Camera is
+			{% if running %}
+			  <b style='color:lightgreen;'>RUNNING</b>
+			{% else %}
+			  <b style='color:red;'>NOT RUNNING</b>
+			{% endif %}
+		</p>
+		<p>Recently recognized person/people:<br>{% if names|length > 0 %}{{names}}{% else %}None{% endif %}</p>
+		<p>Last start time:<br>{{runsince}}</p>
     </div>
   </div>
 
 
 <!-- LOG -->
-  <div class="w3-row my-panel">
-    <div class=" w3-container">
-      <h1 class="w3-text-teal">Log</h1>
-		<div class="log-div" >
-			<p>
+  <div class="card content-card text-light bg-dark">
+    <div class="card-body">
+      <h1 class="card-title">Log</h1>
+		<div class="log-div scrollable" >
+			<span>
 			{% for l in log %}
-			{{l.datetime}}: {{l.event}}<br>
+			{{"%02d"|format(loop.index)}}: {{l.datetime}}: {{l.event}}<br>
 			{% endfor %}
-			</p>
+			</span>
 		</div>
 	</div>
   </div>
@@ -49,10 +43,10 @@
 <script type="text/javascript">
 	setInterval(function(){
 		d = new Date();
-		$("#preview_img").attr("src", "/preview?"+d.getTime());
+		$(".card-img-top").attr("src", "/preview?"+d.getTime());
 	}, 1000);
 	
 	</script>
 {% endif %}
 
-{%endblock main_content%}
+{%endblock content%}

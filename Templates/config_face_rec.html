@@ -1,11 +1,98 @@
-<script type=text/javascript src="config.js">
-</script>
-<div class="w3-row my-panel">
-	<div class=" w3-container">
-		<h1 class="w3-text-teal">Face recognition settings</h1>
+<div class="card content-card bg-dark text-light">
+	<div class="card-body">
+		<h1 class="card-title">Face recognition settings</h1>
 
 		<form id="face-recognition-settings" action="/face_recognition_settings" method="post" >
-			{% for setting in camera_settings %}
+			<div id="setting-accordion">
+				{% for setting in camera_settings %}
+					<div class="bg-dark border-secondary card">
+						
+						<div class="card-header bg-secondary text-light accordion-heading" id="heading-{{loop.index}}" data-target="#collapse-{{loop.index}}">
+							{{setting["setting-name"]}}
+						</div>
+						
+						<div class="setting-collapse collapse {% if setting["setting-name"] == frec["selected-setting"] %} show {% endif %}" id="collapse-{{loop.index}}" data-parent="#setting-accordion">
+							<div class="card-body">
+								<fieldset id="fieldset-{{loop.index}}">
+									<input type="hidden" name="selected-setting-static" value="{{setting["setting-name"]}}">
+	
+									<div class="form-group row">
+										<label class="col-form-label col-form-label-lg col-lg-3" for="setting-name-{{loop.index}}">Setting name</label>
+										<div class="col-lg-4">
+											<input id="setting-name-{{loop.index}}" class="form-control form-control-lg" type="text"
+												required value="{{setting["setting-name"]}}" name="setting-name">
+										</div>
+									</div>
+									
+									<div class="form-group row">
+										<label class="col-form-label col-form-label-lg col-lg-3" for="preferred-id-{{loop.index}}">Preferred camera</label>
+										<div class="col-lg-4">
+											<select name="preferred-id-int" id="preferred-id-{{loop.index}}" class="form-control form-control-lg">
+												{% if setting["preferred-id"] > available_cameras %}
+													{% set loop_length = setting["preferred-id"] + 1 %}
+												{% else %}
+													{% set loop_length = available_cameras %}
+												{% endif %}
+	
+												{% for i in range(loop_length) %}
+												<option value="{{i}}" {% if setting["preferred-id"] == i %} selected {% endif %}>Camera {{i}}</option>
+												{% endfor %}
+												<option value="-1" id="ipcam-{{loop.index}}" class="ipcam" {% if setting["preferred-id"] == -1 %} selected {% endif %}>IP Camera</option>
+											</select>
+											<small class="form-text">If the preferred camera is not available (disconnected), another device will be choosen automatically</small>
+										</div>
+									</div>
+	
+									<div class="form-group row">
+										<label class="col-form-label col-form-label-lg col-lg-3">Rotate camera feed</label>
+										<div class="col-lg-4">
+											<div class="btn-group btn-group-lg btn-group-toggle" data-toggle="buttons">
+												<label class="btn btn-secondary {% if setting["flip-cam"] == False %} active {% endif %}">
+													<input type="radio" name="flip-cam" autocomplete="off" value="off"
+														{% if setting["flip-cam"] == True %} checked {% endif %}>
+													Off
+												</label>
+												<label class="btn btn-secondary {% if setting["flip-cam"] == True %} active {% endif %}">
+													<input type="radio" name="flip-cam" autocomplete="off"
+														{% if setting["flip-cam"] == True %} checked {% endif %}>
+													On
+												</label>
+											</div>
+											<small class="form-text">Rotate the camera feed by 180°</small>
+										</div>
+									</div>
+	
+									<div class="form-group row">
+										<label class="col-form-label col-form-label-lg col-lg-3" for="resolution-{{loop.index}}">Resolution</label>
+										<div class="col-lg-4">
+											<select name="resolution" id="resolution-{{loop.index}}" class="form-control form-control-lg">
+												<option value="qvga" {% if setting["resolution"] == "qvga" %} selected {% endif  %}>qvga - 320x240</option>
+												<option value="fhd"  {% if setting["resolution"] == "fhd" %} selected {% endif   %}>fhd - 1920x1080</option>
+												<option value="hd"   {% if setting["resolution"] == "hd" %} selected {% endif    %}>hd - 1280x720</option>
+												<option value="vga"  {% if setting["resolution"] == "vga" %} selected {% endif   %}>vga - 640x480</option>
+												<option value="qqvga"{% if setting["resolution"] == "qqvga" %} selected {% endif %}>qqvga - 160x120</option>
+											</select>
+											<small class="form-text">Select qvga for optimal performance</small>
+										</div>
+									</div>
+									
+									<div class="form-group row">
+										<label class="col-form-label col-form-label-lg col-lg-3" for="url-{{loop.index}}">IP camera feed URL</label>
+										<div class="col-lg-4">
+											<input id="url-{{loop.index}}" class="form-control form-control-lg" type="url"
+											required value="{{setting["URL"]}}" name="URL">
+											<small class="form-text">e.g. http://192.168.0.5:8080/video</small>
+										</div>
+									</div>
+								</fieldset>
+
+							</div>
+						</div>
+					</div>
+				{% endfor %}
+			</div>
+
+			<!-- {% for setting in camera_settings %}
 			<input type="radio" class="setting-select" name="selected-setting-static" id="setting-{{loop.index}}" value="{{setting["setting-name"]}}" {% if setting["setting-name"] == frec["selected-setting"] %} checked {% endif %} >{{setting["setting-name"]}}<br>
 			<fieldset class="setting-fieldset" id="setting-{{loop.index}}-fieldset" {% if not setting["setting-name"] == frec["selected-setting"] %} hidden disabled {% endif %}>
 				<label for="setting-name-{{loop.index}}"></label>
@@ -13,7 +100,7 @@
 				</br>
 				
 				<label for="preferred-id-{{loop.index}}">Preferred camera</label>
-				<select name="preferred-id-int" id="preferred-id-{{loop.index}}">
+				<select name="preferred-id-int" class="preferred-id-select" id="preferred-id-{{loop.index}}">
 					{% if setting["preferred-id"] > available_cameras %}
 					{% set loop_length = setting["preferred-id"] + 1 %}
 					{% else %}
@@ -22,7 +109,7 @@
 					{% for i in range(loop_length) %}
 					<option value="{{i}}" {% if setting["preferred-id"] == i %} selected {% endif %}>Camera {{i}}</option>
 					{% endfor %}
-					<option value="-1" {% if setting["preferred-id"] == -1 %} selected {% endif %}>IP Camera</option>
+					<option value="-1" id="ipcam-{{loop.index}}" class="ipcam" {% if setting["preferred-id"] == -1 %} selected {% endif %}>IP Camera</option>
 				</select>
 				</br>
 	
@@ -45,41 +132,80 @@
 				</select>
 				</br>
 	
-				<label for="url-{{loop.index}}">URL:</label>
-				<input type="url" id="url-{{loop.index}}" name="URL" size="30" value={{setting["URL"]}}>
+				<label for="url-ipcam-{{loop.index}}">URL:</label>
+				<input type="url" class="url" id="url-ipcam-{{loop.index}}" name="URL" size="30" value={{setting["URL"]}} disabled>
 				</br>
+				<button class="delete-setting" id="delete-setting-{{setting["setting-name"]}}">Delete</button>
 			</fieldset>
-			{% endfor %}
+			{% endfor %} -->
+			<br/>
 
-			Face recognition tolerance (lower is more strict) (0.4 - 0.8, recommended: 0.6):<br>
-			&nbsp;&nbsp;&nbsp;
-			<input type="number" name="dnn-tresh-float-static" min="0.4" max="0.8" step="0.05" value="{{frec['dnn-tresh'] }}" required><br>
+			<div class="form-group row">
+				<label class="col-form-label col-form-label-lg col-lg-3" for="facerec-tolerance">Face recognition tolerance</label>
+				<div class="col-lg-4">
+					<input id="facerec-tolerance" class="form-control form-control-lg" type="number" name="dnn-tresh-float-static"
+						value="{{ frec['dnn-tresh'] }}" min="0.4" max="0.8" step="0.05" required>
+					<small class="form-text">Lower is stricter, default is 0.6</small>
+				</div>
+			</div>
+			
+			<div class="form-group row">
+				<label class="col-form-label col-form-label-lg col-lg-3" for="facerec-frequency">Face recognition frequency</label>
+				<div class="col-lg-4">
+					<input id="facerec-frequency" class="form-control form-control-lg" type="number" name="dnn-scan-freq-float-static"
+						value="{{ frec['dnn-scan-freq'] }}" min="1" max="10000" step="1" required>
+					<small class="form-text">The number of frames between face recognition passes. The lower this number, the lower the effective frame rate</small>
+				</div>
+			</div>
 
-			Number of fast scans between slow scans with Neural Network (1-10 000):<br>
-			&nbsp;&nbsp;&nbsp; 
-			<input type="number" name="dnn-scan-freq-int-static" min="1" max="10000" step="1" value="{{frec['dnn-scan-freq'] }}" required><br>
-
-			Force DNN scan on faces just appeared: <br>
-			&nbsp;&nbsp;&nbsp;
-			<label for="force-dnn" class="switch">
-				<input type="checkbox" id="force-dnn-surrogate" name="force-dnn-on-new-static" value="off" {% if not frec['force-dnn-on-new'] == True %} checked {% endif %} hidden>
-				<input type="checkbox" class="has-surrogate" id="force-dnn" name="force-dnn-on-new-static" {% if frec['force-dnn-on-new'] == True %} checked {% endif %}>
-				<span class="slider round"></span>
-			</label><br>
-
+			<div class="form-group row">
+				<label class="col-form-label col-form-label-lg col-lg-3">Force DNN on new faces</label>
+				<div class="col-lg-4">
+					<div class="btn-group btn-group-lg btn-group-toggle" data-toggle="buttons">
+						<label class="btn btn-secondary {% if frec['force-dnn-on-new'] == False %} active {% endif %}">
+							<input type="radio" name="force-dnn-on-new-static" autocomplete="off" value="off"
+								{% if frec['force-dnn-on-new'] == True %} checked {% endif %}>
+							Off
+						</label>
+						<label class="btn btn-secondary {% if frec['force-dnn-on-new'] == True %} active {% endif %}">
+							<input type="radio" name="force-dnn-on-new-static" autocomplete="off"
+								{% if frec['force-dnn-on-new'] == True %} checked {% endif %}>
+							On
+						</label>
+					</div>
+				</div>
+			</div>
+			
 			<!--Limit FPS:<br>-->
 			<!--&nbsp;&nbsp;&nbsp;-->
 			<!--<input type="number" name="quantity" min="0.1" max="60" step="0.1" value="60"><br>-->
+			
+			<div class="form-group row">
+				<label class="col-form-label col-form-label-lg col-lg-3">Save unknown faces</label>
+				<div class="col-lg-4">
+					<div class="btn-group btn-group-lg btn-group-toggle" data-toggle="buttons">
+						<label class="btn btn-secondary {% if frec['cache-unknown'] == False %} active {% endif %}">
+							<input type="radio" name="cache-unknown-static" autocomplete="off" value="off"
+								{% if frec['cache-unknown'] == True %} checked {% endif %}>
+							Off
+						</label>
+						<label class="btn btn-secondary {% if frec['cache-unknown'] == True %} active {% endif %}">
+							<input type="radio" name="cache-unknown-static" autocomplete="off"
+								{% if frec['cache-unknown'] == True %} checked {% endif %}>
+							On
+						</label>
+					</div>
+				</div>
+			</div>
 
-			Cache unknown faces: <br>
-			&nbsp;&nbsp;&nbsp; <label for="cache-unknown" class="switch">
-			<input type="checkbox" id="cache-unknown-surrogate" name="cache-unknown-static" value="off" {% if not frec['cache-unknown'] == True %} checked {% endif %} hidden>
-			<input type="checkbox" class="has-surrogate" id="cache-unknown" name="cache-unknown-static"  {% if frec['cache-unknown'] == True %} checked {% endif %}>
-			<span class="slider round"></span>
-			</label>
-
-			<br><br>
-			<input type="submit" class="my-button my-save-button" value="Save">
+			<br>
+			<div class="form-group row">
+				<div class="col-12 col-lg-3">
+					<button class="btn btn-lg btn-block btn-secondary">
+						Save
+					</button>
+				</div>
+			</div>
 
 
 		</form>

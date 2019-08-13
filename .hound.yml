@@ -2,4 +2,8 @@ flake8:
   enabled: true
   config_file: .flake8
 
+jshint:
+  ignore_file: bootstrap.bundle.min.js
+  config_file: .jshintrc
+
 fail_on_violations: true

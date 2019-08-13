@@ -159,6 +159,7 @@ class CameraHandler(Handler):
         Returns:
             int -- Number of available hardware cameras
         """
+        return 3
         i = 0
         cam = cv2.VideoCapture(i)
         try:

@@ -1,0 +1,120 @@
+.collapse-me{
+    max-width: 1%!important;
+}
+
+.warning-color-muted{
+    background-color: rgba(255, 193, 7, 0.7)
+}
+
+#thumbnail-pic{
+    max-width: 100%;
+}
+
+#basic-info-form > div {
+    margin-bottom: 15px;
+    line-height: 3;
+}
+
+.pic-btn.make-thumb {
+    background: #393;
+    white-space: normal;
+}
+
+.pic-btn.change-pers {
+    background: #339;
+    white-space: normal;
+}
+
+.pic-btn.remove-pic {
+    background: #f33;
+    white-space: normal;
+}
+
+#removing-pic-name {
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+#remove-pic-btn {
+    color: #fff;
+    background: #f33
+}
+
+.inner-face {
+    opacity: 1;
+    position: absolute;
+    top: 0.5rem;
+    width: calc(100% - 1rem);
+    height: calc(100% - 1rem);
+    z-index: 10;
+    text-align: center;
+}
+
+.grow-inner-face{
+    visibility: hidden;
+}
+
+.pic-btn{
+    line-height: 1;
+    color: #fff;
+    border: 0;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.overlay-inner-face .pic-btn {
+    visibility: hidden;
+    font-size: 1.4rem;
+    opacity: 0;
+    transition: .5s ease;
+}
+
+.grow-inner-face .pic-btn {
+    visibility: hidden;
+    font-size: 1.2rem;
+    opacity: 0;
+    transition: .1s ease;
+}
+
+.outer-face:hover img {
+    opacity: 0.5;
+    transition: .5s ease;
+}
+
+.outer-face:hover .overlay-inner-face .pic-btn {
+    visibility: visible;
+    opacity: 1;
+    transition: .5s ease;
+    cursor: pointer;
+}
+
+.full-screen {
+    background-color: rgba(52,58,64, 0.9)!important;
+    width: 100%; 
+    height: 100%; 
+    position: fixed; 
+    top: 0; 
+    left: 0;
+}
+
+.grow{
+    visibility: visible;
+    transition: .5s ease;
+}
+
+.grow .pic-btn{
+    visibility: visible;
+    opacity: 1;
+    transition: .1s ease;
+    cursor: pointer;
+    font-size: 1.8rem;
+}
+
+.outer-face{
+    transition: max-width 0.4s cubic-bezier(0.895, 0.03, 0.685, 0.22)
+}
+
+.outer-face .inner-face button.pic-btn:hover {
+    opacity: 1;
+    transition: .5s ease;
+}

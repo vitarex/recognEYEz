@@ -1,50 +1,59 @@
-<div class="w3-row my-panel">
+<div class="card content-card text-light bg-dark">
 
-            <div class=" w3-container">
+    <div class="card-body">
+        <h1 class="card-title">Clustered unknowns</h1>
 
-                <h1 class="w3-text-teal">Clustered unknowns</h1>
 
-                    <table id="unknown_persons">
-                        <tr>
-                            <th class="person-table-header">Pictures</th>
-                            <th class="person-table-header">Number of<br>pictures</th>
-                            <th>Name (first appearance)</th>
-                            <th class="person-table-header">Actions</th>
-                        </tr>
-                        {% for person in unk_persons %}
-                        <tr class="w3-hover-black person-name" id="{{ person.name }}">
-                            <td >
-                                <span class="tooltip">
-                                    <span class="tooltiptext">
+        {% for person in unk_persons %}
+        <div class="unknown-person-wrapper row bg-dark text-light border border-secondary m-2 rounded justify-content-center ">
+            <div class="col-11 col-md-10 col-lg-8">
+                <div class="row justify-content-center align-items-center">
+                    <div class="col-10 col-md-4 p-3">
+                        <img class="w-100 rounded" src="Static/Images/{{ person.thumbnail.name }}"
+                            onerror="if (this.src != 'empty_pic.png') this.src = 'empty_pic.png';">
+                        {% if person.images|length > 1 %}
+                        <div class="w-100 text-center">
+                            <span class="tooltip">
+                                <span class="tooltiptext">
+                                    <div class="d-flex flex-wrap p-2 rounded tooltip-image-wrapper">
                                         {% for i in person.images %}
-                                            <img src="Static/Images/{{ i.name }}" >
+                                            {% if i.name != person.thumbnail.name %}
+                                                <div class="col-3 tooltip-image rounded">
+                                                    <img class="w-100 " src="Static/Images/{{ i.name }}">
+                                                </div>
+                                            {% endif %}
                                         {% endfor %}
-                                    </span>
-                                    <img src="Static/Images/{{ person.thumbnail.name }}"
-                                         onerror="if (this.src != 'empty_pic.png') this.src = 'empty_pic.png';"
-                                    >
+                                    </div>
                                 </span>
-                            </td>
-                            <td class="font-size-20 text-center" >
-                                {{ person.images|length }}
-                            </td>
-                            <td>
-                                {{ person.name }}
-                            </td>
-                            <td>
-                                <button class="my-button my-add-button">
-                                    Add / Merge
-                                    <span class="add-arg">{{ person.name }}</span>
-                                </button><br>
-                                <button class="my-button my-remove-button remove-person-btn">
-                                    Remove
-                                    <span class="remove-arg">{{ person.name }}</span>
-                                </button>
-                            </td>
-
-
-                        </tr>
-                        {% endfor %}
-                    </table>
+                                + {{(person.images|length) - 1}} more pictures...
+                            </span>
+                        </div>{% endif %}
+                    </div>
+                    <div class="table-separated col-12 col-md-8 text-light">
+                        <div class="row">
+                            <span class="d-inline col">
+                                Name
+                            </span>
+                            <span class="d-inline col">
+                                {{person.name}}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-4 d-flex flex-column">
+                <div class="row my-auto justify-content-center align-items-center">
+                    <button class="col col-lg-8 person-btn btn btn-secondary add-merge-btn">
+                        Add / Merge
+                        <span class="d-none">{{ person.name }}</span>
+                    </button><br>
+                    <button class="col col-lg-8 person-btn btn btn-danger remove-person-btn">
+                        Remove
+                        <span class="d-none">{{ person.name }}</span>
+                    </button>
+                </div>
             </div>
         </div>
+        {% endfor %}
+    </div>
+</div>

@@ -1,12 +1,13 @@
 {
-   "email": "",
+   "email": "vilanyib@gmail.com",
    "broker_url": "broker.hivemq.com",
    "port": "1883",
    "topic": "recogneyez",
    "m-notif-unk": false,
-   "m-notif-spec": true,
+   "m-notif-spec": false,
    "m-notif-kno": true,
    "e-notif-spec": true,
-   "e-notif-kno": true,
-   "e-notif-unk": false
+   "e-notif-kno": false,
+   "e-notif-unk": false,
+   "borker_url": "broker.hivemq.com"
 }
