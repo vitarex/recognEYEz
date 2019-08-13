@@ -60,7 +60,7 @@ $(document).ready(function() {
               .call(
                 $(".img-name-value"),
                 img_name => img_name.value == image
-              )
+              );
     change_pic_owner(
       old_name,
       new_name,
@@ -68,7 +68,7 @@ $(document).ready(function() {
       function() {
         remove_pic_from_dom(
           $(".inner-face")[index]
-        )
+        );
       }
     );
     $("#choose-new-owner").hide();
@@ -98,12 +98,12 @@ $(document).ready(function() {
 function remove_pic_from_dom(t) {
   let outer = $(t).parents(".outer-face");
 
-  let image = outer.children("img").first()
-  image.css("height", image.height() + "px")
+  let image = outer.children("img").first();
+  image.css("height", image.height() + "px");
 
-  outer.addClass("collapse-me")
+  outer.addClass("collapse-me");
   setTimeout(() => {
-    outer.remove()
+    outer.remove();
   }, 420);
 }
 

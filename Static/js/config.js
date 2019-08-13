@@ -3,21 +3,21 @@ var toOpen = null
 $(document).ready(function() {
   $('.setting-collapse').on('hidden.bs.collapse', function () {
     toOpen.collapse('show')
-  })
+  });
   $('.setting-collapse').on('hide.bs.collapse', function () {
     $(this).children(".card-body").children("fieldset").prop("disabled", true);
-  })
+  });
   $('.setting-collapse').on('show.bs.collapse', function () {
     $(this).siblings('.card-header')[0].scrollIntoView({
       behavior: "smooth",
       block: "start"
-    })
+    });
     $(this).children(".card-body").children("fieldset").prop("disabled", false);
-  })
+  });
 
   $(".accordion-heading").click(function() {
-    let og = $(this).siblings(".setting-collapse")[0]
-    toOpen = $(og)
+    let og = $(this).siblings(".setting-collapse")[0];
+    toOpen = $(og);
     $(".setting-collapse").each(function() {
       if (og != this) $(this).collapse('hide')
     });
