@@ -9,15 +9,15 @@
       },
       {
          "setting-name": "defaulwe",
-         "preferred-id": 0,
-         "URL": "http://152.66.173.197:8080/video",
-         "flip-cam": false,
-         "resolution": "vga"
+         "preferred-id": 1,
+         "URL": "http://asdad",
+         "flip-cam": true,
+         "resolution": "qvga"
       }
    ],
    "selected-setting": "defaulwe",
    "dnn-tresh": 0.5,
-   "dnn-scan-freq": 1,
+   "dnn-scan-freq": 1.0,
    "force-dnn-on-new": true,
    "cache-unknown": true
 }

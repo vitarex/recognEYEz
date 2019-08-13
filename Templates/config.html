@@ -4,6 +4,10 @@
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/config.css') }}">
 {% endblock extra_styles %}
 
+{% block script %}
+    <script type=text/javascript src="js/config.js"></script>
+{% endblock script %}
+
 {%block nav_config_active%}active{%endblock nav_config_active%}
 {%block content%}
 

@@ -5,10 +5,6 @@ input {height:30px;}
     line-height: 2;
 }
 
-#submit-password-change {
-    display: none
-}
-
 .w3-container > form > table {
     width: 100%;
 }
