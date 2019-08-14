@@ -1,6 +1,26 @@
 var toOpen = null;
 
 $(document).ready(function() {
+  make_only_card();
+
+  $('#email-switch-on').click(function() {
+    $('#email-fieldset').prop('disabled', false);
+    $('#email-fieldset').removeClass('disabled');
+  });
+  $('#email-switch-off').click(function() {
+    $('#email-fieldset').prop('disabled', true);
+    $('#email-fieldset').addClass('disabled');
+  });
+  
+  $('#mqtt-switch-on').click(function() {
+    $('#mqtt-fieldset').prop('disabled', false);
+    $('#mqtt-fieldset').removeClass('disabled');
+  });
+  $('#mqtt-switch-off').click(function() {
+    $('#mqtt-fieldset').prop('disabled', true);
+    $('#mqtt-fieldset').addClass('disabled');
+  });
+
   $('.setting-collapse').on('hidden.bs.collapse', function () {
     toOpen.collapse('show');
   });
@@ -23,42 +43,35 @@ $(document).ready(function() {
     });
   });
 
-  $(".setting-select").click(function(e) {
-    $(".setting-fieldset")
-      .hide()
-      .prop("disabled", true);
-    $("#" + e.target.id + "-fieldset")
-      .show()
-      .prop("disabled", false);
-  });
-
-  $(".has-surrogate").click(function(e) {
-    $("#" + e.target.id + "-surrogate").prop("checked", !e.target.checked);
-  });
-
   $(".preferred-id-select").change(function(e) {
-    if (e.target.value == -1)
-      $("#url-" + e.target.options[e.target.options.length - 1].id).prop(
-        "disabled",
-        false
-      );
-    else
-      $("#url-" + e.target.options[e.target.options.length - 1].id).prop(
-        "disabled",
-        true
-      );
+    let target = $("#url-" + e.target.options[e.target.options.length - 1].id)
+    if (e.target.value == -1) {
+      target.prop("disabled", false);
+      target.parent().parent().removeClass("disabled");
+    }
+    else {
+      target.prop("disabled", true);
+      target.parent().parent().addClass("disabled");
+    }
   });
 
   $(".delete-setting").click(function(e) {
     delete_setting(
       e.target.id.replace("delete-setting-", ""),
       function() {
-        var fieldset = $(this).parent();
-        var radio_input = $(fieldset).siblings(
-          "#" + fieldset.id.replace("-fieldset", "")
-        );
-        fieldset.remove();
-        radio_input.remove();
+        let parent_card = $(this)
+                        .parent()
+                        .parent()
+                        .parent(".card-body")
+                        .parent(".setting-collapse")
+                        .parent(".card");
+        parent_card.fadeTo(200, 0.01, function(){ 
+          $(this).slideUp(150, function() {
+              $(this).remove(); 
+              $(".setting-collapse").first().collapse('show');
+              make_only_card();
+          });
+        });
       }.bind(e.target)
     );
   });
@@ -86,6 +99,11 @@ $(document).ready(function() {
   });
 });
 
+function make_only_card() {
+  if ($(".setting-collapse").length == 1)
+    $(".setting-collapse").first().addClass('only-card');
+}
+
 function delete_setting(setting_name, success_func) {
   $.ajax({
     url: $SCRIPT_ROOT + "/delete_camera_config",
@@ -93,7 +111,7 @@ function delete_setting(setting_name, success_func) {
     type: "POST",
     success: success_func,
     error: function(error) {
-      alert(JSON.parse(error).message);
+      alert(error.responseJSON.message);
     }
   });
 }

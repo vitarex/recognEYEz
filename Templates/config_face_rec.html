@@ -1,11 +1,15 @@
 <div class="card content-card bg-dark text-light">
 	<div class="card-body">
-		<h1 class="card-title">Face recognition settings</h1>
+		<div class="card-title mb-4">
+			<h1>Face recognition settings</h1>
+			<h6>General settings, tune for optimal performance</h6>
+			<h6>Select your active camera preset:</h6>
+		</div>
 
 		<form id="face-recognition-settings" action="/face_recognition_settings" method="post" >
 			<div id="setting-accordion">
 				{% for setting in camera_settings %}
-					<div class="bg-dark border-secondary card">
+					<div class="bg-dark card border-secondary accordion-card">
 						
 						<div class="card-header bg-secondary text-light accordion-heading" id="heading-{{loop.index}}" data-target="#collapse-{{loop.index}}">
 							{{setting["setting-name"]}}
@@ -17,7 +21,7 @@
 									<input type="hidden" name="selected-setting-static" value="{{setting["setting-name"]}}">
 	
 									<div class="form-group row">
-										<label class="col-form-label col-form-label-lg col-lg-3" for="setting-name-{{loop.index}}">Setting name</label>
+										<label class="col-form-label col-form-label-lg col-lg-3" for="setting-name-{{loop.index}}">Preset name</label>
 										<div class="col-lg-4">
 											<input id="setting-name-{{loop.index}}" class="form-control form-control-lg" type="text"
 												required value="{{setting["setting-name"]}}" name="setting-name">
@@ -27,7 +31,7 @@
 									<div class="form-group row">
 										<label class="col-form-label col-form-label-lg col-lg-3" for="preferred-id-{{loop.index}}">Preferred camera</label>
 										<div class="col-lg-4">
-											<select name="preferred-id-int" id="preferred-id-{{loop.index}}" class="form-control form-control-lg">
+											<select name="preferred-id-int" id="preferred-id-{{loop.index}}" class="form-control form-control-lg  preferred-id-select">
 												{% if setting["preferred-id"] > available_cameras %}
 													{% set loop_length = setting["preferred-id"] + 1 %}
 												{% else %}
@@ -76,68 +80,37 @@
 										</div>
 									</div>
 									
-									<div class="form-group row">
-										<label class="col-form-label col-form-label-lg col-lg-3" for="url-{{loop.index}}">IP camera feed URL</label>
+									<div class="form-group row {% if not setting["preferred-id"] == -1 %} disabled {% endif %}">
+										<label class="col-form-label col-form-label-lg col-lg-3" for="url-ipcam{{loop.index}}">IP camera feed URL</label>
 										<div class="col-lg-4">
-											<input id="url-{{loop.index}}" class="form-control form-control-lg" type="url"
-											required value="{{setting["URL"]}}" name="URL">
-											<small class="form-text">e.g. http://192.168.0.5:8080/video</small>
+											<input id="url-ipcam-{{loop.index}}" class="form-control form-control-lg" type="url"
+											required value="{{setting["URL"]}}" name="URL" {% if not setting["preferred-id"] == -1 %} disabled {% endif %}>
+											<small class="form-text">Only needed if you wish to use a network stream<br/>e.g. http://192.168.0.5:8080/video</small>
 										</div>
 									</div>
 								</fieldset>
 
+								<br/>
+								<div class="form-group row">
+									<div class="col-12 col-lg-3">
+										<button id="delete-setting-{{setting['setting-name']}}" type="button" class="btn btn-lg btn-block btn-danger delete-setting">
+											Delete preset
+										</button>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
 				{% endfor %}
+				<div class="bg-dark card border-secondary">
+					<div class="card-header bg-secondary text-light">
+						<span class="new-preset">
+							<a class="text-light" href="/add_new_preset">+ Add new preset</a>
+						</span>
+					</div>
+				</div>
 			</div>
 
-			<!-- {% for setting in camera_settings %}
-			<input type="radio" class="setting-select" name="selected-setting-static" id="setting-{{loop.index}}" value="{{setting["setting-name"]}}" {% if setting["setting-name"] == frec["selected-setting"] %} checked {% endif %} >{{setting["setting-name"]}}<br>
-			<fieldset class="setting-fieldset" id="setting-{{loop.index}}-fieldset" {% if not setting["setting-name"] == frec["selected-setting"] %} hidden disabled {% endif %}>
-				<label for="setting-name-{{loop.index}}"></label>
-				<input type="text" name="setting-name" id="setting-name-{{loop.index}}" required value="{{setting["setting-name"]}}">
-				</br>
-				
-				<label for="preferred-id-{{loop.index}}">Preferred camera</label>
-				<select name="preferred-id-int" class="preferred-id-select" id="preferred-id-{{loop.index}}">
-					{% if setting["preferred-id"] > available_cameras %}
-					{% set loop_length = setting["preferred-id"] + 1 %}
-					{% else %}
-					{% set loop_length = available_cameras %}
-					{% endif %}
-					{% for i in range(loop_length) %}
-					<option value="{{i}}" {% if setting["preferred-id"] == i %} selected {% endif %}>Camera {{i}}</option>
-					{% endfor %}
-					<option value="-1" id="ipcam-{{loop.index}}" class="ipcam" {% if setting["preferred-id"] == -1 %} selected {% endif %}>IP Camera</option>
-				</select>
-				</br>
-	
-
-				<label for="flip-camera-switch-{{loop.index}}">Rotate 180°</label>
-				<label for="flip-camera-{{loop.index}}" id="flip-camera-switch-{{loop.index}}" class="switch">
-					<input type="checkbox" id="flip-camera-{{loop.index}}-surrogate" name="flip-cam" value="off" {% if not setting["flip-cam"] == True %} checked {% endif %} hidden>
-					<input type="checkbox" id="flip-camera-{{loop.index}}" name="flip-cam" class="has-surrogate" {% if setting["flip-cam"] == True %} checked {% endif %}>
-					<span class="slider round"></span>
-				</label>
-				</br>
-				
-				<label for="resolution-{{loop.index}}">Resolution</label>
-				<select id="resolution-{{loop.index}}" type="select" name="resolution">
-					<option value="qvga" {% if setting["resolution"] == "qvga" %} selected {% endif  %}>qvga - 320x240 (recommended)</option>
-					<option value="fhd"  {% if setting["resolution"] == "fhd" %} selected {% endif   %}>fhd - 1920x1080</option>
-					<option value="hd"   {% if setting["resolution"] == "hd" %} selected {% endif    %}>hd - 1280x720</option>
-					<option value="vga"  {% if setting["resolution"] == "vga" %} selected {% endif   %}>vga - 640x480</option>
-					<option value="qqvga"{% if setting["resolution"] == "qqvga" %} selected {% endif %}>qqvga - 160x120</option>
-				</select>
-				</br>
-	
-				<label for="url-ipcam-{{loop.index}}">URL:</label>
-				<input type="url" class="url" id="url-ipcam-{{loop.index}}" name="URL" size="30" value={{setting["URL"]}} disabled>
-				</br>
-				<button class="delete-setting" id="delete-setting-{{setting["setting-name"]}}">Delete</button>
-			</fieldset>
-			{% endfor %} -->
 			<br/>
 
 			<div class="form-group row">
@@ -145,7 +118,9 @@
 				<div class="col-lg-4">
 					<input id="facerec-tolerance" class="form-control form-control-lg" type="number" name="dnn-tresh-float-static"
 						value="{{ frec['dnn-tresh'] }}" min="0.4" max="0.8" step="0.05" required>
-					<small class="form-text">Lower is stricter, default is 0.6</small>
+					<small class="form-text">Between 0.4 and 0.8<br/>
+						Lower this number to get fewer false positives
+					</small>
 				</div>
 			</div>
 			
@@ -153,8 +128,8 @@
 				<label class="col-form-label col-form-label-lg col-lg-3" for="facerec-frequency">Face recognition frequency</label>
 				<div class="col-lg-4">
 					<input id="facerec-frequency" class="form-control form-control-lg" type="number" name="dnn-scan-freq-float-static"
-						value="{{ frec['dnn-scan-freq'] }}" min="1" max="10000" step="1" required>
-					<small class="form-text">The number of frames between face recognition passes. The lower this number, the lower the effective frame rate</small>
+						value="{{ frec['dnn-scan-freq']|int }}" min="1" max="10000" step="1" required>
+					<small class="form-text">The number of frames between face recognition passes<br/>The lower this number, the lower the effective frame rate</small>
 				</div>
 			</div>
 
@@ -173,6 +148,7 @@
 							On
 						</label>
 					</div>
+					<small class="form-text">If turned on, face recognition will also run every time a new face is detected</small>
 				</div>
 			</div>
 			
