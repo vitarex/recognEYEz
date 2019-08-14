@@ -44,7 +44,7 @@ $(document).ready(function() {
   });
 
   $(".preferred-id-select").change(function(e) {
-    let target = $("#url-" + e.target.options[e.target.options.length - 1].id)
+    let target = $("#url-" + e.target.options[e.target.options.length - 1].id);
     if (e.target.value == -1) {
       target.prop("disabled", false);
       target.parent().parent().removeClass("disabled");
