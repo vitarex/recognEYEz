@@ -69,6 +69,13 @@ def update_notification_settings():
 @login_required
 def remove_camera_settings():
     camera_setting = parse(request, 'setting_name', raise_if_none=True)
-    # app.sh.remove_camera_settings(camera_setting)
+    app.sh.remove_camera_settings(camera_setting)
     logging.info("Removed camera setting {}".format(camera_setting))
     return OKResponse()
+
+@config_page.route('/add_new_preset', methods=['GET'])
+@login_required
+def add_new_preset():
+    app.sh.add_camera_setting()
+    logging.info("Added new camera setting")
+    return redirect("/config")

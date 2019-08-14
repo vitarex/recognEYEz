@@ -1,19 +1,40 @@
-input {height:30px;}
-
-.w3-container > form {
-    margin-bottom: 15px;
-    line-height: 2;
+.accordion-heading{
+    cursor: pointer;
 }
 
-.w3-container > form > table {
-    width: 100%;
-}
-#face-recognition-settings {
-    margin-bottom: 15px;
-    line-height: 2;
+.card-header {
+    border-radius: 0!important;
 }
 
-.notification-table {
-    width: 100%;
-    table-layout: fixed;
+#setting-accordion .card {
+    border-radius: 0;
+    border-top: 2px solid;
+    border-bottom: 2px solid;
+}
+
+#setting-accordion .card:last-child {
+    border-bottom: 0;
+    border-bottom-left-radius: calc(.25rem - 1px);
+    border-bottom-right-radius: calc(.25rem - 1px);
+}
+
+#setting-accordion .card:first-child {
+    border-top-left-radius: calc(.25rem - 1px);
+    border-top-right-radius: calc(.25rem - 1px);
+}
+
+#setting-accordion .accordion-card:only-of-type {
+    background-color: white!important;
+}
+
+.only-card .card-body > .form-group:last-child {
+    display: none;
+}
+
+.new-preset {
+    cursor: pointer;
+}
+
+.disabled {
+    opacity: 0.4;
 }

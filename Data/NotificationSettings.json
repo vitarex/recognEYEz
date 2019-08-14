@@ -9,5 +9,7 @@
    "e-notif-spec": true,
    "e-notif-kno": false,
    "e-notif-unk": false,
-   "borker_url": "broker.hivemq.com"
+   "borker_url": "broker.hivemq.com",
+   "e-notif": true,
+   "m-notif": true
 }
