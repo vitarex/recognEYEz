@@ -7,16 +7,18 @@
 
 <!-- RECENT -->
   <div class="card content-card text-light bg-dark">
-	  {% if running %}
-		<img class="card-img-top" src="/preview">
-	  {% endif %}
+	  <div class="preview">
+		  {% if running %}
+	  		<img class="card-img-top" src="/preview">
+	  	  {% endif %}
+	  </div>
     <div class="card-body">
 		<h1 class="card-title">Current state</h1>
 		<p>Camera is
 			{% if running %}
-			  <b style='color:lightgreen;'>RUNNING</b>
+			  <b class="camera-status" style='color:lightgreen;'>RUNNING</b>
 			{% else %}
-			  <b style='color:red;'>NOT RUNNING</b>
+			  <b class="camera-status" style='color:red;'>NOT RUNNING</b>
 			{% endif %}
 		</p>
 		<p>Recently recognized person/people:<br>{% if names|length > 0 %}{{names}}{% else %}None{% endif %}</p>
@@ -41,12 +43,11 @@
 
 {% if running %}
 <script type="text/javascript">
-	setInterval(function(){
+	preview_interval = setInterval(function(){
 		d = new Date();
 		$(".card-img-top").attr("src", "/preview?"+d.getTime());
 	}, 1000);
-	
-	</script>
+</script>
 {% endif %}
 
 {%endblock content%}

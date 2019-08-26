@@ -34,29 +34,33 @@ def validate_login(login_form):
     except InvalidkeyError:
         logging.error("Invalid password given for the user {}".format(login_form['username']))
         return False
+    except Exception:
+        return False
 
 
-def on_known_enters(persons):
+def on_known_enters(trackings):
     """ Custom behaviour for the facehandler's callback method of the same name """
-    for person in persons:
-        logging.info("Entered: {}".format(person.name))
+    for tracked in trackings:
+        logging.info("Entered: {}".format(tracked.person.name))
         app.mh.publish(
             app.fh.notification_settings["topic"],
-            "[recognEYEz][ARRIVED][date: {}]: {}".format(datetime.datetime.now().strftime(app.config["TIME_FORMAT"]), person.name)
+            "[recognEYEz][ARRIVED][date: {}]: {}".format(datetime.datetime.now().strftime(app.config["TIME_FORMAT"]),
+                                                         tracked.person.name)
         )
-        app.dh.log_event("[ARRIVED]: {}".format(person.name))
-        logging.info("[ARRIVED]: {}".format(person.name))
+        app.dh.log_event("[ARRIVED]: {}".format(tracked.person.name))
+        logging.info("[ARRIVED]: {}".format(tracked.person.name))
 
 
-def on_known_leaves(persons):
+def on_known_leaves(trackings):
     """ Custom behaviour for the facehandler's callback method of the same name """
-    for person in persons:
+    for tracked in trackings:
         app.mh.publish(
             app.fh.notification_settings["topic"],
-            "[recognEYEz][LEFT][date: {}]: {}".format(datetime.datetime.now().strftime(app.config["TIME_FORMAT"]), person.name)
+            "[recognEYEz][LEFT][date: {}]: {}".format(datetime.datetime.now().strftime(app.config["TIME_FORMAT"]),
+                                                      tracked.person.name)
         )
-        app.dh.log_event("[LEFT]: {}".format(person.name))
-        logging.info("[LEFT]: {}".format(person.name))
+        app.dh.log_event("[LEFT]: {}".format(tracked.person.name))
+        logging.info("[LEFT]: {}".format(tracked.person.name))
 
 
 def init_app(app: FHApp, db_loc="recogneyez.db"):

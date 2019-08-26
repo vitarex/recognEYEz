@@ -4,11 +4,20 @@ $("body").ready(function() {
         if (confirm(`Are you sure you want to delete the person: ${name}?`))
         {
             remove_person(name, function() {
-                $(this).parents(".known-person-wrapper").first().fadeTo(200, 0.01, function(){ 
-                    $(this).slideUp(150, function() {
-                        $(this).remove(); 
-                    }); 
-                });
+                if($(this).hasClass('person-btn-unk')){
+                    $(this).parents(".unknown-person-wrapper").first().fadeTo(200, 0.01, function(){ 
+                        $(this).slideUp(150, function() {
+                            $(this).remove(); 
+                        }); 
+                    });
+                }
+                else {
+                    $(this).parents(".known-person-wrapper").first().fadeTo(200, 0.01, function(){ 
+                        $(this).slideUp(150, function() {
+                            $(this).remove(); 
+                        }); 
+                    });
+                }
             }.bind(this));
         }
         return false;

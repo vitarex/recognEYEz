@@ -12,7 +12,7 @@ def home():
     names = []
     if app.fh is not None:
         logs = app.dh.get_all_events()
-        names = [p.name for p in app.fh.visible_persons]
+        names = [p.person.name for p in app.fh.tracking_data]
     return render_template(
         "live_view.html",
         running=app.ch.cam_is_processing,

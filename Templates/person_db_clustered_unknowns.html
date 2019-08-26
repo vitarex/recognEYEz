@@ -3,7 +3,9 @@
     <div class="card-body">
         <h1 class="card-title">Clustered unknowns</h1>
 
-
+        {% if unk_persons|length < 1 %}
+        <p>Faces that could not be associated with a person in the database will appear here.</p>
+        {% endif %}
         {% for person in unk_persons %}
         <div class="unknown-person-wrapper row bg-dark text-light border border-secondary m-2 rounded justify-content-center ">
             <div class="col-11 col-md-10 col-lg-8">
@@ -47,9 +49,9 @@
                         Add / Merge
                         <span class="d-none">{{ person.name }}</span>
                     </button><br>
-                    <button class="col col-lg-8 person-btn btn btn-danger remove-person-btn">
+                    <button class="col col-lg-8 person-btn btn btn-danger remove-person-button person-btn-unk">
                         Remove
-                        <span class="d-none">{{ person.name }}</span>
+                        <span class="remove-arg d-none">{{ person.name }}</span>
                     </button>
                 </div>
             </div>

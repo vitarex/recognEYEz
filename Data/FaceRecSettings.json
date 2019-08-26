@@ -5,12 +5,12 @@
          "preferred-id": 0,
          "URL": "http://asdad",
          "flip-cam": false,
-         "resolution": "qvga"
+         "resolution": "vga"
       }
    ],
    "selected-setting": "Gabor presetje",
    "dnn-tresh": 0.5,
-   "dnn-scan-freq": 1.0,
+   "dnn-scan-freq": -1,
    "force-dnn-on-new": true,
    "cache-unknown": true
 }

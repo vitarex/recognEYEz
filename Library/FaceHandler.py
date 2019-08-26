@@ -5,13 +5,12 @@ import time
 from datetime import datetime
 import numpy as np
 import face_recognition
-import Library.tracking as tracking
 from imutils import paths
 import errno
 import logging
 import os
 from itertools import compress
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Set
 from collections import Counter
 
 from Library.Mailer import Mailer
@@ -19,12 +18,14 @@ from Library.FileHandler import FileHandler
 from Library.DatabaseHandler import Encoding, Person
 from Library.Handler import Handler
 from Library.CameraHandler import OpencvCamera
+from Library.tracking import CentroidTracker, TrackedPerson
 
 
 class FaceHandler(Handler):
     font = cv2.FONT_HERSHEY_DUPLEX
     TIME_FORMAT = "%Y_%m_%d__%H_%M_%S"
     pic_folder_path = Path("Static", "Images")
+    tracking_data: Set[TrackedPerson]
 
     def __init__(self,
                  app,
@@ -37,7 +38,7 @@ class FaceHandler(Handler):
         self.database_location = db_loc
 
         # ??? creates a variable called ct that contains the CentroidTracker???
-        self.ct = tracking.CentroidTracker()
+        self.ct = CentroidTracker(1000)
         # sets the path where the haarcascade_frontalface_default.xml file is found
         # (recognEYEz\Library\haarcascade_frontalface_default.xml)
         cascade_path = Path(__file__).resolve(
@@ -47,8 +48,7 @@ class FaceHandler(Handler):
         logging.info("OpenCV facedetector loaded")
 
         # creates two empty dictionaries that will be modified by later functions
-        self.visible_persons = set()
-        self.prev_visible_persons = set()
+        self.tracking_data = set()
 
         self.notification_settings = self.app.dh.load_notification_settings()
 
@@ -98,7 +98,7 @@ class FaceHandler(Handler):
             ret, frame = self.app.ch.cam.read()
         face_rec_dict = self.app.sh.get_face_recognition_settings()
         frame = self.resize_if_needed(frame, face_rec_dict)
-        if not ret and frame is None:
+        if not ret or frame is None:
             raise AssertionError("The camera didn't return a frame object. Maybe it failed to start properly.")
         if self.app.sh.get_camera_setting_by_name(face_rec_dict["selected-setting"])["flip-cam"] is True:
             frame = cv2.flip(frame, -1)
@@ -109,57 +109,60 @@ class FaceHandler(Handler):
         face_rects = [(y, x + w, y + h, x)
                       for (x, y, w, h) in self.detect_faces(gray)]
 
-        rect_to_person = dict()
+        new_tracking_data: Set[TrackedPerson]
         # executing DNN face recognition on found faces
-        if use_dnn or ((len(face_rects) != len(self.visible_persons))
+        if use_dnn or ((len(face_rects) > len(self.ct.seen))
                        and self.app.sh.get_face_recognition_settings()["force-dnn-on-new"]):
             # the returned object is a dictionary of rectangles to persons
             # only the rectangles that have a person associated with them are returned here
-            rect_to_person = self.recognize_faces(
+            person_to_face_rect_dict = self.recognize_faces(
                 rgb, face_rects, frame, save_new_faces=save_new_faces)
             # create a set of persons that are currently visible
             # TODO: what if two detected faces resolve to the same person?
             # while this would usually be a false positive, it still has to be accounted for
             # also twins
-            self.visible_persons = set(rect_to_person.values())
-
-        self.ct.update(face_rects, [person.id for person in self.visible_persons])
+            new_tracking_data = self.ct.rebase(person_to_face_rect_dict)
+        else:
+            new_tracking_data = self.ct.update(face_rects)
 
         # drawing dots(?), rectangles and names on the frame
-        if self.visible_persons:
-            for rect in face_rects:
-                (top, right, bottom, left) = rect
-                # drawing rectangles
+        for rect in face_rects:
+            (top, left, bottom, right) = rect
+            # drawing rectangles
+            cv2.rectangle(frame, (left, top),
+                          (right, bottom), (0, 255, 0), 2)
+            # drawing names if the rect has a person associated with it
+        for tracked_person in self.tracking_data:
+            (top, right, bottom, left) = tracked_person.rect
+            y = top - 15 if top - 15 > 15 else top + 15
+            text = tracked_person.person.name
+            if tracked_person.disappearCount == 0:
+                cv2.putText(frame, text, (left, y),
+                            self.font, 0.4, (0, 255, 0), 1)
+            else:
                 cv2.rectangle(frame, (left, top),
-                              (right, bottom), (0, 255, 0), 2)
-                # drawing names if the rect has a person associated with it
-                if rect in rect_to_person.keys():
-                    # resolve the person object
-                    p = rect_to_person[rect]
-                    y = top - 15 if top - 15 > 15 else top + 15
-                    text = p.name
-                    cv2.putText(frame, text, (left, y),
-                                self.font, 0.4, (0, 255, 0), 2)
+                              (right, bottom), (120, 0, 120), 2)
+                cv2.putText(frame, text, (left, y),
+                            self.font, 0.4, (120, 0, 120), 1)
 
         # check for arriving and leaving persons, based on set differences
-        delta_arrived = self.visible_persons.difference(
-            self.prev_visible_persons)
+        delta_arrived = new_tracking_data.difference(
+            self.tracking_data)
         self.on_known_face_enters(delta_arrived)
 
-        delta_left = self.prev_visible_persons.difference(self.visible_persons)
+        delta_left = self.tracking_data.difference(new_tracking_data)
         self.on_known_face_leaves(delta_left)
 
         # replace the old set with the new one for the next frame
-        self.prev_visible_persons = self.visible_persons
+        self.tracking_data = new_tracking_data
 
         # show preview, display FPS
         if show_preview:
             cv2.imshow('camera', frame)
             cv2.waitKey(25) & 0xff
-        if use_dnn:
-            if time.time() - start_t != 0:
-                logging.info("DNN FPS: {:.4f}".format(1/(time.time() - start_t)))
-        return self.visible_persons, frame, face_rects  # unknown_rects
+        if time.time() - start_t != 0:
+            logging.info("FPS: {:.4f}".format(1/(time.time() - start_t)))
+        return self.tracking_data, frame, face_rects  # unknown_rects
 
     def detect_faces(self, gray):
         """
@@ -194,7 +197,7 @@ class FaceHandler(Handler):
         """
         # encode all faces found in the frame
         face_encodings = face_recognition.face_encodings(rgb, face_rects)
-        rect_to_person = dict()
+        person_to_face_rect_dict = dict()
         # for every encoding, let's try to resolve it to a person, known or unknown
         for rect_count, e in enumerate(face_encodings):
             # get a flat list of known encodings
@@ -219,7 +222,7 @@ class FaceHandler(Handler):
                 logging.info("Found a person: {}".format(
                     most_likely_match.name))
                 # add the rectangle to person mapping to our dictionary
-                rect_to_person[face_rects[rect_count]] = most_likely_match
+                person_to_face_rect_dict[most_likely_match] = face_rects[rect_count]
             # if no match found in knowns, check unknowns
             else:
                 # same logic as for known persons
@@ -243,7 +246,7 @@ class FaceHandler(Handler):
                         # record the image on the person object as well
                         most_likely_match.add_image(new_image_name)
 
-                    rect_to_person[face_rects[rect_count]] = most_likely_match
+                    person_to_face_rect_dict[most_likely_match] = face_rects[rect_count]
                 # if not in unknowns
                 else:
                     # check closely if it really is a face
@@ -265,11 +268,11 @@ class FaceHandler(Handler):
                         # self.unknown_face_data["names"].append(unk_name)
                         # self.load_unknown_persons_from_database()
 
-                        rect_to_person[face_rects[rect_count]] = new_unk_person
+                        person_to_face_rect_dict[new_unk_person] = face_rects[rect_count]
                     else:
                         logging.info(
                             "HOG method found a false positive or low quality face")
-        return rect_to_person
+        return person_to_face_rect_dict
 
     # if there are faces on the picture, this function'll return true
     def is_it_a_face(self, img, r):
