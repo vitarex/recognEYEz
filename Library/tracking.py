@@ -118,6 +118,12 @@ class CentroidTracker():
         Arguments:
             person_to_face_rect_dict {Dict[Person, Tuple]} -- [description]
         """
+
+        # there is a decision here whether to clear the current object registry
+        # if we clear it, previous tracked people who are on the disappeared list are erased,
+        # even though they could appear again before the next run
+        # if we don't clear it, the previous tracking objects might interfere with the new ones
+        # by "stealing" their place when they overlap
         for (person, rect) in person_to_face_rect_dict.items():
             tracker = self.tracker_by_person(person)
             if tracker is None:
@@ -188,6 +194,14 @@ class CentroidTracker():
                 # compute a distance value between each pair of tracked object and new objects,
                 # respectively -- our goal will be to match an input centroid to an existing
                 # object centroid
+
+                # the second and third components are important two counteract the "stealing" phenomenon
+                # when a disappeared face incorrectly replaces a correctly tracked one because the correctly tracked face
+                # moves to close to the old one
+                # another effective way against this would be to detect exchanges like this explicitly by looking at the
+                # position of the disappearing and reappearing faces
+                # if there is a frame where a face disappears and an old one reappears very close by, it might be
+                # an erroneous replacement of this kind
 
                 # the first distance component is the euclidean distance in the 2D space
                 # this component is normalized, since it is dependent on the camera resolution

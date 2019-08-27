@@ -1,5 +1,5 @@
 import datetime
-from flask import Flask, render_template
+from flask import Flask
 from flask_admin import Admin
 from flask_simplelogin import SimpleLogin
 import logging
@@ -44,8 +44,9 @@ def on_known_enters(trackings):
         logging.info("Entered: {}".format(tracked.person.name))
         app.mh.publish(
             app.fh.notification_settings["topic"],
-            "[recognEYEz][ARRIVED][date: {}]: {}".format(datetime.datetime.now().strftime(app.config["TIME_FORMAT"]),
-                                                         tracked.person.name)
+            "[recognEYEz][ARRIVED][date: {}]: {} - {}".format(datetime.datetime.now().strftime(app.config["TIME_FORMAT"]),
+                                                              tracked.person.name,
+                                                              tracked.person.preference)
         )
         app.dh.log_event("[ARRIVED]: {}".format(tracked.person.name))
         logging.info("[ARRIVED]: {}".format(tracked.person.name))
