@@ -38,7 +38,7 @@ class FaceHandler(Handler):
         self.database_location = db_loc
 
         # ??? creates a variable called ct that contains the CentroidTracker???
-        self.ct = CentroidTracker(1000)
+        self.ct = CentroidTracker()
         # sets the path where the haarcascade_frontalface_default.xml file is found
         # (recognEYEz\Library\haarcascade_frontalface_default.xml)
         cascade_path = Path(__file__).resolve(
@@ -160,8 +160,8 @@ class FaceHandler(Handler):
         if show_preview:
             cv2.imshow('camera', frame)
             cv2.waitKey(25) & 0xff
-        if time.time() - start_t != 0:
-            logging.info("FPS: {:.4f}".format(1/(time.time() - start_t)))
+        """ if time.time() - start_t != 0:
+            logging.info("FPS: {:.4f}".format(1/(time.time() - start_t))) """
         return self.tracking_data, frame, face_rects  # unknown_rects
 
     def detect_faces(self, gray):

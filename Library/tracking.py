@@ -1,5 +1,6 @@
 # import the necessary packages
 from scipy.spatial import distance as dist
+from scipy.optimize import linear_sum_assignment
 import numpy as np
 import logging
 from typing import List, Dict, Tuple, Set
@@ -19,6 +20,19 @@ def centroid(rect) -> Tuple:
     cY = int((startY + endY) / 2.0)
     return (cX, cY)
 
+def normalize(a):
+    """Normalize numpy array
+
+    Arguments:
+        a -- Numpy array to normalize
+    """
+    norm = np.linalg.norm(a, ord=1)
+    if norm == 0:
+        norm = np.max(a)
+    if norm == 0:
+        return a
+    return a/norm
+
 class TrackedPerson():
     person: Person
     rect: Tuple
@@ -35,11 +49,22 @@ class TrackedPerson():
         self.tracker = tracker
 
     def disappear(self):
+        """Increment the tracked object's disappearance counter, and if it becomes larger than the 
+        limit, remove it from tracking
+        """
         self.disappearCount += 1
         if self.disappearCount > self.maxDisappeared:
             self.tracker.deregister(self)
 
     def appear(self, rect, cent=None):
+        """Record a new position of appearance for a tracked object
+
+        Arguments:
+            rect {Tuple} -- The bounding box of the face
+
+        Keyword Arguments:
+            cent {Tuple} -- The centroid point, if it has already been calculated (default: {None})
+        """
         self.disappearCount = 0
         self.rect = rect
         self.centroid = cent or centroid(rect)
@@ -107,7 +132,7 @@ class CentroidTracker():
                 return tracked
         return None
 
-    def update(self, rects) -> Set[TrackedPerson]:
+    def update(self, rects: List[Tuple[int]]) -> Set[TrackedPerson]:
         """Attempt to pair the face bounding boxes from the current frame with the centroids in the registry
         and update the registry accordingly. People that disappear for too many frames are removed from the registry.
 
@@ -131,23 +156,26 @@ class CentroidTracker():
             # return early as there are no centroids or tracking info
             # to update
             return self.objects
+
         # initialize an array of input centroids for the current frame
         inputCentroids = np.zeros((len(rects), 2), dtype="int")
 
-        # loop over the bounding box rectangles
-        for (i, rect) in enumerate(rects):
-            # use the bounding box coordinates to derive the centroid
-            inputCentroids[i] = centroid(rect)
-
-        # if we are currently not tracking any objects but there are faces on the frame
-        # we can't really do anything so we'll just return an empty dictionary
+        # use the bounding box coordinates to derive the centroids
+        inputCentroids = [centroid(rect) for rect in rects]
 
         # create a list from our objects to define an order on them
         objects = list(self.objects)
         objects: List[TrackedPerson]
 
-        # create a list of their centroids with the same order
-        objectCentroids = [tracked.centroid for tracked in self.objects]
+        objectCentroids = list()
+        objectRects = list()
+        objectAges = list()
+
+        # create lists of their attributes with the same order
+        for tracked in self.objects:
+            objectCentroids.append(tracked.centroid)
+            objectRects.append(tracked.rect)
+            objectAges.append(tracked.disappearCount)
 
         try:
             if len(self.objects) == 0:
@@ -157,60 +185,53 @@ class CentroidTracker():
             # try to match the input centroids to existing object
             # centroids
             else:
-                # compute the distance between each pair of object
-                # centroids and input centroids, respectively -- our
-                # goal will be to match an input centroid to an existing
+                # compute a distance value between each pair of tracked object and new objects,
+                # respectively -- our goal will be to match an input centroid to an existing
                 # object centroid
-                D = dist.cdist(np.array(objectCentroids), inputCentroids)
 
-                # in order to perform this matching we must (1) find the
-                # smallest value in each row and then (2) sort the row
-                # indexes based on their minimum values so that the row
-                # with the smallest value is at the *front* of the index
-                # list
-                rows = D.min(axis=1).argsort()
+                # the first distance component is the euclidean distance in the 2D space
+                # this component is normalized, since it is dependent on the camera resolution
+                D1 = normalize(dist.cdist(np.array(objectCentroids), inputCentroids))
 
-                # next, we perform a similar process on the columns by
-                # finding the smallest value in each column and then
-                # sorting using the previously computed row index list
-                cols = D.argmin(axis=1)[rows]
+                # the second component is the size difference of the bounding boxes
+                # the same face is likely to be similar in size across subsequent frames
+                # this component is normalized, since it is dependent on the camera resolution
+                # first we calculate the areas of the boxes by multiplying the sides
+                # then we create column vectors from these row vectors to feed into the distance matrix method
+                # finally, the distance matrix is normalized
+                orects = np.array(objectRects)
+                oareas = (np.array((orects[..., 2] - orects[..., 0], orects[..., 1] - orects[..., 3])).T).prod(axis=-1)
+                nrects = np.array(rects)
+                nareas = (np.array((nrects[..., 2] - nrects[..., 0], nrects[..., 1] - nrects[..., 3])).T).prod(axis=-1)
+                D2 = normalize(dist.cdist(oareas[np.newaxis].T, nareas[np.newaxis].T))
 
-                # in order to determine if we need to update, register,
-                # or deregister an object we need to keep track of which
-                # of the rows and column indexes we have already examined
-                usedRows = set()
-                usedCols = set()
+                # the third component is the age ff the tracked object
+                # mapped to [0.5, 1]
+                D3 = (np.array(objectAges) + self.maxDisappeared) / (self.maxDisappeared * 2)
 
-                # loop over the combination of the (row, column) index
-                # tuples
-                for (row, col) in zip(rows, cols):
-                    # if we have already examined either the row or
-                    # column value before, ignore it
-                    # val
-                    if row in usedRows or col in usedCols:
-                        continue
+                # the first two components are multiplied elementwise, while the third
+                # is applied as a vector across the rows of the matrix
+                D = (np.multiply(D1, D2)) * D3[:, np.newaxis]
 
-                    # otherwise, grab the object for the current row,
-                    # set its new centroid, and reset the disappeared
-                    # counter
-                    # objectID = objectIDs[row]
-                    # self.objects[objectID] = inputCentroids[col]
-                    # self.disappeared[objectID] = 0
-                    try:
-                        objects[row].appear(rects[col])
+                # the maximum number of pairs is given by min(len(objectCentroids), len(inputCentroids))
+                # we minimize the distance cost for this number of pairs
+                # using the hungarian algorithm
+                min_indexes = linear_sum_assignment(D)
 
-                        # indicate that we have examined each of the row and
-                        # column indexes, respectively
-                        usedRows.add(row)
-                        usedCols.add(col)
+                # let's take the pairs with the minimum distance cost
+                # and update the corresponding tracked objects
+                for i in range(min(len(objectCentroids), len(inputCentroids))):
+                    objects[min_indexes[0][i]].appear(rects[min_indexes[1][i]])
 
-                    except KeyError as ke:
-                        logging.error(ke)
+                # if there are more new faces than old faces, we don't do anything else
+                # this can occur when force_dnn_on_new is turned off and a new face appears
+                # since we don't know yet who this face belongs to, we don't start tracking it
+                # however, if there are more old faces than new, we must mark these as disappeared
+                # these belong to the indexes which did not appear in min_indexes
+                for i in [x for x in range(len(objectCentroids)) if x not in min_indexes[0]]:
+                    objects[i].disappear()
         except KeyError as ke:
             logging.error(ke)
-
-        for tracked in self.objects.difference(self.seen):
-            tracked.disappear()
 
         # return the set of trackable objects
         return self.objects

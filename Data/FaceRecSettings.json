@@ -10,7 +10,7 @@
    ],
    "selected-setting": "Gabor presetje",
    "dnn-tresh": 0.5,
-   "dnn-scan-freq": -1,
+   "dnn-scan-freq": 100,
    "force-dnn-on-new": true,
    "cache-unknown": true
 }
