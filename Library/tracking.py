@@ -148,15 +148,21 @@ class CentroidTracker():
         Returns:
             List -- List of tuples of face bounding boxes and their respective person
         """
-        # clear the objects seen in the current frame
+        # clear the objects seen on the previous frame
         self.seen.clear()
+
+        # create a list from our objects to define an order on them
+        objects = list(self.objects)
+        objects: List[TrackedPerson]
 
         # check to see if the list of input bounding box rectangles
         # is empty
         if len(rects) == 0:
             # loop over any existing tracked objects and mark them
             # as disappeared
-            for tracked in list(self.objects):
+            # and don't loop over the set itself, since the collection is
+            # modified ;)
+            for tracked in objects:
                 tracked.disappear()
 
             # return early as there are no centroids or tracking info
@@ -168,10 +174,6 @@ class CentroidTracker():
 
         # use the bounding box coordinates to derive the centroids
         inputCentroids = [centroid(rect) for rect in rects]
-
-        # create a list from our objects to define an order on them
-        objects = list(self.objects)
-        objects: List[TrackedPerson]
 
         objectCentroids = list()
         objectRects = list()
@@ -209,18 +211,19 @@ class CentroidTracker():
 
                 # the second component is the size difference of the bounding boxes
                 # the same face is likely to be similar in size across subsequent frames
-                # this component is normalized, since it is dependent on the camera resolution
-                # first we calculate the areas of the boxes by multiplying the sides
-                # then we create column vectors from these row vectors to feed into the distance matrix method
-                # finally, the distance matrix is normalized
+                # this component is normalized, since it is dependent on the camera resolution (by the second order)
+                # take the bounding boxes as a row vector
                 orects = np.array(objectRects)
+                # first we calculate the areas of the boxes by calculating  the sides and multiplying them
                 oareas = (np.array((orects[..., 2] - orects[..., 0], orects[..., 1] - orects[..., 3])).T).prod(axis=-1)
+                # do this for the new faces as well
                 nrects = np.array(rects)
                 nareas = (np.array((nrects[..., 2] - nrects[..., 0], nrects[..., 1] - nrects[..., 3])).T).prod(axis=-1)
+                # finally, the distance matrix is calculated and normalized
+                # the distance matrix expects a 2d array, so we create column vectors from the row vectors
                 D2 = normalize(dist.cdist(oareas[np.newaxis].T, nareas[np.newaxis].T))
 
-                # the third component is the age ff the tracked object
-                # mapped to [0.5, 1]
+                # the third component is the age of the tracked object mapped to [0.5, 1]
                 D3 = (np.array(objectAges) + self.maxDisappeared) / (self.maxDisappeared * 2)
 
                 # the first two components are multiplied elementwise, while the third
@@ -228,8 +231,7 @@ class CentroidTracker():
                 D = (np.multiply(D1, D2)) * D3[:, np.newaxis]
 
                 # the maximum number of pairs is given by min(len(objectCentroids), len(inputCentroids))
-                # we minimize the distance cost for this number of pairs
-                # using the hungarian algorithm
+                # we minimize the distance cost for this number of pairs using the hungarian algorithm
                 min_indexes = linear_sum_assignment(D)
 
                 # let's take the pairs with the minimum distance cost
@@ -240,10 +242,12 @@ class CentroidTracker():
                 # if there are more new faces than old faces, we don't do anything else
                 # this can occur when force_dnn_on_new is turned off and a new face appears
                 # since we don't know yet who this face belongs to, we don't start tracking it
-                # however, if there are more old faces than new, we must mark these as disappeared
-                # these belong to the indexes which did not appear in min_indexes
+
+                # however, if there are more old faces than new, we must mark the ones
+                # not paired with a new face as having disappeared
                 for i in [x for x in range(len(objectCentroids)) if x not in min_indexes[0]]:
                     objects[i].disappear()
+
         except KeyError as ke:
             logging.error(ke)
 
