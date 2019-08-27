@@ -71,14 +71,14 @@ class TrackedPerson():
         self.tracker.seen.add(self)
 
 class CentroidTracker():
-    objects: Set[TrackedPerson]
+    objects: Dict[Person, TrackedPerson]
 
     def __init__(self, maxDisappeared=50):
         # initialize the next unique object ID along with two ordered
         # dictionaries used to keep track of mapping a given object
         # ID to its bounding box and number of consecutive frames it has
         # been marked as "disappeared", respectively
-        self.objects = set()
+        self.objects = dict()
         self.seen = set()
         self.prev_ids = list()
 
@@ -93,7 +93,7 @@ class CentroidTracker():
         Arguments:
             tracked {TrackedPerson} -- The person the face was associated with
         """
-        self.objects.add(tracked)
+        self.objects[tracked.person] = tracked
 
     def deregister(self, tracked: TrackedPerson) -> bool:
         """Deregister tracked person from the tracking registry
@@ -107,7 +107,7 @@ class CentroidTracker():
         # to deregister an object ID we delete the object ID from
         # both of our respective dictionaries
         try:
-            self.objects.remove(tracked)
+            del self.objects[tracked.person]
             return True
         except KeyError:
             return False
@@ -125,18 +125,12 @@ class CentroidTracker():
         # if we don't clear it, the previous tracking objects might interfere with the new ones
         # by "stealing" their place when they overlap
         for (person, rect) in person_to_face_rect_dict.items():
-            tracker = self.tracker_by_person(person)
-            if tracker is None:
-                self.register(TrackedPerson(person, rect, self, self.maxDisappeared))
-            else:
+            try:
+                tracker = self.objects[person]
                 tracker.appear(rect)
-        return self.objects
-
-    def tracker_by_person(self, person: Person):
-        for tracked in self.objects:
-            if tracked.person == person:
-                return tracked
-        return None
+            except KeyError:
+                self.register(TrackedPerson(person, rect, self, self.maxDisappeared))
+        return set(self.objects.values())
 
     def update(self, rects: List[Tuple[int]]) -> Set[TrackedPerson]:
         """Attempt to pair the face bounding boxes from the current frame with the centroids in the registry
@@ -152,7 +146,7 @@ class CentroidTracker():
         self.seen.clear()
 
         # create a list from our objects to define an order on them
-        objects = list(self.objects)
+        objects = list(self.objects.values())
         objects: List[TrackedPerson]
 
         # check to see if the list of input bounding box rectangles
@@ -167,7 +161,7 @@ class CentroidTracker():
 
             # return early as there are no centroids or tracking info
             # to update
-            return self.objects
+            return set(self.objects.values())
 
         # initialize an array of input centroids for the current frame
         inputCentroids = np.zeros((len(rects), 2), dtype="int")
@@ -180,14 +174,14 @@ class CentroidTracker():
         objectAges = list()
 
         # create lists of their attributes with the same order
-        for tracked in self.objects:
+        for tracked in objects:
             objectCentroids.append(tracked.centroid)
             objectRects.append(tracked.rect)
             objectAges.append(tracked.disappearCount)
 
         try:
-            if len(self.objects) == 0:
-                return self.objects
+            if len(objects) == 0:
+                return set(self.objects.values())
 
             # otherwise, we are currently tracking objects so we need to
             # try to match the input centroids to existing object
@@ -252,4 +246,4 @@ class CentroidTracker():
             logging.error(ke)
 
         # return the set of trackable objects
-        return self.objects
+        return set(self.objects.values())
