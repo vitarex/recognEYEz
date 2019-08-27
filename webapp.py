@@ -42,7 +42,7 @@ def on_known_enters(persons):
         logging.info("Entered: {}".format(person.name))
         app.mh.publish(
             app.fh.notification_settings["topic"],
-            "[recognEYEz][ARRIVED][date: {}]: {}".format(datetime.datetime.now().strftime(app.config["TIME_FORMAT"]), person.name)
+            "[recognEYEz][ARRIVED][date: {}]: {} - {}".format(datetime.datetime.now().strftime(app.config["TIME_FORMAT"]), person.name, person.preference)
         )
         app.dh.log_event("[ARRIVED]: {}".format(person.name))
         logging.info("[ARRIVED]: {}".format(person.name))
