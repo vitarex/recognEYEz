@@ -18,9 +18,10 @@
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"
-	integrity="sha256-0YPKAwZP7Mp3ALMRVB2i8GXeEndvCq3eSl/WsAl1Ryk=" crossorigin="anonymous"></script>
+integrity="sha256-0YPKAwZP7Mp3ALMRVB2i8GXeEndvCq3eSl/WsAl1Ryk=" crossorigin="anonymous"></script>
 <script type=text/javascript src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
 <script type=text/javascript> $SCRIPT_ROOT={{ request.script_root|tojson|safe }}; </script>
+<script type=text/javascript src="js/basic.js"></script>
 <body class="bg-dark full-height">
 	{% block script %}
 	{% endblock script %}
@@ -54,13 +55,13 @@
 								<span class="text-light font-size-12">Quick actions</span>
 							</li>
 							<li class="nav-item">
-								<a class="nav-link pl-3" href="/start_camera">Start camera</a>
+								<a class="nav-link pl-3 start-camera-action">Start camera</a>
 							</li>
 							<li class="nav-item">
-								<a class="nav-link pl-3" href="/stop_camera">Stop camera</a>
+								<a class="nav-link pl-3 stop-camera-action">Stop camera</a>
 							</li>
 							<li class="nav-item">
-								<a class="nav-link pl-3" href="/force_rescan">Force rescan</a>
+								<a class="nav-link pl-3 force-rescan-action">Force rescan</a>
 							</li>
 							<li class="nav-item">
 								<a class="nav-link pl-3" href="/retrain">Retrain</a>

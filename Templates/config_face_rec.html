@@ -127,9 +127,9 @@
 			<div class="form-group row">
 				<label class="col-form-label col-form-label-lg col-lg-3" for="facerec-frequency">Face recognition frequency</label>
 				<div class="col-lg-4">
-					<input id="facerec-frequency" class="form-control form-control-lg" type="number" name="dnn-scan-freq-float-static"
+					<input id="facerec-frequency" class="form-control form-control-lg" type="number" name="dnn-scan-freq-int-static"
 						value="{{ frec['dnn-scan-freq']|int }}" min="1" max="10000" step="1" required>
-					<small class="form-text">The number of frames between face recognition passes<br/>The lower this number, the lower the effective frame rate</small>
+					<small class="form-text">The number of frames between face recognition passes<br/>The lower this number, the lower the effective frame rate<br/>If set to -1, the DNN will only be used with forced rescans and new faces</small>
 				</div>
 			</div>
 

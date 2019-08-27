@@ -1,6 +1,4 @@
-from logging.config import dictConfig
-
-dictConfig({
+logging_config = {
     'version': 1,
     'formatters': {
         'default': {
@@ -26,7 +24,7 @@ dictConfig({
         'level': 'INFO',
         'handlers': ['wsgi', 'filehandler']
     }
-})
+}
 
 class Config:
     TIME_FORMAT = "%Y.%m.%d. %H:%M:%S"

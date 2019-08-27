@@ -6,6 +6,8 @@ import sys
 import cv2
 import logging
 
+from Library.helpers import OKResponse
+
 actions = Blueprint("actions", __name__)
 
 
@@ -15,25 +17,21 @@ actions = Blueprint("actions", __name__)
 @login_required
 def start_cam():
     app.ch.camera_start_processing()
-    return redirect("/")
+    return OKResponse()
 
 
 @actions.route('/stop_camera')
 @login_required
 def stop_cam():
     app.ch.camera_stop_processing()
-    return redirect("/")
+    return OKResponse()
 
 
 @actions.route('/force_rescan')
 @login_required
 def force_a_rescan():
     app.force_rescan = True
-    while app.force_rescan\
-            and app.ch.cam_is_running\
-            and app.ch.cam_is_processing:
-        pass
-    return redirect("/")
+    return OKResponse()
 
 
 @actions.route('/retrain')
