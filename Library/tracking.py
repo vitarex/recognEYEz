@@ -74,13 +74,10 @@ class CentroidTracker():
     objects: Dict[Person, TrackedPerson]
 
     def __init__(self, maxDisappeared=50):
-        # initialize the next unique object ID along with two ordered
-        # dictionaries used to keep track of mapping a given object
-        # ID to its bounding box and number of consecutive frames it has
-        # been marked as "disappeared", respectively
+        # initialize the dictionary used to map a person to its tracking object
+        # and the set of tracking objects actively seen on the current frame
         self.objects = dict()
         self.seen = set()
-        self.prev_ids = list()
 
         # store the number of maximum consecutive frames a given
         # object is allowed to be marked as "disappeared" until we
@@ -104,8 +101,7 @@ class CentroidTracker():
         Returns:
             bool -- True if the person was in the registry
         """
-        # to deregister an object ID we delete the object ID from
-        # both of our respective dictionaries
+        # to deregister an object we just delete it from our dictionary
         try:
             del self.objects[tracked.person]
             return True
@@ -118,8 +114,7 @@ class CentroidTracker():
         Arguments:
             person_to_face_rect_dict {Dict[Person, Tuple]} -- [description]
         """
-
-        # there is a decision here whether to clear the current object registry
+        # there is a decision here whether to clear the current object registry at this point
         # if we clear it, previous tracked people who are on the disappeared list are erased,
         # even though they could appear again before the next run
         # if we don't clear it, the previous tracking objects might interfere with the new ones
@@ -155,7 +150,7 @@ class CentroidTracker():
             # loop over any existing tracked objects and mark them
             # as disappeared
             # and don't loop over the set itself, since the collection is
-            # modified ;)
+            # modified in the loop ;)
             for tracked in objects:
                 tracked.disappear()
 
@@ -173,64 +168,69 @@ class CentroidTracker():
         objectRects = list()
         objectAges = list()
 
-        # create lists of their attributes with the same order
+        # create lists of the tracked objects' attributes with the same order
+        # as the objects list
         for tracked in objects:
             objectCentroids.append(tracked.centroid)
             objectRects.append(tracked.rect)
             objectAges.append(tracked.disappearCount)
 
         try:
+            # if there are no tracked objects we don't do anything
+            # since there isn't any objects to update
+            # we have to wait for the next DNN to tie faces to people
             if len(objects) == 0:
                 return set(self.objects.values())
 
             # otherwise, we are currently tracking objects so we need to
-            # try to match the input centroids to existing object
-            # centroids
+            # try to match the inputs to existing objects
             else:
-                # compute a distance value between each pair of tracked object and new objects,
-                # respectively -- our goal will be to match an input centroid to an existing
-                # object centroid
+                # let's compute a distance value between each pair of tracked objects and new objects,
+                # respectively -- our goal will be to match an input to an existing object
 
-                # the second and third components are important two counteract the "stealing" phenomenon
-                # when a disappeared face incorrectly replaces a correctly tracked one because the correctly tracked face
-                # moves to close to the old one
+                # the second and third components are important for counteracting the "stealing" phenomenon
+                # when a disappeared face incorrectly replaces a correctly tracked one, because the correctly tracked face
+                # moves too close to the old one
                 # another effective way against this would be to detect exchanges like this explicitly by looking at the
                 # position of the disappearing and reappearing faces
                 # if there is a frame where a face disappears and an old one reappears very close by, it might be
                 # an erroneous replacement of this kind
 
                 # the first distance component is the euclidean distance in the 2D space
-                # this component is normalized, since it is dependent on the camera resolution
+                # this component is normalized, since it is dependent on the camera resolution (by the first order)
                 D1 = normalize(dist.cdist(np.array(objectCentroids), inputCentroids))
 
                 # the second component is the size difference of the bounding boxes
                 # the same face is likely to be similar in size across subsequent frames
-                # this component is normalized, since it is dependent on the camera resolution (by the second order)
+                # this component is also normalized, since it is dependent on the camera resolution (by the second order)
+
                 # take the bounding boxes as a row vector
                 orects = np.array(objectRects)
                 # first we calculate the areas of the boxes by calculating  the sides and multiplying them
+                # the notation is made more complicated by the edge case where there is only one rectangle, making this
+                # array one dimensional instead of two
                 oareas = (np.array((orects[..., 2] - orects[..., 0], orects[..., 1] - orects[..., 3])).T).prod(axis=-1)
                 # do this for the new faces as well
                 nrects = np.array(rects)
                 nareas = (np.array((nrects[..., 2] - nrects[..., 0], nrects[..., 1] - nrects[..., 3])).T).prod(axis=-1)
                 # finally, the distance matrix is calculated and normalized
-                # the distance matrix expects a 2d array, so we create column vectors from the row vectors
+                # the distance matrix expects a 2d array, so we create column vectors from our row vectors
                 D2 = normalize(dist.cdist(oareas[np.newaxis].T, nareas[np.newaxis].T))
 
                 # the third component is the age of the tracked object mapped to [0.5, 1]
                 D3 = (np.array(objectAges) + self.maxDisappeared) / (self.maxDisappeared * 2)
 
                 # the first two components are multiplied elementwise, while the third
-                # is applied as a vector across the rows of the matrix
+                # is applied as a vector across the rows of the matrix, as the rows represent the tracked objects
                 D = (np.multiply(D1, D2)) * D3[:, np.newaxis]
 
                 # the maximum number of pairs is given by min(len(objectCentroids), len(inputCentroids))
-                # we minimize the distance cost for this number of pairs using the hungarian algorithm
+                # we minimize the distance cost for this number of pairs using the Hungarian algorithm
                 min_indexes = linear_sum_assignment(D)
 
                 # let's take the pairs with the minimum distance cost
                 # and update the corresponding tracked objects
-                for i in range(min(len(objectCentroids), len(inputCentroids))):
+                for i in range(min(len(objects), len(rects))):
                     objects[min_indexes[0][i]].appear(rects[min_indexes[1][i]])
 
                 # if there are more new faces than old faces, we don't do anything else
@@ -245,5 +245,5 @@ class CentroidTracker():
         except KeyError as ke:
             logging.error(ke)
 
-        # return the set of trackable objects
+        # return the unique set of trackable objects
         return set(self.objects.values())
