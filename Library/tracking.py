@@ -49,7 +49,7 @@ class TrackedPerson():
         self.tracker = tracker
 
     def disappear(self):
-        """Increment the tracked object's disappearance counter, and if it becomes larger than the 
+        """Increment the tracked object's disappearance counter, and if it becomes larger than the
         limit, remove it from tracking
         """
         self.disappearCount += 1
