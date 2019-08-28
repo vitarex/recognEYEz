@@ -42,7 +42,7 @@
 												<option value="{{i}}" {% if setting["preferred-id"] == i %} selected {% endif %}>Camera {{i}}</option>
 												{% endfor %}
 												{% if available_picamera %}
-												<option value="-2" id="picamera-{{loop.index}}" class="picamera" {% if setting["preferred-id"] == -2 %} selected {% endif %}>PiCamera with hardware support</option>
+												<option value="-2" id="picamera-{{loop.index}}" class="picamera" {% if setting["preferred-id"] == -2 %} selected {% endif %}>PiCamera - with hardware support</option>
 												{% endif %}
 												<option value="-1" id="ipcam-{{loop.index}}" class="ipcam" {% if setting["preferred-id"] == -1 %} selected {% endif %}>IP Camera</option>
 											</select>

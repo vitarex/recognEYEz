@@ -203,7 +203,7 @@ class CameraHandler(Handler):
 
             def create_camera():
                 if active_camera_setting["preferred-id"] == -2:
-                    self.cam = None
+                    self.cam = RaspberryCamera()
                 elif active_camera_setting["preferred-id"] == -1:
                     self.cam = OpencvCamera.from_url(
                         active_camera_setting["URL"])
