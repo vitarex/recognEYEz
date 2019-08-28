@@ -56,7 +56,6 @@ try:
             )
             self._run = True
             self.capture_thread.start()
-            self.cam_is_running = True
 
         def release(self) -> bool:
             self._run = False
@@ -82,6 +81,7 @@ try:
                             splitter_port=2,
                             format="bgr",
                         )
+                        self.cam_is_running = True
                         while self._run:
                             camera.wait_recording(1)
                         camera.stop_recording()
