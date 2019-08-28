@@ -171,8 +171,10 @@ class CameraHandler(Handler):
         to process frames from the camera
         """
         ticker = 0
-        error_count = 0
         try:
+            if self.app.sh.get_camera_setting_by_name(
+                    self.app.sh.get_face_recognition_settings()["selected-setting"])["preferred-id"] == -2:
+                sleep(2)
             while self.cam_is_running:
                 try:
                     if (ticker > int(self.app.sh.get_face_recognition_settings()["dnn-scan-freq"])
@@ -191,16 +193,12 @@ class CameraHandler(Handler):
                         if int(self.app.sh.get_face_recognition_settings()["dnn-scan-freq"]) == -1:
                             ticker = 0
                     ticker += 1
-                    error_count = 0
                 except AssertionError as e:
                     print(e)
         except Exception as e:
-            error_count += 1
             if self.cam:
                 self.cam.release()
             logging.info(e)
-            if error_count > 5:
-                self.cam_is_running = False
             raise e
 
     def start_cam(self):
