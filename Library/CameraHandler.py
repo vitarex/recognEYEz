@@ -84,6 +84,7 @@ try:
                         while self._run:
                             camera.wait_recording(1)
                         camera.stop_recording()
+                        camera.stop_recording(splitter_port=2)
 
         def read(self):
             return (True, self.current_frame)
@@ -172,25 +173,26 @@ class CameraHandler(Handler):
         error_count = 0
         try:
             while self.cam_is_running:
-                if (ticker > int(self.app.sh.get_face_recognition_settings()["dnn-scan-freq"])
-                    and int(self.app.sh.get_face_recognition_settings()["dnn-scan-freq"]) != -1)\
-                        or self.app.force_rescan:
-                    _, frame, _ = self.app.fh.process_next_frame(
-                        True, save_new_faces=True)
-                    ticker = 0
-                    self.app.force_rescan = False
-
-                    self.app.preview_image = frame
-                else:
-                    _, frame, _ = self.app.fh.process_next_frame(
-                        save_new_faces=True)
-                    self.app.preview_image = frame
-                    if int(self.app.sh.get_face_recognition_settings()["dnn-scan-freq"]) == -1:
+                try:
+                    if (ticker > int(self.app.sh.get_face_recognition_settings()["dnn-scan-freq"])
+                        and int(self.app.sh.get_face_recognition_settings()["dnn-scan-freq"]) != -1)\
+                            or self.app.force_rescan:
+                        _, frame, _ = self.app.fh.process_next_frame(
+                            True, save_new_faces=True)
                         ticker = 0
-                ticker += 1
-                error_count = 0
-        except AssertionError as e:
-            print(e)
+                        self.app.force_rescan = False
+
+                        self.app.preview_image = frame
+                    else:
+                        _, frame, _ = self.app.fh.process_next_frame(
+                            save_new_faces=True)
+                        self.app.preview_image = frame
+                        if int(self.app.sh.get_face_recognition_settings()["dnn-scan-freq"]) == -1:
+                            ticker = 0
+                    ticker += 1
+                    error_count = 0
+                except AssertionError as e:
+                    print(e)
         except Exception as e:
             error_count += 1
             if self.cam:

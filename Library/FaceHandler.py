@@ -97,9 +97,9 @@ class FaceHandler(Handler):
         with self.app.ch.cam_lock:
             ret, frame = self.app.ch.cam.read()
         face_rec_dict = self.app.sh.get_face_recognition_settings()
-        frame = self.resize_if_needed(frame, face_rec_dict)
         if not ret or frame is None:
             raise AssertionError("The camera didn't return a frame object. Maybe it failed to start properly.")
+        frame = self.resize_if_needed(frame, face_rec_dict)
         if self.app.sh.get_camera_setting_by_name(face_rec_dict["selected-setting"])["flip-cam"] is True:
             frame = cv2.flip(frame, -1)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
