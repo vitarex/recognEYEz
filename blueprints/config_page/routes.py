@@ -32,6 +32,7 @@ def config_view():
         frec=app.sh.load_face_recognition_settings(),
         camera_settings=app.sh.get_face_recognition_settings()["camera-settings"],
         available_cameras=app.ch.available_cameras(),
+        available_picamera=app.ch.available_picamera(),
         notif=app.sh.load_notification_settings(),
         username=session['simple_username']
     )

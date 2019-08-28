@@ -4,12 +4,89 @@ import threading
 import datetime
 import cv2
 from Library.Handler import Handler
+from time import sleep
 
-
-class OpencvCamera:
+class Camera:
     resolutions = {"vga": (640, 480), "qvga": (320, 240), "qqvga": (
         160, 120), "hd": (1280, 720), "fhd": (1920, 1080)}
 
+    def set_resolution(self, res: str):
+        raise NotImplementedError
+
+    def read(self):
+        raise NotImplementedError
+
+    def release(self):
+        raise NotImplementedError
+
+
+try:
+    from picamera import PiCamera
+    from picamera.array import PiMotionAnalysis, PiRGBAnalysis
+
+    class MotionFrame(PiMotionAnalysis):
+        camera = None
+
+        def analyze(self, frame):
+            self.camera.current_motion = frame
+
+    class BGRFrame(PiRGBAnalysis):
+        camera = None
+
+        def analyze(self, frame):
+            self.camera.current_frame = frame
+
+    class RaspberryCamera(Camera):
+        current_frame = None
+        current_motion = None
+        capture_thread: threading.Thread
+
+        def __del__(self):
+            if self.capture_thread is not None\
+                    and self.capture_thread.isAlive():
+                self.capture_thread.join()
+
+        def set_resolution(self, res: str):
+            self.resolution = self.resolutions[res]
+
+        def start_recording(self):
+            self.capture_thread = threading.Thread(
+                target=self.start, daemon=True
+            )
+            self.capture_thread.start()
+
+        def start(self):
+            sleep(2)
+            with PiCamera() as camera:
+                with BGRFrame(camera) as regular_output:
+                    regular_output.camera = self
+                    with MotionFrame(camera) as motion_output:
+                        motion_output.camera = self
+                        camera.resolution = self.resolution
+                        camera.framerate = 30
+                        camera.start_recording(
+                            "/dev/null",
+                            format="h264",
+                            motion_output=motion_output
+                        )
+                        camera.start_recording(
+                            regular_output,
+                            splitter_port=2,
+                            format="bgr",
+                        )
+                        while True:
+                            camera.wait_recording(1)
+                        camera.stop_recording()
+
+        def read(self):
+            return self.current_frame
+
+
+except ImportError:
+    pass
+
+
+class OpencvCamera(Camera):
     def __init__(self, cam_id: int, url: str = None):
         if url is not None:
             self.cam = cv2.VideoCapture(url)
@@ -42,7 +119,7 @@ class OpencvCamera:
 
 
 class CameraHandler(Handler):
-    cam: OpencvCamera = None
+    cam: Camera = None
     cam_lock: threading.RLock = threading.RLock()
 
     def __init__(self, app):
@@ -125,7 +202,9 @@ class CameraHandler(Handler):
                 self.app.sh.get_face_recognition_settings()["selected-setting"])
 
             def create_camera():
-                if active_camera_setting["preferred-id"] == -1:
+                if active_camera_setting["preferred-id"] == -2:
+                    self.cam = None
+                elif active_camera_setting["preferred-id"] == -1:
                     self.cam = OpencvCamera.from_url(
                         active_camera_setting["URL"])
                     self.cam_is_running = self.cam.cam_is_running
@@ -139,10 +218,11 @@ class CameraHandler(Handler):
             create_camera()
             self.cam.set_resolution(active_camera_setting["resolution"])
 
-            if not self.cam.read()[0]:
-                logging.error("Could not set resolution. The camera might not support changing the resolution. Retrying...")
-                self.cam.release()
-                create_camera()
+            if active_camera_setting["preferred-id"] > 0:
+                if not self.cam.read()[0]:
+                    logging.error("Could not set resolution. The camera might not support changing the resolution. Retrying...")
+                    self.cam.release()
+                    create_camera()
 
             logging.info("Camera object: {}".format(self.cam))
 
@@ -179,3 +259,18 @@ class CameraHandler(Handler):
             if cam.isOpened():
                 cam.release()
         return i
+
+    def available_picamera(self) -> bool:
+        try:
+            from picamera import PiCamera
+            from picamera.exc import PiCameraError
+            try:
+                with PiCamera():
+                    return True
+            except PiCameraError:
+                logging.error("Could not set up picamera. Please check the camera connection.")
+                return False
+        except ImportError:
+            logging.warning("Picamera module not found, this device is either not a Raspberry,"
+                            " or the module is not installed correctly.")
+            return False
