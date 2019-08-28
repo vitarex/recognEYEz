@@ -83,6 +83,7 @@ try:
                             format="bgr",
                         )
                         self.cam_is_running = True
+                        logging.info("cam_is_running set to true")
                         while self._run:
                             camera.wait_recording(1)
                         camera.stop_recording()
@@ -173,6 +174,8 @@ class CameraHandler(Handler):
         ticker = 0
         try:
             while not self.cam.cam_is_running:
+                logging.info(self.cam.cam_is_running)
+                logging.info(self.cam_is_running)
                 sleep(0.1)
             while self.cam_is_running:
                 try:
