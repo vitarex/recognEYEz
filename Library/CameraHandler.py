@@ -39,6 +39,7 @@ try:
     class RaspberryCamera(Camera):
         current_frame = None
         current_motion = None
+        cam_is_running: bool = False
         capture_thread: threading.Thread
         _run: bool
 
