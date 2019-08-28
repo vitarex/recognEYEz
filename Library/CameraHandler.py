@@ -40,6 +40,7 @@ try:
         current_frame = None
         current_motion = None
         capture_thread: threading.Thread
+        _run: bool
 
         def __del__(self):
             if self.capture_thread is not None\
@@ -53,8 +54,13 @@ try:
             self.capture_thread = threading.Thread(
                 target=self.start, daemon=True
             )
+            self._run = True
             self.capture_thread.start()
             self.cam_is_running = True
+
+        def release(self):
+            self._run = False
+            self.capture_thread.join()
 
         def start(self):
             sleep(2)
@@ -75,12 +81,12 @@ try:
                             splitter_port=2,
                             format="bgr",
                         )
-                        while True:
+                        while self._run:
                             camera.wait_recording(1)
                         camera.stop_recording()
 
         def read(self):
-            return self.current_frame
+            return (True, self.current_frame)
 
 
 except ImportError:
