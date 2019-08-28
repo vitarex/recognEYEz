@@ -58,9 +58,10 @@ try:
             self.capture_thread.start()
             self.cam_is_running = True
 
-        def release(self):
+        def release(self) -> bool:
             self._run = False
             self.capture_thread.join()
+            return True
 
         def start(self):
             sleep(2)
