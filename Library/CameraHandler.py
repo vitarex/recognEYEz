@@ -174,8 +174,6 @@ class CameraHandler(Handler):
         ticker = 0
         try:
             while not self.cam.cam_is_running:
-                logging.info(self.cam.cam_is_running)
-                logging.info(self.cam_is_running)
                 sleep(0.1)
             while self.cam_is_running:
                 try:
@@ -196,11 +194,11 @@ class CameraHandler(Handler):
                             ticker = 0
                     ticker += 1
                 except AssertionError as e:
-                    print(e)
+                    logging.error(e)
         except Exception as e:
             if self.cam:
                 self.cam.release()
-            logging.info(e)
+            logging.error(e)
             raise e
 
     def start_cam(self):

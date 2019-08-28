@@ -92,7 +92,7 @@ class FaceHandler(Handler):
         :param show_preview: show pop-up preview?
         :return: the visible persons, the frame itself and the rectangles corresponding to the found faces
         """
-
+        logging.info("Processing next frame...")
         start_t = time.time()
         with self.app.ch.cam_lock:
             ret, frame = self.app.ch.cam.read()
