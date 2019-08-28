@@ -54,6 +54,7 @@ try:
                 target=self.start, daemon=True
             )
             self.capture_thread.start()
+            self.cam_is_running = True
 
         def start(self):
             sleep(2)
@@ -223,6 +224,10 @@ class CameraHandler(Handler):
                     logging.error("Could not set resolution. The camera might not support changing the resolution. Retrying...")
                     self.cam.release()
                     create_camera()
+            if active_camera_setting["preferred-id"] == -2:
+                self.cam.start_recording()
+                self.cam_is_running = self.cam.cam_is_running
+                logging.info("PiCamera startd")
 
             logging.info("Camera object: {}".format(self.cam))
 
