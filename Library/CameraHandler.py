@@ -172,7 +172,7 @@ class CameraHandler(Handler):
         """
         ticker = 0
         try:
-            while not self.cam_is_running:
+            while not self.cam.cam_is_running:
                 sleep(0.1)
             while self.cam_is_running:
                 try:
