@@ -175,6 +175,7 @@ class CameraHandler(Handler):
         try:
             while not self.cam.cam_is_running:
                 sleep(0.1)
+            self.cam_is_running = self.cam.cam_is_running
             logging.info("Starting frame processing...")
             while self.cam_is_running:
                 try:
