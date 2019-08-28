@@ -175,6 +175,7 @@ class CameraHandler(Handler):
         try:
             while not self.cam.cam_is_running:
                 sleep(0.1)
+            logging.info("Starting frame processing...")
             while self.cam_is_running:
                 try:
                     if (ticker > int(self.app.sh.get_face_recognition_settings()["dnn-scan-freq"])
