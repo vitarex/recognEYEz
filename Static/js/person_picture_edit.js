@@ -44,8 +44,8 @@ $(document).ready(function() {
   });
 
   // cancel change
-  $(".cancel-person-change").click(function() {
-    $("#choose-new-owner").hide();
+  $("#cancel-person-change-small").click(function() {
+    $(".dialog-overlay").hide();
     return false;
   });
 
@@ -74,18 +74,29 @@ $(document).ready(function() {
     $("#choose-new-owner").hide();
   });
 
+  let overlay_inactive = true;
   $(".outer-face").click(function(e) {
-    gif = $(this)
-      .children(".inner-face")
-      .children(".grow-inner-face")[0];
-    if (getComputedStyle(gif, null).getPropertyValue("display") != "none")
-      $(gif).toggleClass("grow");
+    if (overlay_inactive) {
+      gif = $(this)
+        .children(".inner-face")
+        .children(".grow-inner-face")[0];
+      if (getComputedStyle(gif, null).getPropertyValue("display") != "none") {
+        $(gif).addClass("grow");
+        overlay_inactive = false;
+      }
+    }
+    else {
+      e.stopPropagation();
+      $(".grow").removeClass("grow");
+      overlay_inactive = true;
+    }
   });
 
   $(".dialog-overlay").click(function(e) {
     if ($(e.target).hasClass("dialog-overlay")) {
       $("#merge-options").remove();
       $(this).hide();
+      e.preventDefault();
     }
   });
 

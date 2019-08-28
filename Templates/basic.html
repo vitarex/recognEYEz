@@ -21,7 +21,7 @@
 integrity="sha256-0YPKAwZP7Mp3ALMRVB2i8GXeEndvCq3eSl/WsAl1Ryk=" crossorigin="anonymous"></script>
 <script type=text/javascript src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
 <script type=text/javascript> $SCRIPT_ROOT={{ request.script_root|tojson|safe }}; </script>
-<script type=text/javascript src="js/basic.js"></script>
+<script type=text/javascript src="{{ url_for('static', filename='js/basic.js') }}"></script>
 <body class="bg-dark full-height">
 	{% block script %}
 	{% endblock script %}
@@ -74,7 +74,7 @@ integrity="sha256-0YPKAwZP7Mp3ALMRVB2i8GXeEndvCq3eSl/WsAl1Ryk=" crossorigin="ano
 				</nav>
 			</div>
 			{% endblock navbar %}
-			<div class="col-lg bg-secondary full-height scrollable center-block">
+			<div class="col-lg bg-secondary full-height scrollable center-block p-0">
 					{%block content%}
 					{%endblock content%}
 				<footer class="responsive-footer bg-dark d-block d-lg-none text-light p-3  pl-5">

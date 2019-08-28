@@ -1,7 +1,6 @@
 from __future__ import division
 import cv2
 from pathlib import Path
-import time
 from datetime import datetime
 import numpy as np
 import face_recognition
@@ -92,8 +91,7 @@ class FaceHandler(Handler):
         :param show_preview: show pop-up preview?
         :return: the visible persons, the frame itself and the rectangles corresponding to the found faces
         """
-        logging.info("Processing next frame...")
-        start_t = time.time()
+        """ start_t = time.time() """
         with self.app.ch.cam_lock:
             ret, frame = self.app.ch.cam.read()
         face_rec_dict = self.app.sh.get_face_recognition_settings()
