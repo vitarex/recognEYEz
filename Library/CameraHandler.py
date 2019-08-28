@@ -144,7 +144,6 @@ class CameraHandler(Handler):
                 self.start_cam()
             logging.info("The camera handler object: {}".format(self))
             if self.app.fh\
-                    and self.cam_is_running\
                     and not self.cam_is_processing:
                 self.app.fh.running_since = datetime.datetime.now()
                 if self.app.camera_thread is None or not self.app.camera_thread.isAlive():
@@ -172,9 +171,8 @@ class CameraHandler(Handler):
         """
         ticker = 0
         try:
-            if self.app.sh.get_camera_setting_by_name(
-                    self.app.sh.get_face_recognition_settings()["selected-setting"])["preferred-id"] == -2:
-                sleep(2)
+            while not self.cam_is_running:
+                sleep(0.1)
             while self.cam_is_running:
                 try:
                     if (ticker > int(self.app.sh.get_face_recognition_settings()["dnn-scan-freq"])
